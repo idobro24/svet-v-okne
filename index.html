@@ -35,7 +35,12 @@
     <section class="view" id="view-phrases">
       <header class="topbar">
         <span class="brand">Свет в окне</span>
-        <button class="link" type="button" data-go="saved">Сохранённые</button>
+        <div class="topbar-right">
+          <button class="link" type="button" data-go="saved">Сохранённые</button>
+          <button class="icon-btn" type="button" data-go="about" aria-label="Как устроено приложение">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.1"/></svg>
+          </button>
+        </div>
       </header>
 
       <!-- Погода внутри: отметка состояния за день -->
@@ -160,6 +165,33 @@
       </div>
 
       <button class="link" type="button" id="edit-profile">Изменить ответы о себе</button>
+    </section>
+
+    <!-- О приложении -->
+    <section class="view" id="view-about" hidden>
+      <header class="topbar">
+        <button class="link" type="button" data-go="phrases">← К фразам</button>
+      </header>
+      <h1>Как устроен «Свет в окне»</h1>
+      <p class="lead">Это тихое место для тех, кому сейчас тяжело. Здесь нет ленты, лайков и чужих мнений — только поддержка.</p>
+
+      <ul class="about-list">
+        <li><strong>Фразы.</strong> Нажимай «Ещё одну», чтобы получить новые слова поддержки. Те, что откликнулись, сохраняй сердечком — они соберутся в «Сохранённых».</li>
+        <li><strong>Погода внутри.</strong> Раз в день отметь, как ты: гроза, туман, облачно или солнце. Приложение ответит фразой под настроение и подскажет, что может помочь прямо сейчас. А полоска под отметкой покажет, какой была погода последние 7 дней.</li>
+        <li><strong>Банка хороших моментов.</strong> Записывай то, что согрело, даже совсем маленькое. В грустный день доставай записку наугад.</li>
+        <li><strong>Дыхание.</strong> Одна минута с огоньком: он разгорается на вдохе и затихает на выдохе. Помогает, когда накрывает тревога.</li>
+        <li><strong>Помощь.</strong> Телефоны, по которым можно позвонить в любое время. Там же можно изменить ответы о себе.</li>
+        <li><strong>Приватность.</strong> Без регистрации. Всё, что ты пишешь и отмечаешь, хранится только на этом телефоне и никуда не отправляется.</li>
+      </ul>
+
+      <div class="about-note">Приложение не заменяет психолога. Если тяжело уже долго или появляются тёмные мысли, пожалуйста, загляни в раздел «Помощь».</div>
+
+      <div class="about-author">
+        <p>Если есть идеи, как сделать приложение лучше, или хочется просто сказать спасибо — напиши мне.</p>
+        <a class="btn-ghost about-tg" href="https://t.me/irish_dobr" target="_blank" rel="noopener">Telegram @irish_dobr</a>
+      </div>
+
+      <p class="credit">Created by Irina Dobroslavskaya</p>
     </section>
 
     <!-- Нижнее меню -->
