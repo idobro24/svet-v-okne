@@ -132,6 +132,127 @@ nextBtn.addEventListener('click', function () {
   }, FADE_TIME);
 });
 
+// ---------- Банка хороших моментов ----------
+
+const JAR_KEY = 'jarNotes';
+
+const jarCountEl = document.getElementById('jar-count');
+const noteEl = document.getElementById('jar-note');
+const noteDateEl = document.getElementById('note-date');
+const noteTextEl = document.getElementById('note-text');
+const noteDeleteBtn = document.getElementById('note-delete');
+const jarForm = document.getElementById('jar-form');
+const jarInput = document.getElementById('jar-input');
+const jarCancelBtn = document.getElementById('jar-cancel');
+const jarActions = document.getElementById('jar-actions');
+const jarDrawBtn = document.getElementById('jar-draw');
+const jarAddBtn = document.getElementById('jar-add');
+
+function loadJar() {
+  try {
+    const raw = localStorage.getItem(JAR_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function storeJar(list) {
+  try {
+    localStorage.setItem(JAR_KEY, JSON.stringify(list));
+  } catch (error) {
+    // Если память недоступна, просто ничего не сохраняем.
+  }
+}
+
+// Каждая записка — это объект: текст и дата, когда её положили в банку.
+let jar = loadJar();
+
+// Номер записки, которая сейчас открыта (-1 — никакая).
+let shownNote = -1;
+
+// «1 записка», «3 записки», «12 записок» — по правилам русского языка.
+function notesWord(n) {
+  const last = n % 10;
+  const lastTwo = n % 100;
+  if (last === 1 && lastTwo !== 11) return 'записка';
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return 'записки';
+  return 'записок';
+}
+
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function updateJarCount() {
+  if (jar.length === 0) {
+    jarCountEl.textContent = 'Банка пока пустая. Запиши первый хороший момент, даже совсем маленький.';
+  } else {
+    jarCountEl.textContent = 'В банке ' + jar.length + ' ' + notesWord(jar.length);
+  }
+  jarDrawBtn.hidden = jar.length === 0;
+}
+
+function showNote(index) {
+  shownNote = index;
+  noteDateEl.textContent = formatDate(jar[index].date);
+  noteTextEl.textContent = jar[index].text;
+  noteEl.hidden = false;
+}
+
+// Достаём случайную записку, по возможности не ту, что уже открыта.
+jarDrawBtn.addEventListener('click', function () {
+  if (jar.length === 0) return;
+  let index = 0;
+  if (jar.length > 1) {
+    do {
+      index = Math.floor(Math.random() * jar.length);
+    } while (index === shownNote);
+  }
+  showNote(index);
+});
+
+function openForm() {
+  jarForm.hidden = false;
+  jarActions.hidden = true;
+  noteEl.hidden = true;
+  jarInput.focus();
+}
+
+function closeForm() {
+  jarForm.hidden = true;
+  jarActions.hidden = false;
+  jarInput.value = '';
+}
+
+jarAddBtn.addEventListener('click', openForm);
+jarCancelBtn.addEventListener('click', closeForm);
+
+// Кладём новую записку в банку.
+jarForm.addEventListener('submit', function (event) {
+  event.preventDefault(); // не перезагружаем страницу
+  const text = jarInput.value.trim();
+  if (!text) {
+    jarInput.focus();
+    return;
+  }
+  jar.push({ text: text, date: new Date().toISOString() });
+  storeJar(jar);
+  closeForm();
+  updateJarCount();
+  showNote(jar.length - 1); // сразу показываем, что записка в банке
+});
+
+noteDeleteBtn.addEventListener('click', function () {
+  if (shownNote < 0) return;
+  if (!confirm('Убрать эту записку из банки?')) return;
+  jar.splice(shownNote, 1);
+  storeJar(jar);
+  shownNote = -1;
+  noteEl.hidden = true;
+  updateJarCount();
+});
+
 // ---------- Переключение разделов ----------
 
 const views = document.querySelectorAll('.view');
@@ -154,6 +275,7 @@ function show(name) {
   });
 
   if (name === 'saved') renderSaved();
+  if (name === 'jar') updateJarCount();
   window.scrollTo(0, 0);
 }
 
