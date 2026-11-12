@@ -327,7 +327,7 @@ const SELF_CARE = {
     { text: 'Укутайся в плед и сделай тёплый чай. Тепло помогает телу почувствовать себя в безопасности.' },
     { text: 'Разреши себе поплакать. Не нужно держаться, слёзы тоже помогают.' },
     { text: 'Отложи телефон и не открывай комментарии хотя бы час.' },
-    { text: 'Напиши тому, кто рядом: «Мне сейчас тяжело, можешь позвонить?» Просить о помощи — нормально.', only: 'people' },
+    { text: 'Напиши тому, кто рядом: «Мне сейчас тяжело, можешь позвонить?» Просить о помощи — нормально.', only: 'people', action: { label: 'Написать', share: 'Мне сейчас тяжело, можешь позвонить?' } },
     { text: 'Позвони на телефон доверия. Там выслушают без осуждения, даже если просто хочется поговорить.', only: 'alone', action: { label: 'Открыть помощь', go: 'help' } }
   ],
   fog: [
@@ -349,6 +349,19 @@ const SELF_CARE = {
     { text: 'Запиши в банку один хороший момент сегодняшнего дня, даже совсем маленький.', action: { label: 'Записать момент', go: 'jar' } }
   ]
 };
+
+// Открываем окно «Поделиться» с готовым текстом: человек сам выбирает,
+// кому и через что отправить — мессенджер, СМС или почта.
+// Если браузер так не умеет, открываем СМС с этим текстом.
+function shareText(text) {
+  if (navigator.share) {
+    navigator.share({ text: text }).catch(function () {
+      // Человек закрыл окно, ничего не отправив, — это нормально.
+    });
+  } else {
+    window.location.href = 'sms:?body=' + encodeURIComponent(text);
+  }
+}
 
 // Сколько идей показываем за раз.
 const IDEAS_AT_ONCE = 3;
@@ -399,7 +412,11 @@ function renderIdeas() {
       button.className = 'selfcare-action';
       button.textContent = idea.action.label;
       button.addEventListener('click', function () {
-        show(idea.action.go);
+        if (idea.action.share) {
+          shareText(idea.action.share);
+        } else {
+          show(idea.action.go);
+        }
       });
       item.append(button);
     }
