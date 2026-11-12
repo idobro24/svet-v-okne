@@ -760,14 +760,22 @@ function isReady(letter) {
 }
 
 // Добавляем начало предложения в письмо, с новой строки.
-function insertStarter(text) {
+function insertStarter(text, button) {
   const current = letterInput.value;
   const separator = current && !current.endsWith('\n') ? '\n\n' : '';
   // Многоточие на кнопке только подсказывает, что фразу нужно продолжить, в письмо его не ставим.
   letterInput.value = current + separator + text.replace(/…$/, '') + ' ';
-  letterInput.focus();
+
+  // Курсор в конец, и само поле прокручиваем к последней строке.
+  letterInput.focus({ preventScroll: true });
   const end = letterInput.value.length;
-  letterInput.setSelectionRange(end, end); // курсор в конец
+  letterInput.setSelectionRange(end, end);
+  letterInput.scrollTop = letterInput.scrollHeight;
+
+  // Страницу двигаем совсем чуть-чуть: так, чтобы были видны и подсказки, и поле.
+  startersEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  if (button) button.classList.add('used');
 }
 
 function renderStarters() {
@@ -778,7 +786,7 @@ function renderStarters() {
     button.className = 'starter';
     button.textContent = starter.text;
     button.addEventListener('click', function () {
-      insertStarter(starter.text);
+      insertStarter(starter.text, button);
     });
     startersEl.append(button);
   });
@@ -902,6 +910,7 @@ letterSaveBtn.addEventListener('click', function () {
   storeLetters(letters);
 
   letterInput.value = '';
+  renderStarters(); // снимаем отметки «использовано»
   renderLetters();
 
   // Короткое подтверждение на самой кнопке.
