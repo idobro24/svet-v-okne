@@ -988,6 +988,115 @@ editProfileBtn.addEventListener('click', function () {
   show('start');
 });
 
+// ---------- Треск камина ----------
+
+// Громкость (от 0 до 1) и сколько секунд звук плавно нарастает.
+const FIRE_VOLUME = 0.6;
+const FIRE_FADE_IN = 2.5;
+
+const fireButtons = document.querySelectorAll('.fire-toggle');
+
+let audioCtx = null;
+let fireBuffer = null;   // раскодированный звук, загружается один раз
+let fireSource = null;   // то, что сейчас играет
+let fireGain = null;     // «ручка громкости» для плавного включения и выключения
+let fireOn = false;
+
+function updateFireButtons() {
+  fireButtons.forEach(function (button) {
+    button.setAttribute('aria-pressed', fireOn ? 'true' : 'false');
+    const label = button.querySelector('.fire-label');
+    if (label) label.textContent = fireOn ? 'Выключить камин' : 'Треск камина';
+    if (!label) button.setAttribute('aria-label', fireOn ? 'Выключить треск камина' : 'Треск камина');
+  });
+}
+
+function loadFire() {
+  if (fireBuffer) return Promise.resolve(fireBuffer);
+  return fetch('fire.mp3')
+    .then(function (response) { return response.arrayBuffer(); })
+    .then(function (data) {
+      // Старые iPhone понимают только вариант decodeAudioData с функциями-ответами.
+      return new Promise(function (resolve, reject) {
+        audioCtx.decodeAudioData(data, resolve, reject);
+      });
+    })
+    .then(function (buffer) {
+      fireBuffer = buffer;
+      return buffer;
+    });
+}
+
+function startFire() {
+  // Звук на iPhone можно включить только в ответ на нажатие, поэтому создаём его здесь.
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx.resume();
+  fireOn = true;
+  updateFireButtons();
+
+  loadFire()
+    .then(function (buffer) {
+      if (!fireOn || fireSource) return; // пока грузилось, камин успели выключить
+      fireSource = audioCtx.createBufferSource();
+      fireSource.buffer = buffer;
+      // Запись склеена в бесшовное кольцо; края чуть обрезаем, чтобы не было щелчка.
+      fireSource.loop = true;
+      fireSource.loopStart = 0.05;
+      fireSource.loopEnd = buffer.duration - 0.05;
+
+      fireGain = audioCtx.createGain();
+      const now = audioCtx.currentTime;
+      fireGain.gain.setValueAtTime(0, now);
+      fireGain.gain.linearRampToValueAtTime(FIRE_VOLUME, now + FIRE_FADE_IN);
+
+      fireSource.connect(fireGain);
+      fireGain.connect(audioCtx.destination);
+      fireSource.start(0, 0.05);
+    })
+    .catch(function () {
+      // Не получилось загрузить звук — просто выключаем кнопку.
+      fireOn = false;
+      updateFireButtons();
+    });
+}
+
+function stopFire() {
+  fireOn = false;
+  updateFireButtons();
+  if (!fireSource) return;
+
+  // Плавно затихаем за секунду, потом останавливаем.
+  const source = fireSource;
+  const gain = fireGain;
+  const now = audioCtx.currentTime;
+  gain.gain.cancelScheduledValues(now);
+  gain.gain.setValueAtTime(gain.gain.value, now);
+  gain.gain.linearRampToValueAtTime(0, now + 1);
+  source.stop(now + 1.05);
+  fireSource = null;
+  fireGain = null;
+}
+
+fireButtons.forEach(function (button) {
+  button.addEventListener('click', function () {
+    if (fireOn) {
+      stopFire();
+    } else {
+      startFire();
+    }
+  });
+});
+
+// Когда приложение свёрнуто, звук ставим на паузу, а при возвращении продолжаем.
+document.addEventListener('visibilitychange', function () {
+  if (!audioCtx) return;
+  if (document.hidden) {
+    audioCtx.suspend();
+  } else if (fireOn) {
+    audioCtx.resume();
+  }
+});
+
 // ---------- Режим набора текста ----------
 
 // Пока человек пишет записку или письмо, прячем нижнее меню.
