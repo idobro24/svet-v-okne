@@ -1081,6 +1081,13 @@ h1 {
   text-decoration: none;
 }
 
+.about-version {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
 .credit {
   margin: 0;
   padding: 0 28px 14px;
@@ -1097,7 +1104,8 @@ h1 {
   bottom: 0;
   display: flex;
   justify-content: space-around;
-  padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  /* Снизу оставляем место только под полоску «домой» iPhone, без лишнего запаса */
+  padding: 4px 12px max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px));
   border-top: 1px solid rgba(246, 231, 207, 0.12);
   background: rgba(30, 21, 15, 0.88);
   backdrop-filter: blur(8px);
@@ -1110,23 +1118,23 @@ body.typing .tabbar {
 
 .tab {
   min-width: 64px;
-  min-height: 52px;
+  min-height: 46px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   border: none;
   background: none;
   color: #BFA88A;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
 }
 
 .tab svg {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
