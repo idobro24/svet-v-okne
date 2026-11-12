@@ -331,6 +331,72 @@ h1 {
   color: #F6E7CF;
 }
 
+/* ---------- Самопомощь ---------- */
+
+.selfcare {
+  padding: 18px 20px 6px;
+  border-radius: 20px;
+  border: 1px solid rgba(246, 231, 207, 0.12);
+  background: rgba(30, 21, 15, 0.72);
+}
+
+.selfcare h2 {
+  margin: 0 0 14px;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 20px;
+  color: #F6E7CF;
+}
+
+.selfcare-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.selfcare-list li {
+  position: relative;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+/* Маркер списка — маленький светящийся огонёк */
+.selfcare-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #F6CF86;
+  box-shadow: 0 0 8px rgba(255, 200, 120, 0.8);
+}
+
+.selfcare-action {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(232, 182, 107, 0.6);
+  background: none;
+  color: #E8B66B;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selfcare-action:active { transform: scale(0.97); }
+
 /* ---------- Сохранённые фразы ---------- */
 
 .saved-list {
