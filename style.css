@@ -1,1 +1,47 @@
-/* стили */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: #EBDCC4;
+  background-color: #2B1E16;
+  background-image:
+    linear-gradient(180deg, rgba(31,22,16,0.45), rgba(31,22,16,0.94)),
+    url('preview.webp');
+  background-size: cover;
+  background-position: 20% 15%;
+}
+
+main {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 48px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+}
+
+#phrase {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 30px;
+  line-height: 1.4;
+  color: #F6E7CF;
+}
+
+#next {
+  height: 52px;
+  border: none;
+  border-radius: 26px;
+  background: #E8B66B;
+  color: #2B1E16;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#next:active { transform: scale(0.98); }
