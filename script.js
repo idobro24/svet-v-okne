@@ -1105,6 +1105,11 @@ function startFire() {
   fireOn = true;
   updateFireButtons();
 
+  playFire();
+}
+
+// Запускаем само звучание с плавным нарастанием.
+function playFire() {
   loadFire()
     .then(function (buffer) {
       if (!fireOn || fireSource) return; // пока грузилось, камин успели выключить
@@ -1158,15 +1163,44 @@ fireButtons.forEach(function (button) {
   });
 });
 
-// Когда приложение свёрнуто, звук ставим на паузу, а при возвращении продолжаем.
-document.addEventListener('visibilitychange', function () {
+// Когда приложение сворачивают, звук не обрываем на полуслове (от этого и был
+// неприятный «механический» звук), а очень быстро уводим в тишину и останавливаем.
+// При возвращении камин снова плавно разгорается.
+function muteFireForBackground() {
   if (!audioCtx) return;
+  if (fireSource) {
+    const source = fireSource;
+    const gain = fireGain;
+    fireSource = null;
+    fireGain = null;
+    const now = audioCtx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + 0.08);
+    try { source.stop(now + 0.1); } catch (error) {}
+  }
+  setTimeout(function () {
+    if (document.hidden && audioCtx.state === 'running') audioCtx.suspend();
+  }, 150);
+}
+
+function resumeFireAfterBackground() {
+  if (!audioCtx || !fireOn) return;
+  audioCtx.resume().then(function () {
+    if (fireOn && !fireSource) playFire();
+  });
+}
+
+document.addEventListener('visibilitychange', function () {
   if (document.hidden) {
-    audioCtx.suspend();
-  } else if (fireOn) {
-    audioCtx.resume();
+    muteFireForBackground();
+  } else {
+    resumeFireAfterBackground();
   }
 });
+
+// На iPhone при сворачивании иногда раньше приходит pagehide — реагируем и на него.
+window.addEventListener('pagehide', muteFireForBackground);
 
 // ---------- Пересчёт размеров экрана на iPhone ----------
 
