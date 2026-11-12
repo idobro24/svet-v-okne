@@ -521,15 +521,19 @@ function formatDate(iso) {
 }
 
 function updateJarCount() {
-  if (jar.length === 0) {
-    jarCountEl.textContent = 'Банка пока пустая. Запиши первый хороший момент, даже совсем маленький.';
-  } else {
-    jarCountEl.textContent = 'В банке ' + jar.length + ' ' + notesWord(jar.length);
-  }
-  jarDrawBtn.hidden = jar.length === 0;
+  const empty = jar.length === 0;
+
+  // Пустая банка — приглашение текстом под фото. Иначе — табличка со счётчиком на фото.
+  jarCountEl.hidden = !empty;
+  jarCountEl.textContent = 'Банка пока пустая. Запиши первый хороший момент, даже совсем маленький.';
+  jarBadgeEl.hidden = empty;
+  jarBadgeEl.textContent = 'В банке ' + jar.length + ' ' + notesWord(jar.length);
+
+  jarDrawBtn.hidden = empty;
 }
 
-const jarPhotoEl = document.querySelector('.jar-photo');
+const jarPhotoEl = document.getElementById('jar-photo-wrap');
+const jarBadgeEl = document.getElementById('jar-badge');
 
 // Сколько уходит прежняя записка, в миллисекундах. Совпадает с note-out в CSS.
 const NOTE_OUT_TIME = 300;
