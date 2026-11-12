@@ -26,6 +26,12 @@ const nextBtn = document.getElementById('next');
 // Номер фразы, которая сейчас на экране.
 let current = 0;
 
+// Идёт ли сейчас смена фразы (чтобы частые нажатия не сбивали анимацию).
+let changing = false;
+
+// Сколько длится затухание, в миллисекундах. Должно совпадать с transition в CSS.
+const FADE_TIME = 500;
+
 // Выбираем случайную фразу, но не ту же самую, что уже показана.
 function pickNext() {
   let index;
@@ -35,8 +41,18 @@ function pickNext() {
   return index;
 }
 
-// Что происходит при нажатии на кнопку.
 nextBtn.addEventListener('click', function () {
-  current = pickNext();
-  phraseEl.textContent = phrases[current];
+  if (changing) return;
+  changing = true;
+
+  // 1. Плавно прячем текущую фразу.
+  phraseEl.classList.add('hidden');
+
+  // 2. Когда она исчезла, меняем текст и плавно показываем новую.
+  setTimeout(function () {
+    current = pickNext();
+    phraseEl.textContent = phrases[current];
+    phraseEl.classList.remove('hidden');
+    changing = false;
+  }, FADE_TIME);
 });
