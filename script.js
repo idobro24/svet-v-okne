@@ -19,9 +19,10 @@ const phrases = [
   'Выпей воды и выйди на пять минут на свежий воздух.'
 ];
 
-// Находим на странице фразу и кнопку по их id.
+// Находим элементы на странице по их id.
 const phraseEl = document.getElementById('phrase');
 const nextBtn = document.getElementById('next');
+const saveBtn = document.getElementById('save');
 
 // Номер фразы, которая сейчас на экране.
 let current = 0;
@@ -31,6 +32,54 @@ let changing = false;
 
 // Сколько длится затухание, в миллисекундах. Должно совпадать с transition в CSS.
 const FADE_TIME = 500;
+
+// ---------- Сохранённые фразы ----------
+
+// Под этим именем список хранится в памяти браузера на телефоне.
+const STORAGE_KEY = 'savedPhrases';
+
+// Достаём сохранённые фразы. Если ничего нет или память недоступна, начинаем с пустого списка.
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+// Записываем список обратно в память.
+function storeSaved(list) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch (error) {
+    // Если память недоступна, просто ничего не сохраняем.
+  }
+}
+
+let saved = loadSaved();
+
+// Перекрашиваем сердечко: заполненное, если текущая фраза уже сохранена.
+function updateHeart() {
+  const isSaved = saved.includes(phrases[current]);
+  saveBtn.classList.toggle('saved', isSaved);
+  saveBtn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
+  saveBtn.setAttribute('aria-label', isSaved ? 'Убрать из сохранённых' : 'Сохранить фразу');
+}
+
+// Нажатие на сердечко: сохраняем фразу или убираем её из сохранённых.
+saveBtn.addEventListener('click', function () {
+  const text = phrases[current];
+  if (saved.includes(text)) {
+    saved = saved.filter(function (item) { return item !== text; });
+  } else {
+    saved.push(text);
+  }
+  storeSaved(saved);
+  updateHeart();
+});
+
+// ---------- Смена фраз ----------
 
 // Выбираем случайную фразу, но не ту же самую, что уже показана.
 function pickNext() {
@@ -48,11 +97,15 @@ nextBtn.addEventListener('click', function () {
   // 1. Плавно прячем текущую фразу.
   phraseEl.classList.add('hidden');
 
-  // 2. Когда она исчезла, меняем текст и плавно показываем новую.
+  // 2. Когда она исчезла, меняем текст, обновляем сердечко и плавно показываем новую.
   setTimeout(function () {
     current = pickNext();
     phraseEl.textContent = phrases[current];
+    updateHeart();
     phraseEl.classList.remove('hidden');
     changing = false;
   }, FADE_TIME);
 });
+
+// При открытии страницы сразу показываем правильное состояние сердечка.
+updateHeart();
