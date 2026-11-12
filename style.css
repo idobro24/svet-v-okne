@@ -3,6 +3,13 @@
 /* Страница всегда занимает весь экран — это помогает iPhone правильно найти его нижний край */
 html {
   height: 100%;
+  /* Убираем увеличение двойным нажатием (и задержку нажатий, которая с ним связана).
+     Увеличение двумя пальцами остаётся — оно нужно тем, кому плохо видно. */
+  touch-action: manipulation;
+}
+
+button, a, label, input, textarea {
+  touch-action: manipulation;
 }
 
 /* Ошибка iOS 26 (WebKit 301108): у приложения с домашнего экрана область страницы
@@ -990,24 +997,4 @@ h1 {
 .when {
   margin: 0;
   padding: 0;
-  border: none;
-}
-
-.when legend {
-  padding: 0;
-  margin-bottom: 10px;
-}
-
-.when-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.when-options label {
-  position: relative;
-  min-height: 44px;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  b
+  borde
