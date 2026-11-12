@@ -23,6 +23,8 @@ const phrases = [
 const phraseEl = document.getElementById('phrase');
 const nextBtn = document.getElementById('next');
 const saveBtn = document.getElementById('save');
+const savedListEl = document.getElementById('saved-list');
+const savedEmptyEl = document.getElementById('saved-empty');
 
 // Номер фразы, которая сейчас на экране.
 let current = 0;
@@ -33,12 +35,10 @@ let changing = false;
 // Сколько длится затухание, в миллисекундах. Должно совпадать с transition в CSS.
 const FADE_TIME = 500;
 
-// ---------- Сохранённые фразы ----------
+// ---------- Память телефона ----------
 
-// Под этим именем список хранится в памяти браузера на телефоне.
 const STORAGE_KEY = 'savedPhrases';
 
-// Достаём сохранённые фразы. Если ничего нет или память недоступна, начинаем с пустого списка.
 function loadSaved() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -48,7 +48,6 @@ function loadSaved() {
   }
 }
 
-// Записываем список обратно в память.
 function storeSaved(list) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
@@ -59,7 +58,8 @@ function storeSaved(list) {
 
 let saved = loadSaved();
 
-// Перекрашиваем сердечко: заполненное, если текущая фраза уже сохранена.
+// ---------- Сердечко ----------
+
 function updateHeart() {
   const isSaved = saved.includes(phrases[current]);
   saveBtn.classList.toggle('saved', isSaved);
@@ -67,7 +67,6 @@ function updateHeart() {
   saveBtn.setAttribute('aria-label', isSaved ? 'Убрать из сохранённых' : 'Сохранить фразу');
 }
 
-// Нажатие на сердечко: сохраняем фразу или убираем её из сохранённых.
 saveBtn.addEventListener('click', function () {
   const text = phrases[current];
   if (saved.includes(text)) {
@@ -79,9 +78,37 @@ saveBtn.addEventListener('click', function () {
   updateHeart();
 });
 
+// ---------- Список сохранённых фраз ----------
+
+// Заново рисуем список: для каждой сохранённой фразы создаём карточку с кнопкой «Убрать».
+function renderSaved() {
+  savedListEl.innerHTML = '';
+  savedEmptyEl.hidden = saved.length > 0;
+
+  saved.forEach(function (text) {
+    const item = document.createElement('li');
+    item.className = 'saved-item';
+
+    const p = document.createElement('p');
+    p.textContent = text;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = 'Убрать';
+    removeBtn.addEventListener('click', function () {
+      saved = saved.filter(function (s) { return s !== text; });
+      storeSaved(saved);
+      renderSaved();
+      updateHeart();
+    });
+
+    item.append(p, removeBtn);
+    savedListEl.append(item);
+  });
+}
+
 // ---------- Смена фраз ----------
 
-// Выбираем случайную фразу, но не ту же самую, что уже показана.
 function pickNext() {
   let index;
   do {
@@ -94,10 +121,8 @@ nextBtn.addEventListener('click', function () {
   if (changing) return;
   changing = true;
 
-  // 1. Плавно прячем текущую фразу.
   phraseEl.classList.add('hidden');
 
-  // 2. Когда она исчезла, меняем текст, обновляем сердечко и плавно показываем новую.
   setTimeout(function () {
     current = pickNext();
     phraseEl.textContent = phrases[current];
@@ -107,5 +132,38 @@ nextBtn.addEventListener('click', function () {
   }, FADE_TIME);
 });
 
-// При открытии страницы сразу показываем правильное состояние сердечка.
+// ---------- Переключение разделов ----------
+
+const views = document.querySelectorAll('.view');
+const tabs = document.querySelectorAll('.tab');
+
+// Показываем раздел с нужным именем, остальные прячем.
+function show(name) {
+  views.forEach(function (view) {
+    view.hidden = view.id !== 'view-' + name;
+  });
+
+  // «Сохранённые» живут внутри раздела «Фразы», поэтому подсвечиваем его вкладку.
+  const activeTab = name === 'saved' ? 'phrases' : name;
+  tabs.forEach(function (tab) {
+    if (tab.dataset.go === activeTab) {
+      tab.setAttribute('aria-current', 'page');
+    } else {
+      tab.removeAttribute('aria-current');
+    }
+  });
+
+  if (name === 'saved') renderSaved();
+  window.scrollTo(0, 0);
+}
+
+// Любая кнопка с атрибутом data-go переключает на свой раздел.
+document.querySelectorAll('[data-go]').forEach(function (button) {
+  button.addEventListener('click', function () {
+    show(button.dataset.go);
+  });
+});
+
+// При открытии страницы.
 updateHeart();
+show('phrases');
