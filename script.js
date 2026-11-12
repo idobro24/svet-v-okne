@@ -1191,20 +1191,49 @@ function nudgeViewport() {
   }
 }
 
+// Запущено ли приложение с домашнего экрана (а не в обычном браузере).
+function isStandalone() {
+  return window.navigator.standalone === true
+    || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+}
+
+// В приложении с домашнего экрана ставим меню по точной высоте экрана телефона,
+// а не по тому, где iPhone «думает», что заканчивается страница. Это и было причиной:
+// когда страница короче экрана, iPhone при запуске ошибается с нижним краем.
+function placeTabbar() {
+  const bar = document.querySelector('.tabbar');
+  if (!bar) return;
+  if (!isStandalone() || bar.hidden) {
+    bar.style.top = '';
+    bar.style.bottom = '';
+    return;
+  }
+  // iPhone всегда сообщает размеры экрана для вертикального положения,
+  // поэтому при повороте берём ширину вместо высоты.
+  const landscape = Math.abs(window.orientation || 0) === 90;
+  const screenHeight = landscape ? screen.width : screen.height;
+  bar.style.bottom = 'auto';
+  bar.style.top = (screenHeight - bar.offsetHeight) + 'px';
+}
+
 window.addEventListener('load', function () {
+  placeTabbar();
   nudgeViewport();
   setTimeout(nudgeViewport, 300);
   setTimeout(nudgeViewport, 1000);
 });
 
 // Когда приложение возвращается из свёрнутого состояния или меняются размеры экрана.
-window.addEventListener('pageshow', nudgeViewport);
-window.addEventListener('orientationchange', function () { setTimeout(nudgeViewport, 300); });
+window.addEventListener('pageshow', function () { placeTabbar(); nudgeViewport(); });
+window.addEventListener('orientationchange', function () {
+  setTimeout(function () { placeTabbar(); nudgeViewport(); }, 300);
+});
+window.addEventListener('resize', placeTabbar);
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', nudgeViewport);
 }
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden) setTimeout(nudgeViewport, 100);
+  if (!document.hidden) setTimeout(function () { placeTabbar(); nudgeViewport(); }, 100);
 });
 
 // ---------- Режим набора текста ----------
@@ -1223,6 +1252,7 @@ document.addEventListener('focusout', function (event) {
     setTimeout(function () {
       if (!document.activeElement || !document.activeElement.matches('textarea')) {
         document.body.classList.remove('typing');
+        placeTabbar();
       }
     }, 100);
   }
@@ -1237,6 +1267,7 @@ const tabs = document.querySelectorAll('.tab');
 function show(name) {
   // На экране первого входа нижнее меню не нужно.
   tabbarEl.hidden = name === 'start';
+  placeTabbar();
 
   // Если ушли с экрана дыхания, останавливаем упражнение.
   if (name !== 'breath' && breathing) stopBreath();
