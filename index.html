@@ -13,12 +13,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Свет в окне">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Обычная чёрная строка состояния: с прозрачной (black-translucent) iOS 26 обрезает низ приложения (ошибка WebKit 301108) -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <!-- ?v=… — номер обновления: меняйте его вместе с файлами, чтобы iPhone не брал старую копию -->
-  <link rel="stylesheet" href="style.css?v=1.1.6">
+  <link rel="stylesheet" href="style.css?v=1.1.7">
   <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
   <link rel="preload" as="image" href="note2.webp">
   <link rel="preload" as="image" href="paper.webp">
@@ -315,6 +316,6 @@
     </nav>
 
   </div>
-  <script src="script.js?v=1.1.6"></script>
+  <script src="script.js?v=1.1.7"></script>
 </body>
 </html>
