@@ -122,9 +122,9 @@
       </article>
 
       <!-- Форма новой записки -->
-      <form class="jar-form" id="jar-form" hidden>
+      <form class="jar-form" id="jar-form" autocomplete="off" hidden>
         <label for="jar-input">Что хорошего было?</label>
-        <textarea id="jar-input" rows="4" maxlength="400" placeholder="Например: подруга привезла мандарины в два часа ночи"></textarea>
+        <textarea id="jar-input" autocomplete="off" autocorrect="on" name="note-text" rows="4" maxlength="400" placeholder="Например: подруга привезла мандарины в два часа ночи"></textarea>
         <div class="stack">
           <button class="btn-primary" type="submit">Положить в банку</button>
           <button class="btn-ghost" type="button" id="jar-cancel">Отмена</button>
@@ -155,7 +155,7 @@
         <label class="field-label" for="letter-input">Твоё письмо</label>
         <p class="starters-hint" id="starters-hint">Не знаешь, с чего начать? Нажми на начало фразы — оно появится в письме. Листай подсказки вбок →</p>
         <div class="starters" id="starters" aria-describedby="starters-hint"></div>
-        <textarea id="letter-input" rows="7" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
+        <textarea id="letter-input" autocomplete="off" autocorrect="on" name="letter-text" rows="7" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
 
         <fieldset class="when">
           <legend class="field-label">Когда открыть?</legend>
