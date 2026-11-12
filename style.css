@@ -1103,6 +1103,11 @@ h1 {
   backdrop-filter: blur(8px);
 }
 
+/* Пока набирается текст, меню не показываем */
+body.typing .tabbar {
+  display: none;
+}
+
 .tab {
   min-width: 64px;
   min-height: 52px;
