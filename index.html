@@ -18,6 +18,32 @@
         <button class="link" type="button" data-go="saved">Сохранённые</button>
       </header>
 
+      <!-- Погода внутри: отметка состояния за день -->
+      <div class="mood">
+        <div id="mood-ask">
+          <p class="mood-question">Какая у тебя сегодня погода внутри?</p>
+          <div class="mood-options">
+            <button class="mood-btn" type="button" data-mood="storm"><span aria-hidden="true">⛈️</span>Гроза</button>
+            <button class="mood-btn" type="button" data-mood="fog"><span aria-hidden="true">🌫️</span>Туман</button>
+            <button class="mood-btn" type="button" data-mood="cloud"><span aria-hidden="true">☁️</span>Облачно</button>
+            <button class="mood-btn" type="button" data-mood="sun"><span aria-hidden="true">🌤️</span>Солнце</button>
+          </div>
+        </div>
+        <div id="mood-today" hidden>
+          <p class="mood-line">
+            <span id="mood-today-text"></span>
+            <button class="link small" type="button" id="mood-change">Изменить</button>
+          </p>
+          <ol class="mood-week" id="mood-week" aria-label="Погода за последние 7 дней"></ol>
+        </div>
+      </div>
+
+      <!-- Бережная подсказка, если гроз было много -->
+      <div class="care-card" id="care-card" hidden>
+        <p>Последние дни было много гроз. Это тяжело выдерживать в одиночку, и ты не обязана.</p>
+        <button class="link" type="button" data-go="help">Где найти поддержку →</button>
+      </div>
+
       <p id="phrase">Сегодня достаточно просто прожить этот день.</p>
 
       <div class="actions">
