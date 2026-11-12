@@ -551,6 +551,10 @@ h1 {
 
 /* ---------- Банка хороших моментов ---------- */
 
+.jar-photo-wrap {
+  position: relative;
+}
+
 .jar-photo {
   display: block;
   width: 100%;
@@ -561,10 +565,28 @@ h1 {
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
 }
 
+/* Счётчик записок — табличкой прямо на фото банки */
+.jar-badge {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgba(30, 21, 15, 0.78);
+  backdrop-filter: blur(6px);
+  color: #F6E7CF;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 /* Записка на листе бумаги с зажимом.
    Картинка растягивается под текст, а отступы в процентах
    держат текст под зажимом и внутри рваных краёв листа. */
 .note {
+  position: relative;
+  z-index: 1;
+  /* Подтягиваем лист вверх, чтобы зажим «цеплялся» за край фото банки */
+  margin-top: calc(-24px - 17%);
   aspect-ratio: 700 / 652;
   padding: 36% 11% 9%;
   background: url('note.webp') center / 100% 100% no-repeat;
@@ -595,7 +617,7 @@ h1 {
 }
 
 /* Банка чуть покачивается, когда из неё достают записку */
-.jar-photo.shake {
+.jar-photo-wrap.shake {
   animation: jar-shake 0.5s ease;
 }
 
@@ -1110,7 +1132,7 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   #phrase, #save, #save svg { transition: none; }
-  .note.appear, .note.leaving, .jar-photo.shake { animation: none; }
+  .note.appear, .note.leaving, .jar-photo-wrap.shake { animation: none; }
   .orb { transition: none; }
   #phrase.hidden { transform: none; }
 }
