@@ -1,3 +1,11 @@
+// Версия приложения. Меняйте её здесь при каждом заметном обновлении,
+// и она сама обновится внизу экранов и в разделе «О приложении».
+const APP_VERSION = '1.0';
+
+document.querySelectorAll('[data-version]').forEach(function (el) {
+  el.textContent = APP_VERSION;
+});
+
 // ---------- Ответы о себе (первый вход) ----------
 
 const PROFILE_KEY = 'profile';
