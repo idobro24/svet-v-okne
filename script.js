@@ -391,8 +391,6 @@ document.querySelectorAll('.mood-btn').forEach(function (button) {
     storeMoods(moods);
     renderMood();
     fadeTo(MOODS[mood].phrase); // отвечаем фразой под настроение
-    // Погоду только что выбрали — сразу раскрываем идеи, чем себе помочь.
-    setSelfcareOpen(true);
   });
 });
 
@@ -1206,7 +1204,12 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', nudgeViewport);
 }
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden) setTimeout(nudgeViewport, 100);
+  if (document.hidden) {
+    // Приложение свернули — блок «Чем себе помочь» тоже сворачиваем.
+    setSelfcareOpen(false);
+  } else {
+    setTimeout(nudgeViewport, 100);
+  }
 });
 
 // ---------- Режим набора текста ----------
@@ -1237,6 +1240,9 @@ const tabs = document.querySelectorAll('.tab');
 
 // Показываем раздел с нужным именем, остальные прячем.
 function show(name) {
+  // Уходим с главного экрана — сворачиваем «Чем себе помочь».
+  if (name !== 'phrases') setSelfcareOpen(false);
+
   // На экране первого входа нижнее меню не нужно.
   tabbarEl.hidden = name === 'start';
 
