@@ -36,6 +36,11 @@ body {
 
 /* ---------- Общая раскладка ---------- */
 
+/* Высота нижнего меню: используем её и для самого меню, и для отступа под ним */
+:root {
+  --tabbar-h: calc(51px + max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px)));
+}
+
 .app {
   min-height: 100vh;
   min-height: 100dvh;
@@ -43,6 +48,8 @@ body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  /* Место под меню, которое теперь закреплено у нижнего края экрана */
+  padding-bottom: var(--tabbar-h);
 }
 
 .view {
@@ -1099,9 +1106,17 @@ h1 {
 
 /* ---------- Нижнее меню ---------- */
 
+/* Меню закреплено у нижнего края экрана (fixed), а не «прилипает» к концу страницы (sticky).
+   Так iPhone при первом запуске с домашнего экрана не поднимает его выше, чем нужно. */
 .tabbar {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-around;
   /* Снизу оставляем место только под полоску «домой» iPhone, без лишнего запаса */
