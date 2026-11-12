@@ -808,28 +808,58 @@ h1 {
   color: #F6E7CF;
 }
 
-/* Начала предложений — кнопки-подсказки */
-.starters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* Начала предложений — одна полоска подсказок прямо над полем письма.
+   Листается вбок, поэтому не нужно прокручивать страницу вверх-вниз. */
+.starters-hint {
+  margin: -4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #BFA88A;
 }
 
+.starters {
+  margin: 0 -28px;              /* полоска во всю ширину экрана */
+  padding: 2px 28px 6px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 28px;
+  scrollbar-width: none;        /* прячем полосу прокрутки */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+}
+
+.starters::-webkit-scrollbar { display: none; }
+
 .starter {
-  min-height: 44px;
+  flex: 0 0 auto;
+  width: 210px;
+  min-height: 64px;
   padding: 10px 14px;
   border-radius: 16px;
   border: 1px solid rgba(232, 182, 107, 0.45);
-  background: rgba(43, 30, 22, 0.6);
+  background: rgba(43, 30, 22, 0.7);
   color: #EBDCC4;
   font-family: inherit;
   font-size: 14px;
   line-height: 1.35;
   text-align: left;
+  scroll-snap-align: start;
   cursor: pointer;
 }
 
 .starter:active { transform: scale(0.98); }
+
+/* Уже использованное начало — приглушено и с галочкой, но нажать можно снова */
+.starter.used {
+  opacity: 0.5;
+}
+
+.starter.used::before {
+  content: '✓ ';
+  color: #E8B66B;
+}
 
 #letter-input {
   width: 100%;
