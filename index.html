@@ -2,25 +2,90 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Свет в окне</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Literata&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <p id="phrase">Сегодня достаточно просто прожить этот день.</p>
+  <div class="app">
 
-    <div class="actions">
-      <button id="next">Ещё одну</button>
-      <button id="save" aria-label="Сохранить фразу" aria-pressed="false">
-        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>
-        </svg>
+    <!-- Раздел 1: фраза дня -->
+    <section class="view" id="view-phrases">
+      <header class="topbar">
+        <span class="brand">Свет в окне</span>
+        <button class="link" type="button" data-go="saved">Сохранённые</button>
+      </header>
+
+      <p id="phrase">Сегодня достаточно просто прожить этот день.</p>
+
+      <div class="actions">
+        <button id="next" type="button">Ещё одну</button>
+        <button id="save" type="button" aria-label="Сохранить фразу" aria-pressed="false">
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Раздел 2: сохранённые фразы -->
+    <section class="view" id="view-saved" hidden>
+      <header class="topbar">
+        <button class="link" type="button" data-go="phrases">← К фразам</button>
+      </header>
+      <h1>Сохранённые фразы</h1>
+      <p class="lead" id="saved-empty">Пока здесь пусто. Нажми на сердечко у фразы, которая откликнулась, и она появится здесь.</p>
+      <ul class="saved-list" id="saved-list"></ul>
+    </section>
+
+    <!-- Раздел 3: банка воспоминаний (сделаем на следующем шаге) -->
+    <section class="view" id="view-jar" hidden>
+      <h1>Банка хороших моментов</h1>
+      <p class="lead">Скоро здесь можно будет записывать хорошие моменты и доставать их, когда станет грустно.</p>
+    </section>
+
+    <!-- Раздел 4: помощь -->
+    <section class="view" id="view-help" hidden>
+      <h1>Тебе не нужно справляться одной</h1>
+      <p class="lead">Позвонить можно в любое время. Тебя выслушают без осуждения.</p>
+
+      <a class="help-card primary" href="tel:+74959895050">
+        <span class="help-title">Психологическая помощь МЧС России</span>
+        <span class="help-number">+7 495 989-50-50</span>
+        <span class="help-note">Круглосуточно, анонимно и бесплатно</span>
+      </a>
+
+      <a class="help-card" href="tel:112">
+        <span class="help-title">Экстренная помощь</span>
+        <span class="help-number">112</span>
+        <span class="help-note">Если есть опасность для жизни</span>
+      </a>
+
+      <div class="help-card soft">
+        <span class="help-title">Психолог для будущих мам</span>
+        <span class="help-note">Спроси в своей женской консультации: там часто есть психолог, и приходить можно не только с вопросами о здоровье.</span>
+      </div>
+    </section>
+
+    <!-- Нижнее меню -->
+    <nav class="tabbar" aria-label="Разделы">
+      <button class="tab" type="button" data-go="phrases" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
+        Фразы
       </button>
-    </div>
-  </main>
+      <button class="tab" type="button" data-go="jar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8"/><path d="M7 6h10v13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 12h4"/></svg>
+        Банка
+      </button>
+      <button class="tab" type="button" data-go="help">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="M6 6l3.5 3.5M18 6l-3.5 3.5M6 18l3.5-3.5M18 18l-3.5-3.5"/></svg>
+        Помощь
+      </button>
+    </nav>
+
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
