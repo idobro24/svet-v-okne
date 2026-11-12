@@ -378,6 +378,57 @@ h1 {
   color: #BFA88A;
 }
 
+/* ---------- Дыхание ---------- */
+
+.breath-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  min-height: 320px;
+}
+
+/* Огонёк: тёплое свечение, которое растёт и уменьшается.
+   Длительность перехода задаёт скрипт под каждую фазу дыхания. */
+.orb {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%,
+    #FFF1CF 0%,
+    #F6CF86 30%,
+    rgba(232, 182, 107, 0.35) 58%,
+    rgba(232, 182, 107, 0) 72%);
+  box-shadow: 0 0 40px rgba(255, 200, 120, 0.25);
+  transform: scale(0.55);
+  transition-property: transform, box-shadow;
+  transition-timing-function: ease-in-out;
+  transition-duration: 1000ms;
+}
+
+.orb.big {
+  transform: scale(1);
+  box-shadow: 0 0 90px rgba(255, 200, 120, 0.5);
+}
+
+.breath-text {
+  margin: 0;
+  min-height: 1.4em;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 24px;
+  text-align: center;
+  color: #F6E7CF;
+}
+
+.breath-count {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 14px;
+  color: #BFA88A;
+}
+
 /* ---------- Нижнее меню ---------- */
 
 .tabbar {
@@ -392,7 +443,7 @@ h1 {
 }
 
 .tab {
-  min-width: 76px;
+  min-width: 64px;
   min-height: 52px;
   display: flex;
   flex-direction: column;
@@ -427,5 +478,6 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   #phrase, #save, #save svg { transition: none; }
   .note { animation: none; }
+  .orb { transition: none; }
   #phrase.hidden { transform: none; }
 }
