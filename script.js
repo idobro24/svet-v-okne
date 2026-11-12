@@ -232,7 +232,7 @@ const MOOD_KEY = 'moodByDay';
 // Для каждой «погоды»: значок, название и фраза-ответ.
 const MOODS = {
   storm: { icon: '⛈️', name: 'гроза', phrase: 'Грозы проходят, даже самые сильные. Сегодня можно просто переждать.' },
-  fog:   { icon: '🌫️', name: 'туман', phrase: 'В тумане не нужно видеть далеко. Достаточно следующего маленького шага.' },
+  fog:   { icon: '💭', name: 'туман', phrase: 'В тумане не нужно видеть далеко. Достаточно следующего маленького шага.' },
   cloud: { icon: '☁️', name: 'облачно', phrase: 'Облачно — тоже погода. Береги себя сегодня чуть больше обычного.' },
   sun:   { icon: '🌤️', name: 'солнце', phrase: 'Как хорошо, что проглянуло солнце. Может, положишь этот момент в банку?' }
 };
@@ -1122,6 +1122,43 @@ document.addEventListener('visibilitychange', function () {
   } else if (fireOn) {
     audioCtx.resume();
   }
+});
+
+// ---------- Пересчёт размеров экрана на iPhone ----------
+
+// При запуске с домашнего экрана iPhone иногда сначала неверно считает высоту экрана,
+// и нижнее меню встаёт выше, чем нужно. Чуть-чуть «шевелим» страницу, чтобы он
+// пересчитал размеры, — так же, как это происходит при переключении вкладок.
+function nudgeViewport() {
+  const x = window.scrollX;
+  const y = window.scrollY;
+  window.scrollTo(x, y + 1);
+  requestAnimationFrame(function () {
+    window.scrollTo(x, y);
+  });
+  // Заодно заставляем браузер заново разложить нижнее меню.
+  const bar = document.querySelector('.tabbar');
+  if (bar) {
+    bar.style.transform = 'translateZ(0)';
+    void bar.offsetHeight;
+    bar.style.transform = '';
+  }
+}
+
+window.addEventListener('load', function () {
+  nudgeViewport();
+  setTimeout(nudgeViewport, 300);
+  setTimeout(nudgeViewport, 1000);
+});
+
+// Когда приложение возвращается из свёрнутого состояния или меняются размеры экрана.
+window.addEventListener('pageshow', nudgeViewport);
+window.addEventListener('orientationchange', function () { setTimeout(nudgeViewport, 300); });
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', nudgeViewport);
+}
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) setTimeout(nudgeViewport, 100);
 });
 
 // ---------- Режим набора текста ----------
