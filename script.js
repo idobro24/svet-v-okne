@@ -225,6 +225,14 @@ function closeForm() {
   jarInput.value = '';
 }
 
+// Когда возвращаемся в банку, она снова «закрыта»: записка убрана, форма спрятана.
+// Недописанный текст в форме при этом не стирается.
+function resetJarView() {
+  noteEl.hidden = true;
+  jarForm.hidden = true;
+  jarActions.hidden = false;
+}
+
 jarAddBtn.addEventListener('click', openForm);
 jarCancelBtn.addEventListener('click', closeForm);
 
@@ -275,7 +283,10 @@ function show(name) {
   });
 
   if (name === 'saved') renderSaved();
-  if (name === 'jar') updateJarCount();
+  if (name === 'jar') {
+    resetJarView();
+    updateJarCount();
+  }
   window.scrollTo(0, 0);
 }
 
