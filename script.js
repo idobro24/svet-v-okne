@@ -529,23 +529,54 @@ function updateJarCount() {
   jarDrawBtn.hidden = jar.length === 0;
 }
 
+const jarPhotoEl = document.querySelector('.jar-photo');
+
+// Сколько уходит прежняя записка, в миллисекундах. Совпадает с note-out в CSS.
+const NOTE_OUT_TIME = 300;
+let noteAnimating = false;
+
+// Перезапускаем CSS-анимацию: убираем класс, заставляем браузер это заметить
+// (чтение offsetWidth), и добавляем класс снова.
+function restartAnimation(element, className) {
+  element.classList.remove(className);
+  void element.offsetWidth;
+  element.classList.add(className);
+}
+
 function showNote(index) {
   shownNote = index;
   noteDateEl.textContent = formatDate(jar[index].date);
   noteTextEl.textContent = jar[index].text;
   noteEl.hidden = false;
+  restartAnimation(noteEl, 'appear');
 }
 
 // Достаём случайную записку, по возможности не ту, что уже открыта.
 jarDrawBtn.addEventListener('click', function () {
-  if (jar.length === 0) return;
+  if (jar.length === 0 || noteAnimating) return;
   let index = 0;
   if (jar.length > 1) {
     do {
       index = Math.floor(Math.random() * jar.length);
     } while (index === shownNote);
   }
-  showNote(index);
+
+  restartAnimation(jarPhotoEl, 'shake');
+
+  if (noteEl.hidden) {
+    showNote(index);
+    return;
+  }
+
+  // Если записка уже открыта, сначала «возвращаем» её в банку, потом достаём новую.
+  noteAnimating = true;
+  noteEl.classList.remove('appear');
+  noteEl.classList.add('leaving');
+  setTimeout(function () {
+    noteEl.classList.remove('leaving');
+    showNote(index);
+    noteAnimating = false;
+  }, NOTE_OUT_TIME);
 });
 
 function openForm() {
