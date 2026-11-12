@@ -29,6 +29,9 @@ const savedEmptyEl = document.getElementById('saved-empty');
 // Номер фразы, которая сейчас на экране.
 let current = 0;
 
+// Текст, который сейчас на экране (это может быть и ответ на «погоду»).
+let currentText = phrases[0];
+
 // Идёт ли сейчас смена фразы (чтобы частые нажатия не сбивали анимацию).
 let changing = false;
 
@@ -61,14 +64,14 @@ let saved = loadSaved();
 // ---------- Сердечко ----------
 
 function updateHeart() {
-  const isSaved = saved.includes(phrases[current]);
+  const isSaved = saved.includes(currentText);
   saveBtn.classList.toggle('saved', isSaved);
   saveBtn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
   saveBtn.setAttribute('aria-label', isSaved ? 'Убрать из сохранённых' : 'Сохранить фразу');
 }
 
 saveBtn.addEventListener('click', function () {
-  const text = phrases[current];
+  const text = currentText;
   if (saved.includes(text)) {
     saved = saved.filter(function (item) { return item !== text; });
   } else {
@@ -117,19 +120,141 @@ function pickNext() {
   return index;
 }
 
-nextBtn.addEventListener('click', function () {
+// Плавно меняем текст на экране: прячем старый, ставим новый, показываем.
+function fadeTo(text) {
   if (changing) return;
   changing = true;
-
   phraseEl.classList.add('hidden');
 
   setTimeout(function () {
-    current = pickNext();
-    phraseEl.textContent = phrases[current];
+    currentText = text;
+    phraseEl.textContent = text;
     updateHeart();
     phraseEl.classList.remove('hidden');
     changing = false;
   }, FADE_TIME);
+}
+
+nextBtn.addEventListener('click', function () {
+  if (changing) return;
+  current = pickNext();
+  fadeTo(phrases[current]);
+});
+
+// ---------- Погода внутри ----------
+
+const MOOD_KEY = 'moodByDay';
+
+// Для каждой «погоды»: значок, название и фраза-ответ.
+const MOODS = {
+  storm: { icon: '⛈️', name: 'гроза', phrase: 'Грозы проходят, даже самые сильные. Сегодня можно просто переждать.' },
+  fog:   { icon: '🌫️', name: 'туман', phrase: 'В тумане не нужно видеть далеко. Достаточно следующего маленького шага.' },
+  cloud: { icon: '☁️', name: 'облачно', phrase: 'Облачно — тоже погода. Береги себя сегодня чуть больше обычного.' },
+  sun:   { icon: '🌤️', name: 'солнце', phrase: 'Как хорошо, что проглянуло солнце. Может, положишь этот момент в банку?' }
+};
+
+const moodAskEl = document.getElementById('mood-ask');
+const moodTodayEl = document.getElementById('mood-today');
+const moodTodayTextEl = document.getElementById('mood-today-text');
+const moodChangeBtn = document.getElementById('mood-change');
+const moodWeekEl = document.getElementById('mood-week');
+const careCardEl = document.getElementById('care-card');
+
+function loadMoods() {
+  try {
+    const raw = localStorage.getItem(MOOD_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function storeMoods(data) {
+  try {
+    localStorage.setItem(MOOD_KEY, JSON.stringify(data));
+  } catch (error) {
+    // Если память недоступна, просто ничего не сохраняем.
+  }
+}
+
+// Отметки хранятся по дням: { '2026-11-12': 'fog', ... }
+let moods = loadMoods();
+
+// Дата в виде '2026-11-12' по времени телефона.
+function dayKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+
+// Дата, которая была `daysAgo` дней назад.
+function daysAgo(n) {
+  const date = new Date();
+  date.setDate(date.getDate() - n);
+  return date;
+}
+
+// Сколько гроз было за последние 7 дней.
+function countStorms() {
+  let count = 0;
+  for (let i = 0; i < 7; i++) {
+    if (moods[dayKey(daysAgo(i))] === 'storm') count++;
+  }
+  return count;
+}
+
+// Рисуем полоску из 7 дней: от самого старого слева до сегодня справа.
+function renderWeek() {
+  moodWeekEl.innerHTML = '';
+  for (let i = 6; i >= 0; i--) {
+    const date = daysAgo(i);
+    const mood = moods[dayKey(date)];
+
+    const item = document.createElement('li');
+    item.setAttribute('aria-label',
+      date.toLocaleDateString('ru-RU', { weekday: 'long' }) + ': ' + (mood ? MOODS[mood].name : 'без отметки'));
+
+    const icon = document.createElement('span');
+    icon.className = 'mood-week-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = mood ? MOODS[mood].icon : '·';
+
+    const day = document.createElement('span');
+    day.className = 'mood-week-day';
+    day.setAttribute('aria-hidden', 'true');
+    day.textContent = date.toLocaleDateString('ru-RU', { weekday: 'short' });
+
+    item.append(icon, day);
+    moodWeekEl.append(item);
+  }
+}
+
+function renderMood() {
+  const today = moods[dayKey(new Date())];
+  moodAskEl.hidden = Boolean(today);
+  moodTodayEl.hidden = !today;
+  if (today) {
+    moodTodayTextEl.textContent = 'Сегодня у тебя ' + MOODS[today].name + ' ' + MOODS[today].icon;
+    renderWeek();
+  }
+  // Если гроз 4 и больше за неделю, бережно предлагаем поддержку.
+  careCardEl.hidden = countStorms() < 4;
+}
+
+document.querySelectorAll('.mood-btn').forEach(function (button) {
+  button.addEventListener('click', function () {
+    const mood = button.dataset.mood;
+    moods[dayKey(new Date())] = mood;
+    storeMoods(moods);
+    renderMood();
+    fadeTo(MOODS[mood].phrase); // отвечаем фразой под настроение
+  });
+});
+
+moodChangeBtn.addEventListener('click', function () {
+  moodAskEl.hidden = false;
+  moodTodayEl.hidden = true;
 });
 
 // ---------- Банка хороших моментов ----------
@@ -361,6 +486,7 @@ function show(name) {
     }
   });
 
+  if (name === 'phrases') renderMood();
   if (name === 'saved') renderSaved();
   if (name === 'jar') {
     resetJarView();
