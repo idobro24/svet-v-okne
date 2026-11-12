@@ -232,14 +232,17 @@ h1 {
 
 /* ---------- Фраза дня ---------- */
 
-/* Фраза занимает всё свободное место, поэтому её длина не двигает кнопки */
+/* Фраза занимает всё свободное место, поэтому её длина не двигает кнопки.
+   min-height держит место под самую длинную фразу (7 строк), чтобы кнопки
+   не прыгали и тогда, когда ниже появляется блок «Что может помочь». */
 #phrase {
   flex: 1;
+  min-height: calc(1.4em * 7);
   display: flex;
   align-items: center;
   margin: 0;
   font-family: 'Literata', Georgia, serif;
-  font-size: 28px;
+  font-size: clamp(24px, 7.2vw, 28px);
   line-height: 1.4;
   color: #F6E7CF;
   transition: opacity 0.5s ease, transform 0.5s ease;
