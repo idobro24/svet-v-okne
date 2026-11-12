@@ -1104,6 +1104,41 @@ h1 {
   color: #BFA88A;
 }
 
+/* ---------- Плашка «ты не одна» ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  z-index: 20;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(232, 182, 107, 0.45);
+  background: rgba(30, 21, 15, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 24px rgba(255, 200, 120, 0.15);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: center;
+  cursor: pointer;
+  transform: translate(-50%, -12px);
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
+}
+
 /* ---------- Нижнее меню ---------- */
 
 /* Меню закреплено у нижнего края экрана (fixed), а не «прилипает» к концу страницы (sticky).
