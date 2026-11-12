@@ -261,6 +261,82 @@ noteDeleteBtn.addEventListener('click', function () {
   updateJarCount();
 });
 
+// ---------- Дыхание ----------
+
+const orbEl = document.getElementById('orb');
+const breathTextEl = document.getElementById('breath-text');
+const breathCountEl = document.getElementById('breath-count');
+const breathBtn = document.getElementById('breath-btn');
+
+// Фазы одного круга. Выдох длиннее вдоха — так тело быстрее успокаивается.
+const PHASES = [
+  { label: 'Вдох', time: 4000, big: true },
+  { label: 'Задержи дыхание', time: 2000, big: true },
+  { label: 'Выдох', time: 6000, big: false }
+];
+
+// 5 кругов по 12 секунд — ровно одна минута.
+const TOTAL_ROUNDS = 5;
+
+let breathTimer = null;
+let phaseIndex = 0;
+let round = 1;
+let breathing = false;
+
+function runPhase() {
+  const phase = PHASES[phaseIndex];
+  breathTextEl.textContent = phase.label;
+  breathCountEl.textContent = 'Круг ' + round + ' из ' + TOTAL_ROUNDS;
+
+  // Огонёк меняет размер ровно за время этой фазы.
+  orbEl.style.transitionDuration = phase.time + 'ms';
+  orbEl.classList.toggle('big', phase.big);
+
+  breathTimer = setTimeout(function () {
+    phaseIndex++;
+    if (phaseIndex === PHASES.length) {
+      phaseIndex = 0;
+      round++;
+      if (round > TOTAL_ROUNDS) {
+        finishBreath();
+        return;
+      }
+    }
+    runPhase();
+  }, phase.time);
+}
+
+function startBreath() {
+  breathing = true;
+  phaseIndex = 0;
+  round = 1;
+  breathBtn.textContent = 'Остановить';
+  runPhase();
+}
+
+function stopBreath(message) {
+  clearTimeout(breathTimer);
+  breathing = false;
+  orbEl.style.transitionDuration = '1500ms';
+  orbEl.classList.remove('big');
+  breathTextEl.textContent = message || 'Нажми, когда будешь готова';
+  breathCountEl.textContent = '';
+  breathBtn.textContent = 'Начать';
+}
+
+function finishBreath() {
+  stopBreath('Ты молодец, что нашла эту минуту для себя.');
+  breathBtn.textContent = 'Ещё минуту';
+}
+
+breathBtn.addEventListener('click', function () {
+  if (breathing) {
+    stopBreath();
+  } else {
+    startBreath();
+  }
+});
+
 // ---------- Переключение разделов ----------
 
 const views = document.querySelectorAll('.view');
@@ -268,6 +344,9 @@ const tabs = document.querySelectorAll('.tab');
 
 // Показываем раздел с нужным именем, остальные прячем.
 function show(name) {
+  // Если ушли с экрана дыхания, останавливаем упражнение.
+  if (name !== 'breath' && breathing) stopBreath();
+
   views.forEach(function (view) {
     view.hidden = view.id !== 'view-' + name;
   });
