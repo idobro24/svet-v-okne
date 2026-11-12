@@ -1396,8 +1396,11 @@ function checkPeopleToday() {
   // Период «сегодня»: с начала сегодняшнего дня до начала завтрашнего,
   // чтобы сегодняшние посещения точно попали в подсчёт целиком.
   const tomorrow = dayKey(daysAgo(-1));
+  // Спрашиваем число посещений именно для того адреса, где живёт приложение:
+  // на Netlify это «/», на GitHub Pages — «/svet-v-okne/». GoatCounter считает их отдельно.
+  const path = location.pathname.replace(/index\.html$/, '') || '/';
   const url = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/counter/'
-    + encodeURIComponent('/') + '.json?start=' + today + '&end=' + tomorrow;
+    + encodeURIComponent(path) + '.json?start=' + today + '&end=' + tomorrow;
 
   fetch(url)
     .then(function (response) {
