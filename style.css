@@ -50,7 +50,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 32px 28px 24px;
+  /* env(safe-area-inset-top) — высота «чёлки» и строки состояния iPhone,
+     чтобы при запуске с домашнего экрана текст не уезжал под часы */
+  padding: calc(32px + env(safe-area-inset-top, 0px)) 28px 24px;
 }
 
 .topbar {
