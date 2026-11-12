@@ -1061,7 +1061,100 @@ document.querySelectorAll('[data-go]').forEach(function (button) {
   });
 });
 
+// ---------- Сколько людей сегодня с нами (GoatCounter) ----------
+
+const GOATCOUNTER_CODE = 'svet-v-okne';
+
+// Плашку показываем, только если за день набралось хотя бы столько людей,
+// чтобы маленькое число не прозвучало одиноко.
+const MIN_PEOPLE = 15;
+
+// Сколько секунд плашка висит на экране.
+const TOAST_SECONDS = 8;
+
+const TOAST_DAY_KEY = 'peopleToastDay';
+const peopleToastEl = document.getElementById('people-toast');
+
+// dev-сайт и проверки на компьютере не считаем, чтобы не накручивать счётчик.
+const isDevSite = location.hostname.indexOf('dev--') === 0
+  || location.hostname === 'localhost'
+  || location.protocol === 'file:';
+
+// Подключаем счётчик посещений GoatCounter (только на основном сайте).
+function startCounting() {
+  if (isDevSite) return;
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://gc.zgo.at/count.js';
+  script.setAttribute('data-goatcounter', 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/count');
+  document.head.append(script);
+}
+
+// «1 человек», «3 человека», «47 человек».
+function peopleWord(n) {
+  const last = n % 10;
+  const lastTwo = n % 100;
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return 'человека';
+  return 'человек';
+}
+
+function showPeopleToast(count) {
+  peopleToastEl.textContent = 'Сегодня свет в окне зажгли уже ' + count + ' ' + peopleWord(count) + '. Ты не одна.';
+  peopleToastEl.hidden = false;
+  requestAnimationFrame(function () {
+    peopleToastEl.classList.add('visible');
+  });
+  setTimeout(hidePeopleToast, TOAST_SECONDS * 1000);
+}
+
+function hidePeopleToast() {
+  peopleToastEl.classList.remove('visible');
+  setTimeout(function () { peopleToastEl.hidden = true; }, 600);
+}
+
+// По нажатию плашку можно закрыть раньше.
+peopleToastEl.addEventListener('click', hidePeopleToast);
+
+// Узнаём у GoatCounter, сколько разных людей открыли приложение сегодня.
+// Для проверки на dev-сайте добавьте к адресу #toast-test: тогда плашка покажется
+// с настоящим числом, даже если оно меньше порога и плашку сегодня уже видели.
+function checkPeopleToday() {
+  const testMode = location.hash === '#toast-test';
+  const today = dayKey(new Date());
+
+  if (!testMode) {
+    try {
+      if (localStorage.getItem(TOAST_DAY_KEY) === today) return; // сегодня уже показывали
+    } catch (error) {}
+  }
+
+  const url = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/counter/'
+    + encodeURIComponent('/') + '.json?start=' + today;
+
+  fetch(url)
+    .then(function (response) {
+      if (!response.ok) throw new Error('GoatCounter ответил ' + response.status);
+      return response.json();
+    })
+    .then(function (data) {
+      // Число приходит строкой с разделителями тысяч, например «1 234»: оставляем только цифры.
+      const raw = data.count_unique || data.count || '0';
+      const count = parseInt(String(raw).replace(/\D/g, ''), 10) || 0;
+      if (!testMode && count < MIN_PEOPLE) return;
+      showPeopleToast(count);
+      try { localStorage.setItem(TOAST_DAY_KEY, today); } catch (error) {}
+    })
+    .catch(function () {
+      // Нет интернета или GoatCounter недоступен — просто работаем дальше без плашки.
+    });
+}
+
+startCounting();
+
 // При открытии страницы: если человек ещё не отвечал на вопросы, начинаем с них.
 updateHeart();
 applyProfile();
 show(profile ? 'phrases' : 'start');
+
+// Плашку показываем через пару секунд и не на самом первом экране с вопросами.
+if (profile) setTimeout(checkPeopleToday, 2000);
