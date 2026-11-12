@@ -8,7 +8,9 @@ html {
   touch-action: manipulation;
 }
 
-button, a, label, input, textarea {
+/* iPhone учитывает это свойство не на всей странице сразу, а на том элементе,
+   по которому нажали, поэтому задаём его всем элементам */
+*, *::before, *::after {
   touch-action: manipulation;
 }
 
