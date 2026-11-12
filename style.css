@@ -997,4 +997,445 @@ h1 {
 .when {
   margin: 0;
   padding: 0;
-  borde
+  border: none;
+}
+
+.when legend {
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.when-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.when-options label {
+  position: relative;
+  min-height: 44px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  border-radius: 22px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #EBDCC4;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.when-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.when-options label:has(input:checked) {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.18);
+  color: #F6E7CF;
+}
+
+.when-options label:has(input:focus-visible) {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.section-title {
+  margin: 8px 0 12px;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 22px;
+  color: #F6E7CF;
+}
+
+.letters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.letter-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.14);
+  background: rgba(30, 21, 15, 0.75);
+}
+
+.letter-status {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.letter-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+/* Само письмо — на листе рваной бумаги.
+   border-image режет картинку на 9 частей: углы и рваные края остаются
+   как есть, а середина растягивается под любой длины письмо. */
+.letter-paper {
+  align-self: stretch;
+  margin: 10px -6px 6px;
+  padding: 6px 8px 10px;
+  border: 26px solid transparent;
+  border-image: url('paper.webp') 52 fill / 26px stretch;
+  color: #3A2A1C;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  transform: rotate(-0.6deg);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+}
+
+.letter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.letter-card .link {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.letter-card .btn-primary {
+  height: 46px;
+  padding: 0 22px;
+}
+
+/* ---------- О приложении ---------- */
+
+.about-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-list li {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(30, 21, 15, 0.72);
+  font-size: 15px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+.about-list strong {
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.about-note {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(240, 185, 160, 0.16);
+  font-size: 14px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+.about-author p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #D9C3A3;
+}
+
+.about-tg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.about-version {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+.about-credits {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #BFA88A;
+}
+
+.about-credits a {
+  color: #E8B66B;
+}
+
+.credit {
+  margin: 0;
+  padding: 0 28px 14px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #BFA88A;
+}
+
+/* ---------- Треск камина ---------- */
+
+.fire-toggle svg {
+  transition: fill 0.4s ease;
+}
+
+/* Камин включён — огонёк заливается тёплым светом.
+   Свечение делаем круглым фоном самой кнопки, а не фильтром тени на значке:
+   Safari рисовал вокруг значка с фильтром квадратную подложку. */
+.fire-toggle[aria-pressed="true"] {
+  color: #F6CF86;
+}
+
+.fire-toggle[aria-pressed="true"] svg {
+  fill: rgba(246, 207, 134, 0.45);
+}
+
+.icon-btn.fire-toggle[aria-pressed="true"] {
+  background: radial-gradient(circle, rgba(255, 190, 110, 0.35) 0%, rgba(255, 190, 110, 0.12) 45%, rgba(255, 190, 110, 0) 70%);
+}
+
+.fire-wide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fire-wide svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.fire-wide[aria-pressed="true"] {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.16);
+}
+
+/* ---------- Окно «Что нового» ---------- */
+
+.whatsnew {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 14, 10, 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.whatsnew.visible { opacity: 1; }
+
+.whatsnew-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 26px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(232, 182, 107, 0.35);
+  background: linear-gradient(180deg, #3A281C 0%, #2B1E16 100%);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 40px rgba(255, 200, 120, 0.12);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.4s ease;
+}
+
+.whatsnew.visible .whatsnew-card { transform: none; }
+
+.whatsnew-version {
+  margin: 0;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(232, 182, 107, 0.16);
+  color: #E8B66B;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.whatsnew-card h2 {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.3;
+  color: #F6E7CF;
+}
+
+.whatsnew-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.whatsnew-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.whatsnew-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(232, 182, 107, 0.14);
+  font-size: 18px;
+}
+
+.whatsnew-list strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.whatsnew-list span.whatsnew-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #D9C3A3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsnew, .whatsnew-card { transition: none; }
+}
+
+/* ---------- Плашка «ты не одна» ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  z-index: 20;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  /* Тёплый «ламповый» свет: светлая медовая плашка с тёмным текстом */
+  border: 1px solid rgba(255, 236, 200, 0.7);
+  background: linear-gradient(180deg, rgba(248, 226, 186, 0.96) 0%, rgba(236, 196, 132, 0.96) 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 36px rgba(255, 200, 120, 0.45);
+  color: #2B1E16;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: center;
+  cursor: pointer;
+  transform: translate(-50%, -12px);
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
+}
+
+/* ---------- Нижнее меню ---------- */
+
+/* Меню закреплено у нижнего края экрана (fixed), а не «прилипает» к концу страницы (sticky).
+   Так iPhone при первом запуске с домашнего экрана не поднимает его выше, чем нужно. */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  /* Снизу оставляем место только под полоску «домой» iPhone, без лишнего запаса */
+  padding: 4px 12px max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px));
+  border-top: 1px solid rgba(246, 231, 207, 0.12);
+  background: rgba(30, 21, 15, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+/* Пока набирается текст, меню не показываем */
+body.typing .tabbar {
+  display: none;
+}
+
+.tab {
+  min-width: 64px;
+  min-height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: #BFA88A;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.tab svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tab[aria-current="page"] {
+  color: #E8B66B;
+  font-weight: 600;
+}
+
+/* ---------- Для тех, у кого отключены анимации ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #phrase, #save, #save svg { transition: none; }
+  .note.appear, .note.leaving, .jar-photo-wrap.shake { animation: none; }
+  .orb { transition: none; }
+  #phrase.hidden { transform: none; }
+}
