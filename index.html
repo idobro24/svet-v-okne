@@ -149,11 +149,10 @@
       <p class="lead">Напиши себе — той, кем ты будешь через время. Письмо сохранится и откроется, когда придёт срок.</p>
 
       <div class="letter-write">
-        <p class="field-label">Можно начать так. Нажми — и начало появится в письме:</p>
-        <div class="starters" id="starters"></div>
-
         <label class="field-label" for="letter-input">Твоё письмо</label>
-        <textarea id="letter-input" rows="8" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
+        <p class="starters-hint" id="starters-hint">Не знаешь, с чего начать? Нажми на начало фразы — оно появится в письме. Листай подсказки вбок →</p>
+        <div class="starters" id="starters" aria-describedby="starters-hint"></div>
+        <textarea id="letter-input" rows="7" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
 
         <fieldset class="when">
           <legend class="field-label">Когда открыть?</legend>
