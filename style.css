@@ -588,13 +588,17 @@ h1 {
   position: relative;
   z-index: 1;
   /* Подтягиваем лист вверх, чтобы зажим «цеплялся» за край фото банки */
-  margin-top: calc(-24px - 17%);
-  aspect-ratio: 700 / 652;
-  padding: 36% 11% 9%;
-  background: url('note.webp') center / 100% 100% no-repeat;
+  margin-top: calc(-24px - 18%);
+  /* Тень уже нарисована в самой картинке: так Safari не мигает при анимации */
+  aspect-ratio: 760 / 732;
+  padding: 37% 14% 15%;
+  background: url('note2.webp') center / 100% 100% no-repeat;
   color: #3A2A1C;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.45));
   transform: rotate(-1.5deg);
+  /* Держим записку на отдельном слое видеокарты, чтобы она не мерцала */
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Записка выходит из банки: поднимается откуда-то сверху и ложится на место */
