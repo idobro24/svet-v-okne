@@ -1211,7 +1211,11 @@ function peopleWord(n) {
 }
 
 function showPeopleToast(count) {
-  peopleToastEl.textContent = 'Сегодня свет в окне зажгли уже ' + count + ' ' + peopleWord(count) + '. Ты не одна.';
+  showToastText('Сегодня свет в окне зажгли уже ' + count + ' ' + peopleWord(count) + '. Ты не одна.');
+}
+
+function showToastText(text) {
+  peopleToastEl.textContent = text;
   peopleToastEl.hidden = false;
   requestAnimationFrame(function () {
     peopleToastEl.classList.add('visible');
@@ -1245,7 +1249,9 @@ function checkPeopleToday() {
 
   fetch(url)
     .then(function (response) {
-      if (!response.ok) throw new Error('GoatCounter ответил ' + response.status);
+      // Если сегодня ещё никого не посчитали, GoatCounter отвечает «не найдено» (404) — это ноль.
+      if (response.status === 404) return { count_unique: '0' };
+      if (!response.ok) throw new Error('GoatCounter ответил кодом ' + response.status);
       return response.json();
     })
     .then(function (data) {
@@ -1254,10 +1260,14 @@ function checkPeopleToday() {
       const count = parseInt(String(raw).replace(/\D/g, ''), 10) || 0;
       if (!testMode && count < MIN_PEOPLE) return;
       showPeopleToast(count);
-      try { localStorage.setItem(TOAST_DAY_KEY, today); } catch (error) {}
+      if (!testMode) {
+        try { localStorage.setItem(TOAST_DAY_KEY, today); } catch (error) {}
+      }
     })
-    .catch(function () {
-      // Нет интернета или GoatCounter недоступен — просто работаем дальше без плашки.
+    .catch(function (error) {
+      // Нет интернета или GoatCounter недоступен — обычно просто работаем дальше без плашки.
+      // В тестовом режиме показываем, что пошло не так, чтобы было проще разобраться.
+      if (testMode) showToastText('Тест: не удалось получить число. ' + (error && error.message ? error.message : ''));
     });
 }
 
@@ -1353,6 +1363,12 @@ document.addEventListener('keydown', function (event) {
 updateHeart();
 applyProfile();
 show(profile ? 'phrases' : 'start');
+
+// Тестовые адреса срабатывают и тогда, когда их дописали к уже открытой странице.
+window.addEventListener('hashchange', function () {
+  if (location.hash === '#toast-test') checkPeopleToday();
+  if (location.hash === '#whatsnew-test') showWhatsNew();
+});
 
 // Сначала «Что нового» (если есть что показать), а плашку «ты не одна» — уже после него.
 // На самом первом экране с вопросами ни то ни другое не показываем.
