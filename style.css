@@ -234,6 +234,125 @@ h1 {
   line-height: 1.5;
 }
 
+/* ---------- Банка хороших моментов ---------- */
+
+.jar-photo {
+  display: block;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  object-position: 50% 40%;
+  border-radius: 22px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* Записка из крафтовой бумаги, чуть повёрнутая, как настоящая */
+.note {
+  padding: 16px 20px 10px;
+  border-radius: 6px;
+  background: #D9B98E;
+  color: #3A2A1C;
+  transform: rotate(-1deg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.note-date {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #5C4632;
+}
+
+.note-text {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.note-delete {
+  min-height: 40px;
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #5C4632;
+  font-family: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Кнопки друг под другом */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-primary {
+  height: 52px;
+  border: none;
+  border-radius: 26px;
+  background: #E8B66B;
+  color: #2B1E16;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-ghost {
+  height: 52px;
+  border-radius: 26px;
+  border: 1.5px solid rgba(246, 231, 207, 0.35);
+  background: rgba(43, 30, 22, 0.4);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary:active, .btn-ghost:active { transform: scale(0.98); }
+
+.jar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jar-form label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.jar-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.jar-form textarea::placeholder { color: #BFA88A; }
+
+.jar-form textarea:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
 /* ---------- Нижнее меню ---------- */
 
 .tabbar {
