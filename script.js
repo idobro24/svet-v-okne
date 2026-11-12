@@ -1246,6 +1246,26 @@ document.addEventListener('visibilitychange', function () {
   }
 });
 
+// ---------- Без увеличения двойным нажатием ----------
+
+// На iPhone CSS-запрета иногда недостаточно. Двойное нажатие для увеличения —
+// это два быстрых касания в одно и то же место. Если второе касание пришло почти
+// сразу и почти туда же, отменяем его — тогда iPhone не увеличивает экран.
+// Быстрые касания разных кнопок подряд не трогаем.
+// В полях ввода не мешаем: там двойное касание выделяет слово.
+let lastTap = { time: 0, x: 0, y: 0 };
+document.addEventListener('touchend', function (event) {
+  const touch = event.changedTouches && event.changedTouches[0];
+  if (!touch) return;
+  const now = Date.now();
+  const inField = event.target.closest && event.target.closest('textarea, input');
+  const near = Math.abs(touch.clientX - lastTap.x) < 30 && Math.abs(touch.clientY - lastTap.y) < 30;
+  if (!inField && near && now - lastTap.time <= 300) {
+    event.preventDefault();
+  }
+  lastTap = { time: now, x: touch.clientX, y: touch.clientY };
+}, { passive: false });
+
 // ---------- Режим набора текста ----------
 
 // Пока человек пишет записку или письмо, прячем нижнее меню.

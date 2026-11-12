@@ -3,6 +3,29 @@
 /* Страница всегда занимает весь экран — это помогает iPhone правильно найти его нижний край */
 html {
   height: 100%;
+  /* Убираем увеличение двойным нажатием (и задержку нажатий, которая с ним связана).
+     Увеличение двумя пальцами остаётся — оно нужно тем, кому плохо видно. */
+  touch-action: manipulation;
+}
+
+/* iPhone учитывает это свойство не на всей странице сразу, а на том элементе,
+   по которому нажали, поэтому задаём его всем элементам */
+*, *::before, *::after {
+  touch-action: manipulation;
+}
+
+/* Двойное касание по тексту не выделяет слова и не вызывает меню «Скопировать»,
+   которое на iPhone сдвигает экран. В полях ввода, записках и письмах выделять можно. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+textarea, input, .note-text, .letter-paper, .saved-item p {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 /* Ошибка iOS 26 (WebKit 301108): у приложения с домашнего экрана область страницы
@@ -654,15 +677,23 @@ h1 {
    Картинка растягивается под текст, а отступы в процентах
    держат текст под зажимом и внутри рваных краёв листа. */
 .note {
+  --note-w: calc(min(100vw, 480px) - 56px);  /* ширина записки = ширина колонки */
   position: relative;
   z-index: 1;
   /* Подтягиваем лист вверх, чтобы зажим «цеплялся» за край фото банки */
   margin-top: calc(-24px - 18%);
-  /* Тень уже нарисована в самой картинке: так Safari не мигает при анимации */
-  aspect-ratio: 760 / 732;
-  padding: 37% 14% 15%;
-  background: url('note2.webp') center / 100% 100% no-repeat;
+  width: 100%;
+  /* Лист рисуем через border-image: верх с зажимом, низ и края остаются как на фото,
+     а растягивается только середина. Так длинная записка не растягивает зажим
+     и не вылезает за край экрана. Числа — в пикселях картинки note2.webp (760×732). */
+  min-height: calc(var(--note-w) * 732 / 760);
+  border-style: solid;
+  border-color: transparent;
+  border-width: calc(var(--note-w) * 300 / 760) calc(var(--note-w) * 70 / 760) calc(var(--note-w) * 110 / 760);
+  border-image: url('note2.webp') 300 70 110 fill / 1 / 0 stretch;
+  padding: 2px 12px 6px;
   color: #3A2A1C;
+  overflow-wrap: anywhere;
   transform: rotate(-1.5deg);
   /* Держим записку на отдельном слое видеокарты, чтобы она не мерцала */
   will-change: transform, opacity;
