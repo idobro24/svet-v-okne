@@ -4,6 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Свет в окне</title>
+  <!-- ВРЕМЕННО: показывает ошибки прямо на экране -->
+  <script>
+    function showDebug(text) {
+      var box = document.getElementById('error-box') || document.createElement('div');
+      box.id = 'error-box';
+      box.style.cssText = 'position:fixed;left:12px;right:12px;top:60px;z-index:99999;padding:12px 14px;border-radius:12px;background:#7a1f1f;color:#fff;font:14px/1.4 system-ui,sans-serif;white-space:pre-wrap';
+      box.textContent = (box.textContent ? box.textContent + '\n' : '') + text;
+      (document.body || document.documentElement).appendChild(box);
+    }
+    window.addEventListener('error', function (e) {
+      if (e.target && e.target !== window && (e.target.src || e.target.href)) {
+        showDebug('Не загрузился файл: ' + (e.target.src || e.target.href));
+      } else {
+        showDebug('Ошибка: ' + e.message + ' (файл ' + (e.filename || '').split('/').pop() + ', строка ' + e.lineno + ')');
+      }
+    }, true);
+    window.addEventListener('load', function () {
+      if (typeof APP_VERSION === 'undefined') showDebug('script.js не запустился (его нет на сайте или он пустой)');
+      var bar = document.querySelector('.tabbar');
+      if (bar) {
+        var r = bar.getBoundingClientRect();
+        showDebug('Проверка: скрипт ' + (typeof APP_VERSION === 'undefined' ? 'нет' : 'есть, v' + APP_VERSION)
+          + '; меню: ' + (getComputedStyle(bar).display === 'none' ? 'скрыто' : 'видно')
+          + ', top ' + Math.round(r.top) + ' из ' + window.innerHeight);
+      }
+    });
+  </script>
 
   <!-- Чтобы на домашнем экране сайт выглядел и запускался как приложение -->
   <link rel="manifest" href="manifest.webmanifest">
@@ -19,7 +46,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <!-- ?v=… — номер обновления: меняйте его вместе с файлами, чтобы iPhone не брал старую копию -->
-  <link rel="stylesheet" href="style.css?v=1.1.14">
+  <link rel="stylesheet" href="style.css?v=1.1.16">
   <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
   <link rel="preload" as="image" href="note2.webp">
   <link rel="preload" as="image" href="paper.webp">
@@ -156,32 +183,4 @@
       </form>
 
       <div class="stack" id="jar-actions">
-        <button class="btn-primary" type="button" id="jar-draw">Достать записку</button>
-        <button class="btn-ghost" type="button" id="jar-add">Записать момент</button>
-      </div>
-      <p class="hint">Записки хранятся только на этом телефоне.</p>
-
-      <button class="letter-entry" type="button" data-go="letter">
-        <span class="letter-entry-icon" aria-hidden="true">✉️</span>
-        <span><strong>Письмо себе в будущее</strong><br>Напиши себе сейчас и прочитай, когда придёт время</span>
-      </button>
-    </section>
-
-    <!-- Письмо себе в будущее -->
-    <section class="view" id="view-letter" hidden>
-      <header class="topbar">
-        <button class="link" type="button" data-go="jar">← К банке</button>
-      </header>
-      <h1>Письмо себе в будущее</h1>
-      <p class="lead">Напиши себе — той, кем ты будешь через время. Письмо сохранится и откроется, когда придёт срок.</p>
-
-      <div class="letter-write">
-        <label class="field-label" for="letter-input">Твоё письмо</label>
-        <p class="starters-hint" id="starters-hint">Не знаешь, с чего начать? Нажми на начало фразы — оно появится в письме. Листай подсказки вбок →</p>
-        <div class="starters" id="starters" aria-describedby="starters-hint"></div>
-        <textarea id="letter-input" autocomplete="off" autocorrect="on" name="letter-text" rows="7" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
-
-        <fieldset class="when">
-          <legend class="field-label">Когда открыть?</legend>
-          <div class="when-options">
-         
+        <button class="btn-primar
