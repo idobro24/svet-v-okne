@@ -40,10 +40,34 @@
       <ul class="saved-list" id="saved-list"></ul>
     </section>
 
-    <!-- Раздел 3: банка воспоминаний (сделаем на следующем шаге) -->
+    <!-- Раздел 3: банка хороших моментов -->
     <section class="view" id="view-jar" hidden>
       <h1>Банка хороших моментов</h1>
-      <p class="lead">Скоро здесь можно будет записывать хорошие моменты и доставать их, когда станет грустно.</p>
+      <img class="jar-photo" src="preview.webp" alt="Стеклянная банка с записками в тёплом свете гирлянды">
+      <p class="lead" id="jar-count"></p>
+
+      <!-- Записка, которую достали из банки -->
+      <article class="note" id="jar-note" hidden>
+        <p class="note-date" id="note-date"></p>
+        <p class="note-text" id="note-text"></p>
+        <button class="note-delete" type="button" id="note-delete">Убрать из банки</button>
+      </article>
+
+      <!-- Форма новой записки -->
+      <form class="jar-form" id="jar-form" hidden>
+        <label for="jar-input">Что хорошего было?</label>
+        <textarea id="jar-input" rows="4" maxlength="400" placeholder="Например: подруга привезла мандарины в два часа ночи"></textarea>
+        <div class="stack">
+          <button class="btn-primary" type="submit">Положить в банку</button>
+          <button class="btn-ghost" type="button" id="jar-cancel">Отмена</button>
+        </div>
+      </form>
+
+      <div class="stack" id="jar-actions">
+        <button class="btn-primary" type="button" id="jar-draw">Достать записку</button>
+        <button class="btn-ghost" type="button" id="jar-add">Записать момент</button>
+      </div>
+      <p class="hint">Записки хранятся только на этом телефоне.</p>
     </section>
 
     <!-- Раздел 4: помощь -->
