@@ -295,6 +295,9 @@ function renderMood() {
   }
   // Если гроз 4 и больше за неделю, бережно предлагаем поддержку.
   careCardEl.hidden = countStorms() < 4;
+
+  // Идеи самопомощи под сегодняшнюю погоду.
+  renderSelfCare(today);
 }
 
 document.querySelectorAll('.mood-btn').forEach(function (button) {
@@ -310,6 +313,121 @@ document.querySelectorAll('.mood-btn').forEach(function (button) {
 moodChangeBtn.addEventListener('click', function () {
   moodAskEl.hidden = false;
   moodTodayEl.hidden = true;
+});
+
+// ---------- Самопомощь под погоду ----------
+
+// Идеи для каждой погоды. У некоторых есть кнопка-действие (go — какой раздел открыть)
+// и пометка only — как у фраз: 'people', 'alone' или 'baby'.
+const SELF_CARE = {
+  storm: [
+    { text: 'Подыши со мной одну минуту. Выдох длиннее вдоха — так тело быстрее успокаивается.', action: { label: 'Подышать', go: 'breath' } },
+    { text: 'Где-то глубоко в тебе есть ты маленькая. Ей сейчас страшно. Положи руку на сердце и скажи ей: «Я с тобой. Мы справимся».' },
+    { text: 'Назови 5 вещей, которые видишь, 4 — которые можешь потрогать, 3 звука, 2 запаха и 1 вкус. Это возвращает в «здесь и сейчас».' },
+    { text: 'Укутайся в плед и сделай тёплый чай. Тепло помогает телу почувствовать себя в безопасности.' },
+    { text: 'Разреши себе поплакать. Не нужно держаться, слёзы тоже помогают.' },
+    { text: 'Отложи телефон и не открывай комментарии хотя бы час.' },
+    { text: 'Напиши тому, кто рядом: «Мне сейчас тяжело, можешь позвонить?» Просить о помощи — нормально.', only: 'people' },
+    { text: 'Позвони на телефон доверия. Там выслушают без осуждения, даже если просто хочется поговорить.', only: 'alone', action: { label: 'Открыть помощь', go: 'help' } }
+  ],
+  fog: [
+    { text: 'Выпей стакан воды. Это самое маленькое, что можно сделать для себя прямо сейчас.' },
+    { text: 'Вспомни себя маленькую. Что бы ты сказала ей, если бы она грустила? Скажи это себе, тихо или вслух.' },
+    { text: 'Открой окно и подыши свежим воздухом хотя бы минуту.' },
+    { text: 'Прими тёплый душ. Вода хорошо возвращает ощущение тела.' },
+    { text: 'Назови чувство словом: «мне грустно», «мне пусто», «я злюсь». Так туман становится чуть прозрачнее.' },
+    { text: 'Наведи порядок на одном маленьком месте: тумбочка, одна полка. Видимый результат за пять минут.' },
+    { text: 'Подыши минуту вместе с огоньком.', action: { label: 'Подышать', go: 'breath' } }
+  ],
+  cloud: [
+    { text: 'Достань записку из банки и вспомни что-то хорошее.', action: { label: 'Открыть банку', go: 'jar' } },
+    { text: 'Внутри тебя есть ты маленькая. Сделай сегодня что-то приятное для неё: какао, мультик, плед, любимая песня из детства.' },
+    { text: 'Выйди на 10 минут на дневной свет, даже просто дойти до магазина.' },
+    { text: 'Включи любимую песню или уютный сериал.' },
+    { text: 'Съешь что-то вкусное и не торопись.' },
+    { text: 'Потянись пару минут, особенно спину и плечи.' },
+    { text: 'Запиши в банку один хороший момент сегодняшнего дня, даже совсем маленький.', action: { label: 'Записать момент', go: 'jar' } }
+  ]
+};
+
+// Сколько идей показываем за раз.
+const IDEAS_AT_ONCE = 3;
+
+const selfcareEl = document.getElementById('selfcare');
+const selfcareListEl = document.getElementById('selfcare-list');
+const selfcareMoreBtn = document.getElementById('selfcare-more');
+
+let ideas = [];        // перемешанные идеи для текущей погоды
+let ideasOffset = 0;   // с какой идеи начинаем показывать
+let ideasMood = null;  // для какой погоды они перемешаны
+
+// Перемешиваем список (алгоритм Фишера — Йетса).
+function shuffle(list) {
+  const copy = list.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+// Подходит ли идея этому человеку (по ответам при первом входе).
+function fitsProfile(item) {
+  const p = profile || {};
+  if (!item.only) return true;
+  if (item.only === 'people') return p.people === true;
+  if (item.only === 'alone') return p.people === false;
+  if (item.only === 'baby') return p.baby === true;
+  return false;
+}
+
+function renderIdeas() {
+  selfcareListEl.innerHTML = '';
+  for (let i = 0; i < Math.min(IDEAS_AT_ONCE, ideas.length); i++) {
+    const idea = ideas[(ideasOffset + i) % ideas.length];
+
+    const item = document.createElement('li');
+    const text = document.createElement('span');
+    text.textContent = idea.text;
+    item.append(text);
+
+    if (idea.action) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'selfcare-action';
+      button.textContent = idea.action.label;
+      button.addEventListener('click', function () {
+        show(idea.action.go);
+      });
+      item.append(button);
+    }
+
+    selfcareListEl.append(item);
+  }
+}
+
+// Показываем блок для выбранной погоды. Для солнца он не нужен.
+function renderSelfCare(mood) {
+  if (!mood || !SELF_CARE[mood]) {
+    selfcareEl.hidden = true;
+    ideasMood = null;
+    return;
+  }
+  // Перемешиваем заново, только если погода поменялась.
+  if (mood !== ideasMood) {
+    ideas = shuffle(SELF_CARE[mood].filter(fitsProfile));
+    ideasOffset = 0;
+    ideasMood = mood;
+  }
+  selfcareEl.hidden = false;
+  renderIdeas();
+}
+
+selfcareMoreBtn.addEventListener('click', function () {
+  ideasOffset = (ideasOffset + IDEAS_AT_ONCE) % ideas.length;
+  renderIdeas();
 });
 
 // ---------- Банка хороших моментов ----------
@@ -469,149 +587,4 @@ function runPhase() {
   breathCountEl.textContent = 'Круг ' + round + ' из ' + TOTAL_ROUNDS;
 
   // Огонёк меняет размер ровно за время этой фазы.
-  orbEl.style.transitionDuration = phase.time + 'ms';
-  orbEl.classList.toggle('big', phase.big);
-
-  breathTimer = setTimeout(function () {
-    phaseIndex++;
-    if (phaseIndex === PHASES.length) {
-      phaseIndex = 0;
-      round++;
-      if (round > TOTAL_ROUNDS) {
-        finishBreath();
-        return;
-      }
-    }
-    runPhase();
-  }, phase.time);
-}
-
-function startBreath() {
-  breathing = true;
-  phaseIndex = 0;
-  round = 1;
-  breathBtn.textContent = 'Остановить';
-  runPhase();
-}
-
-function stopBreath(message) {
-  clearTimeout(breathTimer);
-  breathing = false;
-  orbEl.style.transitionDuration = '1500ms';
-  orbEl.classList.remove('big');
-  breathTextEl.textContent = message || 'Нажми, когда будешь готова';
-  breathCountEl.textContent = '';
-  breathBtn.textContent = 'Начать';
-}
-
-function finishBreath() {
-  stopBreath('Ты молодец, что нашла эту минуту для себя.');
-  breathBtn.textContent = 'Ещё минуту';
-}
-
-breathBtn.addEventListener('click', function () {
-  if (breathing) {
-    stopBreath();
-  } else {
-    startBreath();
-  }
-});
-
-// ---------- Первый вход ----------
-
-const startDoneBtn = document.getElementById('start-done');
-const startBabyInput = document.getElementById('start-baby');
-const peopleInputs = document.querySelectorAll('input[name="people"]');
-const helpBabyEl = document.getElementById('help-baby');
-const editProfileBtn = document.getElementById('edit-profile');
-const tabbarEl = document.querySelector('.tabbar');
-
-// Кнопка «Дальше» становится активной, когда выбран ответ на вопрос.
-peopleInputs.forEach(function (input) {
-  input.addEventListener('change', function () {
-    startDoneBtn.disabled = false;
-  });
-});
-
-// Показываем или прячем то, что зависит от ответов.
-function applyProfile() {
-  helpBabyEl.hidden = !(profile && profile.baby);
-}
-
-startDoneBtn.addEventListener('click', function () {
-  const chosen = document.querySelector('input[name="people"]:checked');
-  if (!chosen) return;
-
-  profile = { people: chosen.value === 'yes', baby: startBabyInput.checked };
-  storeProfile(profile);
-
-  // Пересобираем список фраз под новые ответы и начинаем с первой.
-  phrases = availablePhrases();
-  current = 0;
-  currentText = phrases[0];
-  phraseEl.textContent = currentText;
-  updateHeart();
-
-  applyProfile();
-  show('phrases');
-});
-
-// Открываем вопросы заново, с уже отмеченными ответами.
-editProfileBtn.addEventListener('click', function () {
-  if (profile) {
-    peopleInputs.forEach(function (input) {
-      input.checked = (input.value === 'yes') === profile.people;
-    });
-    startBabyInput.checked = profile.baby;
-    startDoneBtn.disabled = false;
-  }
-  show('start');
-});
-
-// ---------- Переключение разделов ----------
-
-const views = document.querySelectorAll('.view');
-const tabs = document.querySelectorAll('.tab');
-
-// Показываем раздел с нужным именем, остальные прячем.
-function show(name) {
-  // На экране первого входа нижнее меню не нужно.
-  tabbarEl.hidden = name === 'start';
-
-  // Если ушли с экрана дыхания, останавливаем упражнение.
-  if (name !== 'breath' && breathing) stopBreath();
-
-  views.forEach(function (view) {
-    view.hidden = view.id !== 'view-' + name;
-  });
-
-  // «Сохранённые» живут внутри раздела «Фразы», поэтому подсвечиваем его вкладку.
-  const activeTab = name === 'saved' ? 'phrases' : name;
-  tabs.forEach(function (tab) {
-    if (tab.dataset.go === activeTab) {
-      tab.setAttribute('aria-current', 'page');
-    } else {
-      tab.removeAttribute('aria-current');
-    }
-  });
-
-  if (name === 'phrases') renderMood();
-  if (name === 'saved') renderSaved();
-  if (name === 'jar') {
-    resetJarView();
-    updateJarCount();
-  }
-  window.scrollTo(0, 0);
-}
-
-// Любая кнопка с атрибутом data-go переключает на свой раздел.
-document.querySelectorAll('[data-go]').forEach(function (button) {
-  button.addEventListener('click', function () {
-    show(button.dataset.go);
-  });
-});
-
-// При открытии страницы: если человек ещё не отвечал на вопросы, начинаем с них.
-updateHeart();
-applyProfile();
-show(profile ? 'phrases' : 'start');
+  orbEl.style.transitionDuration = ph
