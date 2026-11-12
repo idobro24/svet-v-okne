@@ -11,6 +11,26 @@
 <body>
   <div class="app">
 
+    <!-- Первый вход: пара вопросов о человеке -->
+    <section class="view start" id="view-start" hidden>
+      <span class="brand">Свет в окне</span>
+      <div class="start-hello">
+        <h1>Привет. Здесь можно просто побыть.</h1>
+        <p class="lead">Пара вопросов, чтобы подбирать слова, которые подойдут именно тебе.</p>
+      </div>
+
+      <fieldset class="choice">
+        <legend>Сейчас тебе есть с кем поговорить?</legend>
+        <label class="choice-option"><input type="radio" name="people" value="yes"> Да, есть близкие люди</label>
+        <label class="choice-option"><input type="radio" name="people" value="no"> Сейчас мне не с кем</label>
+      </fieldset>
+
+      <label class="check"><input type="checkbox" id="start-baby"> Я жду ребёнка</label>
+
+      <button class="btn-primary" type="button" id="start-done" disabled>Дальше</button>
+      <p class="hint">Ответы остаются только на этом телефоне. Поменять их можно в разделе «Помощь».</p>
+    </section>
+
     <!-- Раздел 1: фраза дня -->
     <section class="view" id="view-phrases">
       <header class="topbar">
@@ -127,10 +147,12 @@
         <span class="help-note">Если есть опасность для жизни</span>
       </a>
 
-      <div class="help-card soft">
+      <div class="help-card soft" id="help-baby">
         <span class="help-title">Психолог для будущих мам</span>
         <span class="help-note">Спроси в своей женской консультации: там часто есть психолог, и приходить можно не только с вопросами о здоровье.</span>
       </div>
+
+      <button class="link" type="button" id="edit-profile">Изменить ответы о себе</button>
     </section>
 
     <!-- Нижнее меню -->
