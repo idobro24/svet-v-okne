@@ -288,16 +288,26 @@ function countStorms() {
   return count;
 }
 
-// Рисуем полоску из 7 дней: от самого старого слева до сегодня справа.
+// Рисуем текущую неделю: с понедельника по воскресенье.
+// Прошедшие дни показывают отметку (или точку), будущие — бледные.
 function renderWeek() {
   moodWeekEl.innerHTML = '';
-  for (let i = 6; i >= 0; i--) {
-    const date = daysAgo(i);
-    const mood = moods[dayKey(date)];
+  const today = new Date();
+  const todayKey = dayKey(today);
+  const daysSinceMonday = (today.getDay() + 6) % 7; // в JS неделя начинается с воскресенья (0)
+
+  for (let i = 0; i < 7; i++) {
+    const date = daysAgo(daysSinceMonday - i);
+    const key = dayKey(date);
+    const mood = moods[key];
+    const isFuture = key > todayKey;
 
     const item = document.createElement('li');
+    if (key === todayKey) item.classList.add('today');
+    if (isFuture) item.classList.add('future');
     item.setAttribute('aria-label',
-      date.toLocaleDateString('ru-RU', { weekday: 'long' }) + ': ' + (mood ? MOODS[mood].name : 'без отметки'));
+      date.toLocaleDateString('ru-RU', { weekday: 'long' }) + ': '
+      + (isFuture ? 'ещё впереди' : (mood ? MOODS[mood].name : 'без отметки')));
 
     const icon = document.createElement('span');
     icon.className = 'mood-week-icon';
@@ -336,6 +346,8 @@ document.querySelectorAll('.mood-btn').forEach(function (button) {
     storeMoods(moods);
     renderMood();
     fadeTo(MOODS[mood].phrase); // отвечаем фразой под настроение
+    // Погоду только что выбрали — сразу раскрываем идеи, чем себе помочь.
+    setSelfcareOpen(true);
   });
 });
 
@@ -398,6 +410,18 @@ const IDEAS_AT_ONCE = 3;
 const selfcareEl = document.getElementById('selfcare');
 const selfcareListEl = document.getElementById('selfcare-list');
 const selfcareMoreBtn = document.getElementById('selfcare-more');
+const selfcareToggleBtn = document.getElementById('selfcare-toggle');
+const selfcareBodyEl = document.getElementById('selfcare-body');
+
+// Раскрываем или скрываем идеи. При открытии приложения блок всегда свёрнут.
+function setSelfcareOpen(open) {
+  selfcareBodyEl.hidden = !open;
+  selfcareToggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+selfcareToggleBtn.addEventListener('click', function () {
+  setSelfcareOpen(selfcareBodyEl.hidden);
+});
 
 let ideas = [];        // перемешанные идеи для текущей погоды
 let ideasOffset = 0;   // с какой идеи начинаем показывать
