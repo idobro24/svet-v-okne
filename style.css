@@ -14,6 +14,20 @@ html {
   touch-action: manipulation;
 }
 
+/* Двойное касание по тексту не выделяет слова и не вызывает меню «Скопировать»,
+   которое на iPhone сдвигает экран. В полях ввода, записках и письмах выделять можно. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+textarea, input, .note-text, .letter-paper, .saved-item p {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 /* Ошибка iOS 26 (WebKit 301108): у приложения с домашнего экрана область страницы
    короче экрана на высоту строки состояния, если сама страница короче экрана.
    Из всех единиц полную высоту экрана там сообщает только 100lvh — растягиваем по ней,

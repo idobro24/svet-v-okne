@@ -3,6 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script>
+    // Только на iPhone и iPad: maximum-scale=1 отключает увеличение двойным нажатием
+    // и при нажатии на поле ввода. Увеличение двумя пальцами iPhone всё равно оставляет.
+    // На Android так не делаем: там это отключило бы и увеличение двумя пальцами.
+    (function () {
+      var ios = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (ios) {
+        document.querySelector('meta[name="viewport"]').setAttribute('content',
+          'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
+      }
+    })();
+  </script>
   <title>Свет в окне</title>
 
   <!-- Чтобы на домашнем экране сайт выглядел и запускался как приложение -->
@@ -19,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <!-- ?v=… — номер обновления: меняйте его вместе с файлами, чтобы iPhone не брал старую копию -->
-  <link rel="stylesheet" href="style.css?v=1.1.18">
+  <link rel="stylesheet" href="style.css?v=1.1.19">
   <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
   <link rel="preload" as="image" href="note2.webp">
   <link rel="preload" as="image" href="paper.webp">
@@ -316,6 +329,6 @@
     </nav>
 
   </div>
-  <script src="script.js?v=1.1.18"></script>
+  <script src="script.js?v=1.1.19"></script>
 </body>
 </html>
