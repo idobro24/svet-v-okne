@@ -1,6 +1,6 @@
 // Версия приложения. Меняйте её здесь при каждом заметном обновлении,
 // и она сама обновится внизу экранов и в разделе «О приложении».
-const APP_VERSION = '1.0';
+const APP_VERSION = '1.1';
 
 document.querySelectorAll('[data-version]').forEach(function (el) {
   el.textContent = APP_VERSION;
@@ -961,8 +961,11 @@ startDoneBtn.addEventListener('click', function () {
   const chosen = document.querySelector('input[name="people"]:checked');
   if (!chosen) return;
 
+  const firstTime = !profile;
   profile = { people: chosen.value === 'yes', baby: startBabyInput.checked };
   storeProfile(profile);
+  // Новому человеку «Что нового» не показываем: для него новое всё.
+  if (firstTime) markVersionSeen();
 
   // Пересобираем список фраз под новые ответы и начинаем с первой.
   phrases = availablePhrases();
@@ -1260,10 +1263,103 @@ function checkPeopleToday() {
 
 startCounting();
 
+// ---------- Что нового ----------
+
+// Список изменений для каждой версии. Для новой версии добавьте сюда новый блок
+// с тем же номером, что в APP_VERSION, — окно покажется всем один раз.
+const WHATS_NEW = {
+  '1.1': [
+    { icon: '🔥', title: 'Треск камина', text: 'Значок огонька на главном экране и на экране дыхания включает тихий треск камина.' },
+    { icon: '✉️', title: 'Письмо себе в будущее', text: 'Напиши себе сейчас и прочитай через неделю, месяц или год. Есть подсказки, с чего начать. Ищи во вкладке «Банка».' },
+    { icon: '🕯️', title: 'Ты не одна', text: 'Иногда приложение будет тихо напоминать, сколько людей сегодня тоже зажгли здесь свет.' },
+    { icon: '📌', title: 'Записки на листе', text: 'Записки из банки теперь появляются на бумаге с зажимом, а при смене плавно возвращаются в банку.' },
+    { icon: '🏠', title: 'Своя иконка', text: 'На экране «Домой» теперь тёплое окошко. Если иконка старая — удали ярлык и добавь заново.' }
+  ]
+};
+
+const SEEN_VERSION_KEY = 'seenVersion';
+const whatsNewEl = document.getElementById('whatsnew');
+const whatsNewListEl = document.getElementById('whatsnew-list');
+const whatsNewCloseBtn = document.getElementById('whatsnew-close');
+
+function markVersionSeen() {
+  try { localStorage.setItem(SEEN_VERSION_KEY, APP_VERSION); } catch (error) {}
+}
+
+// Нужно ли показать окно: человек уже пользовался приложением (есть ответы о себе),
+// но эту версию ещё не видел. Для проверки добавьте к адресу #whatsnew-test.
+function shouldShowWhatsNew() {
+  if (location.hash === '#whatsnew-test') return true;
+  if (!profile || !WHATS_NEW[APP_VERSION]) return false;
+  try {
+    return localStorage.getItem(SEEN_VERSION_KEY) !== APP_VERSION;
+  } catch (error) {
+    return false;
+  }
+}
+
+let afterWhatsNew = null; // что сделать, когда окно закроют
+
+function showWhatsNew(then) {
+  afterWhatsNew = then || null;
+  whatsNewListEl.innerHTML = '';
+  (WHATS_NEW[APP_VERSION] || []).forEach(function (item) {
+    const li = document.createElement('li');
+
+    const icon = document.createElement('span');
+    icon.className = 'whatsnew-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = item.icon;
+
+    const body = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = item.title;
+    const text = document.createElement('span');
+    text.className = 'whatsnew-text';
+    text.textContent = item.text;
+    body.append(title, text);
+
+    li.append(icon, body);
+    whatsNewListEl.append(li);
+  });
+
+  whatsNewEl.hidden = false;
+  requestAnimationFrame(function () {
+    whatsNewEl.classList.add('visible');
+  });
+}
+
+function closeWhatsNew() {
+  markVersionSeen();
+  whatsNewEl.classList.remove('visible');
+  setTimeout(function () {
+    whatsNewEl.hidden = true;
+    if (afterWhatsNew) afterWhatsNew();
+    afterWhatsNew = null;
+  }, 400);
+}
+
+whatsNewCloseBtn.addEventListener('click', closeWhatsNew);
+
+// Закрыть можно и нажатием на затемнённый фон вокруг окна, и клавишей Esc.
+whatsNewEl.addEventListener('click', function (event) {
+  if (event.target === whatsNewEl) closeWhatsNew();
+});
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape' && !whatsNewEl.hidden) closeWhatsNew();
+});
+
 // При открытии страницы: если человек ещё не отвечал на вопросы, начинаем с них.
 updateHeart();
 applyProfile();
 show(profile ? 'phrases' : 'start');
 
-// Плашку показываем через пару секунд и не на самом первом экране с вопросами.
-if (profile) setTimeout(checkPeopleToday, 2000);
+// Сначала «Что нового» (если есть что показать), а плашку «ты не одна» — уже после него.
+// На самом первом экране с вопросами ни то ни другое не показываем.
+if (shouldShowWhatsNew()) {
+  setTimeout(function () {
+    showWhatsNew(function () { setTimeout(checkPeopleToday, 1500); });
+  }, 800);
+} else if (profile) {
+  setTimeout(checkPeopleToday, 2000);
+}
