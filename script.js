@@ -980,6 +980,27 @@ editProfileBtn.addEventListener('click', function () {
   show('start');
 });
 
+// ---------- Режим набора текста ----------
+
+// Пока человек пишет записку или письмо, прячем нижнее меню.
+// Иначе на iPhone оно подпрыгивает над клавиатурой и закрывает кнопки формы.
+document.addEventListener('focusin', function (event) {
+  if (event.target.matches('textarea')) {
+    document.body.classList.add('typing');
+  }
+});
+
+document.addEventListener('focusout', function (event) {
+  if (event.target.matches('textarea')) {
+    // Небольшая пауза, чтобы меню не мигало, если фокус сразу переходит дальше.
+    setTimeout(function () {
+      if (!document.activeElement || !document.activeElement.matches('textarea')) {
+        document.body.classList.remove('typing');
+      }
+    }, 100);
+  }
+});
+
 // ---------- Переключение разделов ----------
 
 const views = document.querySelectorAll('.view');
