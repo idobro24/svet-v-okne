@@ -1163,19 +1163,9 @@ fireButtons.forEach(function (button) {
   });
 });
 
-// Сворачивание приложения.
-// Звук не обрываем на полуслове: быстро уводим в тишину, останавливаем и полностью
-// закрываем звуковой движок. Если оставлять его «на паузе» и потом будить без нажатия,
-// iPhone со второго раза начинает издавать механический звук.
-let fireWaitingForTouch = false;
-
-function closeAudio() {
-  if (!audioCtx) return;
-  const ctx = audioCtx;
-  audioCtx = null;
-  try { ctx.close(); } catch (error) {}
-}
-
+// Когда приложение сворачивают, звук не обрываем на полуслове (от этого и был
+// неприятный «механический» звук), а очень быстро уводим в тишину и останавливаем.
+// При возвращении камин снова плавно разгорается.
 function muteFireForBackground() {
   if (!audioCtx) return;
   if (fireSource) {
@@ -1190,27 +1180,15 @@ function muteFireForBackground() {
     try { source.stop(now + 0.1); } catch (error) {}
   }
   setTimeout(function () {
-    if (document.hidden) closeAudio();
+    if (document.hidden && audioCtx.state === 'running') audioCtx.suspend();
   }, 150);
 }
 
-// Возвращение в приложение. iPhone честно разрешает включать звук только в ответ
-// на касание, поэтому камин снова разгорается при первом прикосновении к экрану.
 function resumeFireAfterBackground() {
-  if (!fireOn || fireWaitingForTouch) return;
-  fireWaitingForTouch = true;
-
-  function relight() {
-    document.removeEventListener('pointerdown', relight, true);
-    fireWaitingForTouch = false;
-    if (!fireOn) return;
-    closeAudio(); // на случай, если старый движок не успел закрыться
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    audioCtx.resume();
-    playFire();
-  }
-
-  document.addEventListener('pointerdown', relight, true);
+  if (!audioCtx || !fireOn) return;
+  audioCtx.resume().then(function () {
+    if (fireOn && !fireSource) playFire();
+  });
 }
 
 document.addEventListener('visibilitychange', function () {
