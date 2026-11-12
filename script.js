@@ -1244,8 +1244,11 @@ function checkPeopleToday() {
     } catch (error) {}
   }
 
+  // Период «сегодня»: с начала сегодняшнего дня до начала завтрашнего,
+  // чтобы сегодняшние посещения точно попали в подсчёт целиком.
+  const tomorrow = dayKey(daysAgo(-1));
   const url = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/counter/'
-    + encodeURIComponent('/') + '.json?start=' + today;
+    + encodeURIComponent('/') + '.json?start=' + today + '&end=' + tomorrow;
 
   fetch(url)
     .then(function (response) {
