@@ -673,6 +673,217 @@ breathBtn.addEventListener('click', function () {
   }
 });
 
+// ---------- Письмо себе в будущее ----------
+
+const LETTERS_KEY = 'futureLetters';
+const DAY = 24 * 60 * 60 * 1000; // сутки в миллисекундах
+
+// Начала предложений, чтобы было легче начать писать.
+const STARTERS = [
+  { text: 'Привет, это я из прошлого. Сейчас, когда я пишу это письмо, мне…' },
+  { text: 'Сегодня мне тяжелее всего от того, что…' },
+  { text: 'Но даже сейчас я горжусь собой за то, что…' },
+  { text: 'Вот что меня сейчас поддерживает:' },
+  { text: 'Я надеюсь, что к тому моменту, когда ты это читаешь…' },
+  { text: 'Хочу напомнить тебе, что…' },
+  { text: 'Если тебе снова станет тяжело, вспомни…' },
+  { text: 'Я обещаю тебе, что…' },
+  { text: 'Спасибо тебе за то, что…' },
+  { text: 'Малыш сейчас у меня под сердцем, и…', only: 'baby' },
+  { text: 'Когда ты будешь держать малыша на руках, я хочу, чтобы ты знала…', only: 'baby' }
+];
+
+const startersEl = document.getElementById('starters');
+const letterInput = document.getElementById('letter-input');
+const letterSaveBtn = document.getElementById('letter-save');
+const lettersBlockEl = document.getElementById('letters-block');
+const lettersEl = document.getElementById('letters');
+const letterReadyEl = document.getElementById('letter-ready');
+
+function loadLetters() {
+  try {
+    const raw = localStorage.getItem(LETTERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function storeLetters(list) {
+  try {
+    localStorage.setItem(LETTERS_KEY, JSON.stringify(list));
+  } catch (error) {
+    // Если память недоступна, просто ничего не сохраняем.
+  }
+}
+
+// Каждое письмо: { id, text, created, openAt, opened }
+let letters = loadLetters();
+
+// Какое прочитанное письмо сейчас развёрнуто.
+let expandedLetter = null;
+
+// Пришёл ли срок открыть письмо.
+function isReady(letter) {
+  return new Date(letter.openAt) <= new Date();
+}
+
+// Добавляем начало предложения в письмо, с новой строки.
+function insertStarter(text) {
+  const current = letterInput.value;
+  const separator = current && !current.endsWith('\n') ? '\n\n' : '';
+  // Многоточие на кнопке только подсказывает, что фразу нужно продолжить, в письмо его не ставим.
+  letterInput.value = current + separator + text.replace(/…$/, '') + ' ';
+  letterInput.focus();
+  const end = letterInput.value.length;
+  letterInput.setSelectionRange(end, end); // курсор в конец
+}
+
+function renderStarters() {
+  startersEl.innerHTML = '';
+  STARTERS.filter(fitsProfile).forEach(function (starter) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'starter';
+    button.textContent = starter.text;
+    button.addEventListener('click', function () {
+      insertStarter(starter.text);
+    });
+    startersEl.append(button);
+  });
+}
+
+function openLetter(letter) {
+  letter.opened = true;
+  storeLetters(letters);
+  expandedLetter = letter.id;
+  renderLetters();
+  updateLetterBanner();
+}
+
+function makeLink(label, onClick) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'link';
+  button.textContent = label;
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+function renderLetters() {
+  lettersEl.innerHTML = '';
+  lettersBlockEl.hidden = letters.length === 0;
+
+  // Сначала те, что откроются раньше.
+  const sorted = letters.slice().sort(function (a, b) {
+    return new Date(a.openAt) - new Date(b.openAt);
+  });
+
+  sorted.forEach(function (letter) {
+    const item = document.createElement('li');
+    item.className = 'letter-card';
+
+    const status = document.createElement('p');
+    status.className = 'letter-status';
+    const meta = document.createElement('p');
+    meta.className = 'letter-meta';
+    const actions = document.createElement('div');
+    actions.className = 'letter-actions';
+
+    if (letter.opened) {
+      // Прочитанное письмо
+      status.textContent = '✉️ Письмо от ' + formatDate(letter.created);
+      meta.textContent = 'Открыто';
+      item.append(status, meta);
+
+      if (expandedLetter === letter.id) {
+        const paper = document.createElement('div');
+        paper.className = 'letter-paper';
+        paper.textContent = letter.text;
+        item.append(paper);
+        actions.append(makeLink('Свернуть', function () {
+          expandedLetter = null;
+          renderLetters();
+        }));
+      } else {
+        actions.append(makeLink('Перечитать', function () {
+          expandedLetter = letter.id;
+          renderLetters();
+        }));
+      }
+
+      actions.append(makeLink('Удалить', function () {
+        if (!confirm('Удалить это письмо навсегда?')) return;
+        letters = letters.filter(function (l) { return l.id !== letter.id; });
+        storeLetters(letters);
+        renderLetters();
+      }));
+      item.append(actions);
+    } else if (isReady(letter)) {
+      // Срок пришёл, но письмо ещё не открыто
+      status.textContent = '✉️ Письмо готово!';
+      meta.textContent = 'Ты написала его ' + formatDate(letter.created);
+      const openBtn = document.createElement('button');
+      openBtn.type = 'button';
+      openBtn.className = 'btn-primary';
+      openBtn.textContent = 'Открыть';
+      openBtn.addEventListener('click', function () { openLetter(letter); });
+      item.append(status, meta, openBtn);
+    } else {
+      // Ещё запечатано
+      status.textContent = '✉️ Запечатано';
+      meta.textContent = 'Откроется ' + formatDate(letter.openAt);
+      actions.append(makeLink('Открыть раньше', function () {
+        if (!confirm('Это письмо должно открыться ' + formatDate(letter.openAt) + '. Открыть сейчас?')) return;
+        openLetter(letter);
+      }));
+      item.append(status, meta, actions);
+    }
+
+    lettersEl.append(item);
+  });
+}
+
+// Плашка на главном экране, если есть письмо, которое пора открыть.
+function updateLetterBanner() {
+  const waiting = letters.some(function (letter) {
+    return !letter.opened && isReady(letter);
+  });
+  letterReadyEl.hidden = !waiting;
+}
+
+letterSaveBtn.addEventListener('click', function () {
+  const text = letterInput.value.trim();
+  if (!text) {
+    letterInput.focus();
+    return;
+  }
+  const days = Number(document.querySelector('input[name="when"]:checked').value);
+  const now = new Date();
+
+  letters.push({
+    id: String(now.getTime()),
+    text: text,
+    created: now.toISOString(),
+    openAt: new Date(now.getTime() + days * DAY).toISOString(),
+    opened: false
+  });
+  storeLetters(letters);
+
+  letterInput.value = '';
+  renderLetters();
+
+  // Короткое подтверждение на самой кнопке.
+  letterSaveBtn.textContent = 'Письмо запечатано ✉️';
+  letterSaveBtn.disabled = true;
+  setTimeout(function () {
+    letterSaveBtn.textContent = 'Запечатать письмо';
+    letterSaveBtn.disabled = false;
+  }, 2000);
+
+  lettersBlockEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
 // ---------- Первый вход ----------
 
 const startDoneBtn = document.getElementById('start-done');
@@ -743,7 +954,9 @@ function show(name) {
   });
 
   // «Сохранённые» живут внутри раздела «Фразы», поэтому подсвечиваем его вкладку.
-  const activeTab = (name === 'saved' || name === 'about') ? 'phrases' : name;
+  let activeTab = name;
+  if (name === 'saved' || name === 'about') activeTab = 'phrases';
+  if (name === 'letter') activeTab = 'jar';
   tabs.forEach(function (tab) {
     if (tab.dataset.go === activeTab) {
       tab.setAttribute('aria-current', 'page');
@@ -752,7 +965,14 @@ function show(name) {
     }
   });
 
-  if (name === 'phrases') renderMood();
+  if (name === 'phrases') {
+    renderMood();
+    updateLetterBanner();
+  }
+  if (name === 'letter') {
+    renderStarters();
+    renderLetters();
+  }
   if (name === 'saved') renderSaved();
   if (name === 'jar') {
     resetJarView();
