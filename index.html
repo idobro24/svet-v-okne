@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Свет в окне</title>
+  <!-- ВРЕМЕННО: показывает ошибки прямо на экране, чтобы найти поломку без компьютера -->
+  <script>
+    window.addEventListener('error', function (e) {
+      var box = document.getElementById('error-box') || document.createElement('div');
+      box.id = 'error-box';
+      box.style.cssText = 'position:fixed;left:12px;right:12px;top:12px;z-index:9999;padding:12px 14px;border-radius:12px;background:#7a1f1f;color:#fff;font:14px/1.4 system-ui,sans-serif';
+      box.textContent = 'Ошибка: ' + e.message + ' (файл ' + (e.filename || '').split('/').pop() + ', строка ' + e.lineno + ')';
+      (document.body || document.documentElement).appendChild(box);
+    });
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
