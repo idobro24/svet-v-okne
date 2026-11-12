@@ -73,6 +73,9 @@
         <button class="link" type="button" data-go="help">Где найти поддержку →</button>
       </div>
 
+      <!-- Появляется, когда пришёл срок открыть письмо -->
+      <button class="letter-ready" id="letter-ready" type="button" data-go="letter" hidden>✉️ Тебе пришло письмо от себя из прошлого</button>
+
       <p id="phrase">Сегодня достаточно просто прожить этот день.</p>
 
       <div class="actions">
@@ -130,6 +133,46 @@
         <button class="btn-ghost" type="button" id="jar-add">Записать момент</button>
       </div>
       <p class="hint">Записки хранятся только на этом телефоне.</p>
+
+      <button class="letter-entry" type="button" data-go="letter">
+        <span class="letter-entry-icon" aria-hidden="true">✉️</span>
+        <span><strong>Письмо себе в будущее</strong><br>Напиши себе сейчас и прочитай, когда придёт время</span>
+      </button>
+    </section>
+
+    <!-- Письмо себе в будущее -->
+    <section class="view" id="view-letter" hidden>
+      <header class="topbar">
+        <button class="link" type="button" data-go="jar">← К банке</button>
+      </header>
+      <h1>Письмо себе в будущее</h1>
+      <p class="lead">Напиши себе — той, кем ты будешь через время. Письмо сохранится и откроется, когда придёт срок.</p>
+
+      <div class="letter-write">
+        <p class="field-label">Можно начать так. Нажми — и начало появится в письме:</p>
+        <div class="starters" id="starters"></div>
+
+        <label class="field-label" for="letter-input">Твоё письмо</label>
+        <textarea id="letter-input" rows="8" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
+
+        <fieldset class="when">
+          <legend class="field-label">Когда открыть?</legend>
+          <div class="when-options">
+            <label><input type="radio" name="when" value="7"> Через неделю</label>
+            <label><input type="radio" name="when" value="30" checked> Через месяц</label>
+            <label><input type="radio" name="when" value="90"> Через 3 месяца</label>
+            <label><input type="radio" name="when" value="182"> Через полгода</label>
+            <label><input type="radio" name="when" value="365"> Через год</label>
+          </div>
+        </fieldset>
+
+        <button class="btn-primary" type="button" id="letter-save">Запечатать письмо</button>
+      </div>
+
+      <div id="letters-block" hidden>
+        <h2 class="section-title">Мои письма</h2>
+        <ul class="letters" id="letters"></ul>
+      </div>
     </section>
 
     <!-- Раздел: дыхание -->
