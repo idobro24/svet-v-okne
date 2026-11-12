@@ -3,6 +3,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: 'Manrope', system-ui, sans-serif;
   color: #EBDCC4;
   background-color: #2B1E16;
@@ -15,16 +16,21 @@ body {
 
 main {
   min-height: 100vh;
+  min-height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
-  padding: 48px 28px;
+  padding: 48px 28px 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 40px;
+  gap: 32px;
 }
 
+/* Фраза занимает всё свободное место и стоит по центру этой области,
+   поэтому её длина больше не двигает кнопку */
 #phrase {
+  flex: 1;
+  display: flex;
+  align-items: center;
   margin: 0;
   font-family: 'Literata', Georgia, serif;
   font-size: 30px;
@@ -39,7 +45,9 @@ main {
   transform: translateY(6px);
 }
 
+/* Кнопка всегда внизу экрана */
 #next {
+  flex-shrink: 0;
   height: 52px;
   border: none;
   border-radius: 26px;
