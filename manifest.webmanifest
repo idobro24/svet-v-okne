@@ -1,0 +1,15 @@
+{
+  "id": "./",
+  "name": "Свет в окне",
+  "short_name": "Свет в окне",
+  "description": "Тихое место поддержки для тех, кому сейчас тяжело.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2B1E16",
+  "theme_color": "#2B1E16",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src":

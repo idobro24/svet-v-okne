@@ -1,1 +1,1426 @@
-/* стили */
+* { box-sizing: border-box; }
+
+/* Страница всегда занимает весь экран — это помогает iPhone правильно найти его нижний край */
+html {
+  height: 100%;
+}
+
+/* Ошибка iOS 26 (WebKit 301108): у приложения с домашнего экрана область страницы
+   короче экрана на высоту строки состояния, если сама страница короче экрана.
+   Из всех единиц полную высоту экрана там сообщает только 100lvh — растягиваем по ней,
+   и iPhone отдаёт приложению весь экран, а меню встаёт к самому низу. */
+@media (display-mode: standalone) {
+  html {
+    height: auto;
+    min-height: min(100lvh, calc(100% + env(safe-area-inset-top, 0px)));
+  }
+
+  body,
+  .app {
+    min-height: 100lvh;
+  }
+}
+
+/* Скрытые разделы не показываются вообще */
+[hidden] { display: none !important; }
+
+/* Убираем серую/синюю подсветку, которую Android рисует вокруг нажатой кнопки */
+button, a, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Рамку фокуса не показываем при нажатии пальцем... */
+button:focus, a:focus {
+  outline: none;
+}
+
+/* ...но оставляем аккуратную янтарную рамку для тех, кто ходит по странице с клавиатуры */
+button:focus-visible, a:focus-visible {
+  outline: 2px solid #E8B66B;
+  outline-offset: 3px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: #EBDCC4;
+  background-color: #2B1E16;
+  background-image:
+    linear-gradient(180deg, rgba(31,22,16,0.45), rgba(31,22,16,0.94)),
+    url('preview.webp');
+  background-size: cover;
+  background-position: 20% 15%;
+  background-attachment: fixed;
+}
+
+/* ---------- Общая раскладка ---------- */
+
+/* Высота нижнего меню: используем её и для самого меню, и для отступа под ним */
+:root {
+  --tabbar-h: calc(51px + max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px)));
+}
+
+.app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  /* Место под меню, которое теперь закреплено у нижнего края экрана */
+  padding-bottom: var(--tabbar-h);
+}
+
+.view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* env(safe-area-inset-top) — высота «чёлки» и строки состояния iPhone,
+     чтобы при запуске с домашнего экрана текст не уезжал под часы */
+  padding: calc(32px + env(safe-area-inset-top, 0px)) 28px 24px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #E8B66B;
+  cursor: pointer;
+}
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.brand {
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #E8B66B;
+}
+
+.link {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #E8B66B;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+h1 {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.3;
+  color: #F6E7CF;
+}
+
+.lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #D9C3A3;
+}
+
+/* ---------- Первый вход ---------- */
+
+.start-hello {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Письмо от автора: тёплый текст с огоньком слева */
+.start-letter {
+  position: relative;
+  margin: 4px 0;
+  padding: 2px 0 2px 22px;
+}
+
+.start-letter::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #F6CF86, rgba(232, 182, 107, 0.15));
+  box-shadow: 0 0 10px rgba(255, 200, 120, 0.6);
+}
+
+.start-letter p {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.55;
+  color: #F2D9AE;
+}
+
+.start-letter footer {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #BFA88A;
+}
+
+.start-letter footer::before {
+  content: '— ';
+}
+
+.choice {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.choice-option {
+  min-height: 56px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #F6E7CF;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Выбранный вариант подсвечивается янтарным */
+.choice-option:has(input:checked) {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.16);
+}
+
+.choice-option input,
+.check input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: #E8B66B;
+}
+
+.check {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #EBDCC4;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---------- Фраза дня ---------- */
+
+/* Фраза занимает всё свободное место, поэтому её длина не двигает кнопки.
+   min-height держит место под самую длинную фразу (7 строк), чтобы кнопки
+   не прыгали и тогда, когда ниже появляется блок «Что может помочь». */
+#phrase {
+  flex: 1;
+  min-height: calc(1.4em * 7);
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: clamp(24px, 7.2vw, 28px);
+  line-height: 1.4;
+  color: #F6E7CF;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#phrase.hidden {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 12px;
+}
+
+#next {
+  flex: 1;
+  height: 52px;
+  border: none;
+  border-radius: 26px;
+  background: #E8B66B;
+  color: #2B1E16;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#next:active { transform: scale(0.98); }
+
+#save {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(246, 231, 207, 0.35);
+  background: rgba(43, 30, 22, 0.4);
+  color: #EBDCC4;
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+#save svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  transition: fill 0.3s ease;
+}
+
+#save.saved {
+  color: #E8B66B;
+  border-color: #E8B66B;
+}
+
+#save.saved svg { fill: currentColor; }
+
+#save:active { transform: scale(0.94); }
+
+/* ---------- Погода внутри ---------- */
+
+.mood-question {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: #D9C3A3;
+}
+
+.mood-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.mood-btn {
+  min-height: 64px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 16px;
+  border: 1px solid rgba(246, 231, 207, 0.2);
+  background: rgba(43, 30, 22, 0.55);
+  color: #EBDCC4;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mood-btn span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mood-btn:active { transform: scale(0.96); }
+
+.mood-line {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 15px;
+  color: #D9C3A3;
+}
+
+.link.small {
+  min-height: 36px;
+  font-size: 14px;
+}
+
+/* Полоска из 7 последних дней */
+.mood-week {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mood-week li {
+  min-width: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.mood-week-icon {
+  font-size: 18px;
+  line-height: 1.3;
+  color: #BFA88A;
+}
+
+/* Сегодняшний день в неделе — подчёркнут огоньком */
+.mood-week li.today .mood-week-day {
+  color: #E8B66B;
+  font-weight: 600;
+}
+
+/* Дни, которые ещё не наступили */
+.mood-week li.future {
+  opacity: 0.35;
+}
+
+.mood-week-day {
+  font-size: 11px;
+  color: #BFA88A;
+}
+
+.care-card {
+  padding: 14px 18px 6px;
+  border-radius: 18px;
+  background: rgba(240, 185, 160, 0.16);
+}
+
+.care-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+/* ---------- Самопомощь ---------- */
+
+.selfcare {
+  padding: 4px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(246, 231, 207, 0.12);
+  background: rgba(30, 21, 15, 0.72);
+}
+
+/* Заголовок блока — кнопка, которая раскрывает и скрывает идеи */
+.selfcare-toggle {
+  width: 100%;
+  min-height: 52px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: none;
+  background: none;
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 19px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.selfcare-toggle svg {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #E8B66B;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s ease;
+}
+
+.selfcare-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.selfcare-body {
+  padding: 4px 0 2px;
+}
+
+.selfcare-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.selfcare-list li {
+  position: relative;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+/* Маркер списка — маленький светящийся огонёк */
+.selfcare-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #F6CF86;
+  box-shadow: 0 0 8px rgba(255, 200, 120, 0.8);
+}
+
+.selfcare-action {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(232, 182, 107, 0.6);
+  background: none;
+  color: #E8B66B;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selfcare-action:active { transform: scale(0.97); }
+
+/* ---------- Сохранённые фразы ---------- */
+
+.saved-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saved-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.15);
+  background: rgba(43, 30, 22, 0.65);
+}
+
+.saved-item p {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.45;
+  color: #F6E7CF;
+}
+
+.saved-item button {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #BFA88A;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---------- Помощь ---------- */
+
+.help-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.65);
+  color: #F6E7CF;
+  text-decoration: none;
+}
+
+.help-card.primary {
+  background: #E8B66B;
+  border-color: #E8B66B;
+  color: #2B1E16;
+}
+
+.help-card.soft {
+  border-color: transparent;
+  background: rgba(240, 185, 160, 0.14);
+}
+
+.help-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.help-card.soft .help-title { color: #F0B9A0; }
+
+.help-number {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.help-note {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---------- Банка хороших моментов ---------- */
+
+.jar-photo-wrap {
+  position: relative;
+}
+
+.jar-photo {
+  display: block;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  object-position: 50% 40%;
+  border-radius: 22px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* Счётчик записок — табличкой прямо на фото банки */
+.jar-badge {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgba(30, 21, 15, 0.78);
+  backdrop-filter: blur(6px);
+  color: #F6E7CF;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Записка на листе бумаги с зажимом.
+   Картинка растягивается под текст, а отступы в процентах
+   держат текст под зажимом и внутри рваных краёв листа. */
+.note {
+  position: relative;
+  z-index: 1;
+  /* Подтягиваем лист вверх, чтобы зажим «цеплялся» за край фото банки */
+  margin-top: calc(-24px - 18%);
+  /* Тень уже нарисована в самой картинке: так Safari не мигает при анимации */
+  aspect-ratio: 760 / 732;
+  padding: 37% 14% 15%;
+  background: url('note2.webp') center / 100% 100% no-repeat;
+  color: #3A2A1C;
+  transform: rotate(-1.5deg);
+  /* Держим записку на отдельном слое видеокарты, чтобы она не мерцала */
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Записка выходит из банки: поднимается откуда-то сверху и ложится на место */
+.note.appear {
+  animation: note-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Прежняя записка возвращается в банку: уходит вверх и тает */
+.note.leaving {
+  animation: note-out 0.3s ease-in both;
+}
+
+@keyframes note-in {
+  from { opacity: 0; transform: translateY(-56px) rotate(4deg) scale(0.85); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: rotate(-1.5deg); }
+}
+
+@keyframes note-out {
+  from { opacity: 1; transform: rotate(-1.5deg); }
+  to   { opacity: 0; transform: translateY(-56px) rotate(5deg) scale(0.85); }
+}
+
+/* Банка чуть покачивается, когда из неё достают записку */
+.jar-photo-wrap.shake {
+  animation: jar-shake 0.5s ease;
+}
+
+@keyframes jar-shake {
+  0%, 100% { transform: rotate(0); }
+  25%      { transform: rotate(-1.2deg); }
+  50%      { transform: rotate(1deg); }
+  75%      { transform: rotate(-0.5deg); }
+}
+
+.note-date {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #5C4632;
+}
+
+.note-text {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.note-delete {
+  min-height: 40px;
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #5C4632;
+  font-family: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Кнопки друг под другом */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-primary {
+  height: 52px;
+  border: none;
+  border-radius: 26px;
+  background: #E8B66B;
+  color: #2B1E16;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-ghost {
+  height: 52px;
+  border-radius: 26px;
+  border: 1.5px solid rgba(246, 231, 207, 0.35);
+  background: rgba(43, 30, 22, 0.4);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary:active, .btn-ghost:active { transform: scale(0.98); }
+
+.jar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jar-form label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.jar-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.jar-form textarea::placeholder { color: #BFA88A; }
+
+.jar-form textarea:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+/* ---------- Дыхание ---------- */
+
+.breath-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  min-height: 320px;
+}
+
+/* Огонёк: тёплое свечение, которое растёт и уменьшается.
+   Длительность перехода задаёт скрипт под каждую фазу дыхания. */
+.orb {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%,
+    #FFF1CF 0%,
+    #F6CF86 30%,
+    rgba(232, 182, 107, 0.35) 58%,
+    rgba(232, 182, 107, 0) 72%);
+  box-shadow: 0 0 40px rgba(255, 200, 120, 0.25);
+  transform: scale(0.55);
+  transition-property: transform, box-shadow;
+  transition-timing-function: ease-in-out;
+  transition-duration: 1000ms;
+}
+
+.orb.big {
+  transform: scale(1);
+  box-shadow: 0 0 90px rgba(255, 200, 120, 0.5);
+}
+
+.breath-text {
+  margin: 0;
+  min-height: 1.4em;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 24px;
+  text-align: center;
+  color: #F6E7CF;
+}
+
+.breath-count {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 14px;
+  color: #BFA88A;
+}
+
+/* ---------- Письмо себе в будущее ---------- */
+
+.letter-entry {
+  width: 100%;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.18);
+  background: rgba(30, 21, 15, 0.72);
+  color: #D9C3A3;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.letter-entry strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.letter-entry-icon { font-size: 26px; }
+
+.letter-ready {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1.5px solid #E8B66B;
+  background: rgba(232, 182, 107, 0.14);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.letter-write {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+/* Начала предложений — одна полоска подсказок прямо над полем письма.
+   Листается вбок, поэтому не нужно прокручивать страницу вверх-вниз. */
+.starters-hint {
+  margin: -4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #BFA88A;
+}
+
+.starters {
+  margin: 0 -28px;              /* полоска во всю ширину экрана */
+  padding: 2px 28px 6px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 28px;
+  scrollbar-width: none;        /* прячем полосу прокрутки */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+}
+
+.starters::-webkit-scrollbar { display: none; }
+
+.starter {
+  flex: 0 0 auto;
+  width: 210px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 182, 107, 0.45);
+  background: rgba(43, 30, 22, 0.7);
+  color: #EBDCC4;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.starter:active { transform: scale(0.98); }
+
+/* Уже использованное начало — приглушено и с галочкой, но нажать можно снова */
+.starter.used {
+  opacity: 0.5;
+}
+
+.starter.used::before {
+  content: '✓ ';
+  color: #E8B66B;
+}
+
+#letter-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+#letter-input::placeholder { color: #BFA88A; }
+
+#letter-input:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+/* Выбор срока — «таблетки», сами кружки радиокнопок спрятаны */
+.when {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.when legend {
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.when-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.when-options label {
+  position: relative;
+  min-height: 44px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  border-radius: 22px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #EBDCC4;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.when-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.when-options label:has(input:checked) {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.18);
+  color: #F6E7CF;
+}
+
+.when-options label:has(input:focus-visible) {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.section-title {
+  margin: 8px 0 12px;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 22px;
+  color: #F6E7CF;
+}
+
+.letters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.letter-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.14);
+  background: rgba(30, 21, 15, 0.75);
+}
+
+.letter-status {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.letter-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+/* Само письмо — на листе рваной бумаги.
+   border-image режет картинку на 9 частей: углы и рваные края остаются
+   как есть, а середина растягивается под любой длины письмо. */
+.letter-paper {
+  align-self: stretch;
+  margin: 10px -6px 6px;
+  padding: 6px 8px 10px;
+  border: 26px solid transparent;
+  border-image: url('paper.webp') 52 fill / 26px stretch;
+  color: #3A2A1C;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  transform: rotate(-0.6deg);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+}
+
+.letter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.letter-card .link {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.letter-card .btn-primary {
+  height: 46px;
+  padding: 0 22px;
+}
+
+/* ---------- О приложении ---------- */
+
+.about-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-list li {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(30, 21, 15, 0.72);
+  font-size: 15px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+.about-list strong {
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.about-note {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(240, 185, 160, 0.16);
+  font-size: 14px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+.about-author p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #D9C3A3;
+}
+
+.about-tg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.about-version {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+.about-credits {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #BFA88A;
+}
+
+.about-credits a {
+  color: #E8B66B;
+}
+
+.credit {
+  margin: 0;
+  padding: 0 28px 14px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #BFA88A;
+}
+
+/* ---------- Треск камина ---------- */
+
+.fire-toggle svg {
+  transition: fill 0.4s ease;
+}
+
+/* Камин включён — огонёк заливается тёплым светом.
+   Свечение делаем круглым фоном самой кнопки, а не фильтром тени на значке:
+   Safari рисовал вокруг значка с фильтром квадратную подложку. */
+.fire-toggle[aria-pressed="true"] {
+  color: #F6CF86;
+}
+
+.fire-toggle[aria-pressed="true"] svg {
+  fill: rgba(246, 207, 134, 0.45);
+}
+
+.icon-btn.fire-toggle[aria-pressed="true"] {
+  background: radial-gradient(circle, rgba(255, 190, 110, 0.35) 0%, rgba(255, 190, 110, 0.12) 45%, rgba(255, 190, 110, 0) 70%);
+}
+
+.fire-wide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fire-wide svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.fire-wide[aria-pressed="true"] {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.16);
+}
+
+/* ---------- Окно «Что нового» ---------- */
+
+.whatsnew {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 14, 10, 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.whatsnew.visible { opacity: 1; }
+
+.whatsnew-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 26px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(232, 182, 107, 0.35);
+  background: linear-gradient(180deg, #3A281C 0%, #2B1E16 100%);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 40px rgba(255, 200, 120, 0.12);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.4s ease;
+}
+
+.whatsnew.visible .whatsnew-card { transform: none; }
+
+.whatsnew-version {
+  margin: 0;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(232, 182, 107, 0.16);
+  color: #E8B66B;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.whatsnew-card h2 {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.3;
+  color: #F6E7CF;
+}
+
+.whatsnew-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.whatsnew-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.whatsnew-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(232, 182, 107, 0.14);
+  font-size: 18px;
+}
+
+.whatsnew-list strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.whatsnew-list span.whatsnew-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #D9C3A3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsnew, .whatsnew-card { transition: none; }
+}
+
+/* ---------- Плашка «ты не одна» ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  z-index: 20;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  /* Тёплый «ламповый» свет: светлая медовая плашка с тёмным текстом */
+  border: 1px solid rgba(255, 236, 200, 0.7);
+  background: linear-gradient(180deg, rgba(248, 226, 186, 0.96) 0%, rgba(236, 196, 132, 0.96) 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 36px rgba(255, 200, 120, 0.45);
+  color: #2B1E16;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: center;
+  cursor: pointer;
+  transform: translate(-50%, -12px);
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
+}
+
+/* ---------- Нижнее меню ---------- */
+
+/* Меню закреплено у нижнего края экрана (fixed), а не «прилипает» к концу страницы (sticky).
+   Так iPhone при первом запуске с домашнего экрана не поднимает его выше, чем нужно. */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  /* Снизу оставляем место только под полоску «домой» iPhone, без лишнего запаса */
+  padding: 4px 12px max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px));
+  border-top: 1px solid rgba(246, 231, 207, 0.12);
+  background: rgba(30, 21, 15, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+/* Пока набирается текст, меню не показываем */
+body.typing .tabbar {
+  display: none;
+}
+
+.tab {
+  min-width: 64px;
+  min-height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: #BFA88A;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.tab svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tab[aria-current="page"] {
+  color: #E8B66B;
+  font-weight: 600;
+}
+
+/* ---------- Для тех, у кого отключены анимации ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #phrase, #save, #save svg { transition: none; }
+  .note.appear, .note.leaving, .jar-photo-wrap.shake { animation: none; }
+  .orb { transition: none; }
+  #phrase.hidden { transform: none; }
+}

@@ -2,15 +2,320 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Свет в окне</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- Чтобы на домашнем экране сайт выглядел и запускался как приложение -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#2B1E16">
+  <!-- Иконка встроена прямо в страницу: так iOS 26 точно её «видит». Если не получится, iPhone сам найдёт файл apple-touch-icon.png рядом -->
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,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">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Свет в окне">
+  <!-- Обычная чёрная строка состояния: с прозрачной (black-translucent) iOS 26 обрезает низ приложения (ошибка WebKit 301108) -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+  <!-- ?v=… — номер обновления: меняйте его вместе с файлами, чтобы iPhone не брал старую копию -->
+  <link rel="stylesheet" href="style.css?v=1.1.11">
+  <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
+  <link rel="preload" as="image" href="note2.webp">
+  <link rel="preload" as="image" href="paper.webp">
 </head>
 <body>
-  <main>
-    <p id="phrase">Сегодня достаточно просто прожить этот день.</p>
-    <button id="next">Ещё одну</button>
-  </main>
-  <script src="script.js"></script>
+  <div class="app">
+
+    <!-- Первый вход: пара вопросов о человеке -->
+    <section class="view start" id="view-start" hidden>
+      <span class="brand">Свет в окне</span>
+      <div class="start-hello">
+        <h1>Привет. Здесь можно просто побыть.</h1>
+        <blockquote class="start-letter">
+          <p>Женщина женщине — дом. Я зажгла свет в своём окне для тебя. Он горит здесь каждую секунду, днём и ночью. Приходи, когда будет непросто.</p>
+          <footer>Ирина</footer>
+        </blockquote>
+        <p class="lead">Пара вопросов, чтобы подбирать слова, которые подойдут именно тебе.</p>
+      </div>
+
+      <fieldset class="choice">
+        <legend>Сейчас тебе есть с кем поговорить?</legend>
+        <label class="choice-option"><input type="radio" name="people" value="yes"> Да, есть близкие люди</label>
+        <label class="choice-option"><input type="radio" name="people" value="no"> Сейчас мне не с кем</label>
+      </fieldset>
+
+      <label class="check"><input type="checkbox" id="start-baby"> Я жду ребёнка</label>
+
+      <button class="btn-primary" type="button" id="start-done" disabled>Дальше</button>
+      <p class="hint">Ответы остаются только на этом телефоне. Поменять их можно в разделе «Помощь».</p>
+    </section>
+
+    <!-- Раздел 1: фраза дня -->
+    <section class="view" id="view-phrases">
+      <header class="topbar">
+        <span class="brand">Свет в окне</span>
+        <div class="topbar-right">
+          <button class="link" type="button" data-go="saved">Сохранённые</button>
+          <button class="icon-btn fire-toggle" type="button" aria-pressed="false" aria-label="Треск камина">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-2 1-3.4 2.2-4.4.2 1.5.9 2.4 1.8 2.9C11 8 11.2 5.4 12 3z"/></svg>
+          </button>
+          <button class="icon-btn" type="button" data-go="about" aria-label="Как устроено приложение">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.1"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Погода внутри: отметка состояния за день -->
+      <div class="mood">
+        <div id="mood-ask">
+          <p class="mood-question">Какая у тебя сегодня погода внутри?</p>
+          <div class="mood-options">
+            <button class="mood-btn" type="button" data-mood="storm"><span aria-hidden="true">⛈️</span>Гроза</button>
+            <button class="mood-btn" type="button" data-mood="fog"><span aria-hidden="true">💭</span>Туман</button>
+            <button class="mood-btn" type="button" data-mood="cloud"><span aria-hidden="true">☁️</span>Облачно</button>
+            <button class="mood-btn" type="button" data-mood="sun"><span aria-hidden="true">🌤️</span>Солнце</button>
+          </div>
+        </div>
+        <div id="mood-today" hidden>
+          <p class="mood-line">
+            <span id="mood-today-text"></span>
+            <button class="link small" type="button" id="mood-change">Изменить</button>
+          </p>
+          <ol class="mood-week" id="mood-week" aria-label="Погода на этой неделе"></ol>
+        </div>
+      </div>
+
+      <!-- Бережная подсказка, если гроз было много -->
+      <div class="care-card" id="care-card" hidden>
+        <p>Последние дни было много гроз. Это тяжело выдерживать в одиночку, и ты не обязана.</p>
+        <button class="link" type="button" data-go="help">Где найти поддержку →</button>
+      </div>
+
+      <!-- Появляется, когда пришёл срок открыть письмо -->
+      <button class="letter-ready" id="letter-ready" type="button" data-go="letter" hidden>✉️ Тебе пришло письмо от себя из прошлого</button>
+
+      <p id="phrase">Сегодня достаточно просто прожить этот день.</p>
+
+      <div class="actions">
+        <button id="next" type="button">Ещё одну</button>
+        <button id="save" type="button" aria-label="Сохранить фразу" aria-pressed="false">
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Самопомощь под выбранную погоду -->
+      <div class="selfcare" id="selfcare" hidden>
+        <button class="selfcare-toggle" type="button" id="selfcare-toggle" aria-expanded="false" aria-controls="selfcare-body">
+          <span>Чем себе помочь сейчас</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="selfcare-body" id="selfcare-body" hidden>
+          <ul class="selfcare-list" id="selfcare-list"></ul>
+          <button class="link" type="button" id="selfcare-more">Другие идеи</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Раздел 2: сохранённые фразы -->
+    <section class="view" id="view-saved" hidden>
+      <header class="topbar">
+        <button class="link" type="button" data-go="phrases">← К фразам</button>
+      </header>
+      <h1>Сохранённые фразы</h1>
+      <p class="lead" id="saved-empty">Пока здесь пусто. Нажми на сердечко у фразы, которая откликнулась, и она появится здесь.</p>
+      <ul class="saved-list" id="saved-list"></ul>
+    </section>
+
+    <!-- Раздел 3: банка хороших моментов -->
+    <section class="view" id="view-jar" hidden>
+      <h1>Банка хороших моментов</h1>
+      <div class="jar-photo-wrap" id="jar-photo-wrap">
+        <img class="jar-photo" src="preview.webp" alt="Стеклянная банка с записками в тёплом свете гирлянды">
+        <span class="jar-badge" id="jar-badge" hidden></span>
+      </div>
+      <p class="lead" id="jar-count" hidden></p>
+
+      <!-- Записка, которую достали из банки -->
+      <article class="note" id="jar-note" hidden>
+        <p class="note-date" id="note-date"></p>
+        <p class="note-text" id="note-text"></p>
+        <button class="note-delete" type="button" id="note-delete">Убрать из банки</button>
+      </article>
+
+      <!-- Форма новой записки -->
+      <form class="jar-form" id="jar-form" autocomplete="off" hidden>
+        <label for="jar-input">Что хорошего было?</label>
+        <textarea id="jar-input" autocomplete="off" autocorrect="on" name="note-text" rows="4" maxlength="400" placeholder="Например: подруга привезла мандарины в два часа ночи"></textarea>
+        <div class="stack">
+          <button class="btn-primary" type="submit">Положить в банку</button>
+          <button class="btn-ghost" type="button" id="jar-cancel">Отмена</button>
+        </div>
+      </form>
+
+      <div class="stack" id="jar-actions">
+        <button class="btn-primary" type="button" id="jar-draw">Достать записку</button>
+        <button class="btn-ghost" type="button" id="jar-add">Записать момент</button>
+      </div>
+      <p class="hint">Записки хранятся только на этом телефоне.</p>
+
+      <button class="letter-entry" type="button" data-go="letter">
+        <span class="letter-entry-icon" aria-hidden="true">✉️</span>
+        <span><strong>Письмо себе в будущее</strong><br>Напиши себе сейчас и прочитай, когда придёт время</span>
+      </button>
+    </section>
+
+    <!-- Письмо себе в будущее -->
+    <section class="view" id="view-letter" hidden>
+      <header class="topbar">
+        <button class="link" type="button" data-go="jar">← К банке</button>
+      </header>
+      <h1>Письмо себе в будущее</h1>
+      <p class="lead">Напиши себе — той, кем ты будешь через время. Письмо сохранится и откроется, когда придёт срок.</p>
+
+      <div class="letter-write">
+        <label class="field-label" for="letter-input">Твоё письмо</label>
+        <p class="starters-hint" id="starters-hint">Не знаешь, с чего начать? Нажми на начало фразы — оно появится в письме. Листай подсказки вбок →</p>
+        <div class="starters" id="starters" aria-describedby="starters-hint"></div>
+        <textarea id="letter-input" autocomplete="off" autocorrect="on" name="letter-text" rows="7" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
+
+        <fieldset class="when">
+          <legend class="field-label">Когда открыть?</legend>
+          <div class="when-options">
+            <label><input type="radio" name="when" value="7"> Через неделю</label>
+            <label><input type="radio" name="when" value="30" checked> Через месяц</label>
+            <label><input type="radio" name="when" value="90"> Через 3 месяца</label>
+            <label><input type="radio" name="when" value="182"> Через полгода</label>
+            <label><input type="radio" name="when" value="365"> Через год</label>
+          </div>
+        </fieldset>
+
+        <button class="btn-primary" type="button" id="letter-save">Запечатать письмо</button>
+      </div>
+
+      <div id="letters-block" hidden>
+        <h2 class="section-title">Мои письма</h2>
+        <ul class="letters" id="letters"></ul>
+      </div>
+    </section>
+
+    <!-- Раздел: дыхание -->
+    <section class="view" id="view-breath" hidden>
+      <h1>Подыши со мной</h1>
+      <p class="lead">Одна спокойная минута. Следи за огоньком: он разгорается на вдохе и затихает на выдохе.</p>
+
+      <div class="breath-area">
+        <div class="orb" id="orb" aria-hidden="true"></div>
+        <p class="breath-text" id="breath-text" aria-live="polite">Нажми, когда будешь готова</p>
+        <p class="breath-count" id="breath-count"></p>
+      </div>
+
+      <button class="btn-primary" type="button" id="breath-btn">Начать</button>
+      <button class="btn-ghost fire-toggle fire-wide" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-2 1-3.4 2.2-4.4.2 1.5.9 2.4 1.8 2.9C11 8 11.2 5.4 12 3z"/></svg>
+        <span class="fire-label">Треск камина</span>
+      </button>
+    </section>
+
+    <!-- Раздел 4: помощь -->
+    <section class="view" id="view-help" hidden>
+      <h1>Тебе не нужно справляться одной</h1>
+      <p class="lead">Позвонить можно в любое время. Тебя выслушают без осуждения.</p>
+
+      <a class="help-card primary" href="tel:+74959895050">
+        <span class="help-title">Психологическая помощь МЧС России</span>
+        <span class="help-number">+7 495 989-50-50</span>
+        <span class="help-note">Круглосуточно, анонимно и бесплатно</span>
+      </a>
+
+      <a class="help-card" href="tel:112">
+        <span class="help-title">Экстренная помощь</span>
+        <span class="help-number">112</span>
+        <span class="help-note">Если есть опасность для жизни</span>
+      </a>
+
+      <div class="help-card soft" id="help-baby">
+        <span class="help-title">Психолог для будущих мам</span>
+        <span class="help-note">Спроси в своей женской консультации: там часто есть психолог, и приходить можно не только с вопросами о здоровье.</span>
+      </div>
+
+      <button class="link" type="button" id="edit-profile">Изменить ответы о себе</button>
+    </section>
+
+    <!-- О приложении -->
+    <section class="view" id="view-about" hidden>
+      <header class="topbar">
+        <button class="link" type="button" data-go="phrases">← К фразам</button>
+      </header>
+      <h1>Как устроен «Свет в окне»</h1>
+      <p class="lead">Это тихое место для тех, кому сейчас тяжело. Здесь нет ленты, лайков и чужих мнений — только поддержка.</p>
+
+      <ul class="about-list">
+        <li><strong>Фразы.</strong> Нажимай «Ещё одну», чтобы получить новые слова поддержки. Те, что откликнулись, сохраняй сердечком — они соберутся в «Сохранённых».</li>
+        <li><strong>Погода внутри.</strong> Раз в день отметь, как ты: гроза, туман, облачно или солнце. Приложение ответит фразой под настроение и подскажет, что может помочь прямо сейчас. А полоска под отметкой покажет, какой была погода последние 7 дней.</li>
+        <li><strong>Банка хороших моментов.</strong> Записывай то, что согрело, даже совсем маленькое. В грустный день доставай записку наугад.</li>
+        <li><strong>Дыхание.</strong> Одна минута с огоньком: он разгорается на вдохе и затихает на выдохе. Помогает, когда накрывает тревога.</li>
+        <li><strong>Треск камина.</strong> Значок огня вверху главного экрана или на экране дыхания включает тихий треск камина. Он звучит, пока его не выключишь. Если звука нет, проверь, не включён ли беззвучный режим.</li>
+        <li><strong>Помощь.</strong> Телефоны, по которым можно позвонить в любое время. Там же можно изменить ответы о себе.</li>
+        <li><strong>Приватность.</strong> Без регистрации. Всё, что ты пишешь и отмечаешь, хранится только на этом телефоне и никуда не отправляется. Приложение лишь анонимно считает, сколько людей его открывают, — без имён, cookie и личных данных.</li>
+      </ul>
+
+      <div class="about-note">Приложение не заменяет психолога. Если тяжело уже долго или появляются тёмные мысли, пожалуйста, загляни в раздел «Помощь».</div>
+
+      <div class="about-author">
+        <p>Если есть идеи, как сделать приложение лучше, или хочется просто сказать спасибо — напиши мне.</p>
+        <a class="btn-ghost about-tg" href="https://t.me/irish_dobr" target="_blank" rel="noopener">Telegram @irish_dobr</a>
+      </div>
+
+      <p class="about-version">Версия <span data-version>1.0</span></p>
+
+      <p class="about-credits">
+        Звук камина: «Inside Fireplace Ambiance With Outside Party Noise», автор donnydb, freesound.org,
+        <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.
+        Запись склеена в петлю и выровнена по громкости.
+      </p>
+
+    </section>
+
+    <!-- Окно «Что нового» -->
+    <div class="whatsnew" id="whatsnew" hidden>
+      <div class="whatsnew-card" role="dialog" aria-modal="true" aria-labelledby="whatsnew-title">
+        <p class="whatsnew-version">Версия <span data-version>1.1</span></p>
+        <h2 id="whatsnew-title">Что нового в «Свете в окне»</h2>
+        <ul class="whatsnew-list" id="whatsnew-list"></ul>
+        <button class="btn-primary" type="button" id="whatsnew-close">Хорошо</button>
+      </div>
+    </div>
+
+    <!-- Временная плашка «ты не одна» -->
+    <div class="toast" id="people-toast" role="status" hidden></div>
+
+    <!-- Подпись автора — видна внизу каждого экрана -->
+    <p class="credit">Created by Irina Dobroslavskaya · v<span data-version>1.0</span></p>
+
+    <!-- Нижнее меню -->
+    <nav class="tabbar" aria-label="Разделы">
+      <button class="tab" type="button" data-go="phrases" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
+        Фразы
+      </button>
+      <button class="tab" type="button" data-go="jar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8"/><path d="M7 6h10v13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 12h4"/></svg>
+        Банка
+      </button>
+      <button class="tab" type="button" data-go="breath">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 15h14a3 3 0 1 1-3 3"/><path d="M3 12h8"/></svg>
+        Дыхание
+      </button>
+      <button class="tab" type="button" data-go="help">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="M6 6l3.5 3.5M18 6l-3.5 3.5M6 18l3.5-3.5M18 18l-3.5-3.5"/></svg>
+        Помощь
+      </button>
+    </nav>
+
+  </div>
+  <script src="script.js?v=1.1.11"></script>
 </body>
 </html>
