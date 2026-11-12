@@ -238,8 +238,9 @@ function renderMood() {
     moodTodayTextEl.textContent = 'Сегодня у тебя ' + MOODS[today].name + ' ' + MOODS[today].icon;
     renderWeek();
   }
-  // Если гроз 4 и больше за неделю, бережно предлагаем поддержку.
-  careCardEl.hidden = countStorms() < 4;
+  // ВРЕМЕННО ДЛЯ ПРОВЕРКИ: карточка появляется уже после одной грозы.
+  // В настоящей версии здесь стоит 4.
+  careCardEl.hidden = countStorms() < 1;
 }
 
 document.querySelectorAll('.mood-btn').forEach(function (button) {
