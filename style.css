@@ -1104,6 +1104,43 @@ h1 {
   color: #BFA88A;
 }
 
+/* ---------- Треск камина ---------- */
+
+.fire-toggle svg {
+  transition: fill 0.4s ease, filter 0.4s ease;
+}
+
+/* Камин включён — огонёк заливается тёплым светом */
+.fire-toggle[aria-pressed="true"] {
+  color: #F6CF86;
+}
+
+.fire-toggle[aria-pressed="true"] svg {
+  fill: rgba(246, 207, 134, 0.45);
+  filter: drop-shadow(0 0 6px rgba(255, 190, 110, 0.8));
+}
+
+.fire-wide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fire-wide svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.fire-wide[aria-pressed="true"] {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.16);
+}
+
 /* ---------- Плашка «ты не одна» ---------- */
 
 .toast {
