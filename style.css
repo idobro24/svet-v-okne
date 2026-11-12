@@ -262,14 +262,23 @@ h1 {
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
 }
 
-/* Записка из крафтовой бумаги, чуть повёрнутая, как настоящая */
+/* Записка на листе бумаги с зажимом.
+   Картинка растягивается под текст, а отступы в процентах
+   держат текст под зажимом и внутри рваных краёв листа. */
 .note {
-  padding: 16px 20px 10px;
-  border-radius: 6px;
-  background: #D9B98E;
+  aspect-ratio: 700 / 652;
+  padding: 36% 11% 9%;
+  background: url('note.webp') center / 100% 100% no-repeat;
   color: #3A2A1C;
-  transform: rotate(-1deg);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.45));
+  transform: rotate(-1.5deg);
+  animation: unfold 0.5s ease;
+}
+
+/* Лист мягко появляется, будто его только что достали из банки */
+@keyframes unfold {
+  from { opacity: 0; transform: rotate(-4deg) translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: rotate(-1.5deg); }
 }
 
 .note-date {
@@ -417,5 +426,6 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   #phrase, #save, #save svg { transition: none; }
+  .note { animation: none; }
   #phrase.hidden { transform: none; }
 }
