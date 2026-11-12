@@ -1,23 +1,78 @@
-// Все фразы приложения. Новую фразу можно добавить строкой в кавычках с запятой в конце.
-const phrases = [
-  'Сегодня достаточно просто прожить этот день.',
-  'Тебе сейчас тяжело, и это нормально. Ты не обязана держаться.',
-  'Плакать можно. Это не слабость, это сердце делает свою работу.',
-  'Боль сейчас огромная, но она не навсегда. Она меняется, даже когда ты этого не замечаешь.',
-  'Ты не должна понимать, что будет дальше. Достаточно сделать следующий маленький шаг.',
-  'Конец брака не делает тебя неудачницей. Он делает тебя человеком, который прошёл через трудное.',
-  'То, что пишут незнакомые люди, говорит о них, а не о тебе.',
-  'Твоя ценность не уменьшилась ни на грамм.',
-  'Первые недели самые тяжёлые. Потом становится понемногу легче, правда.',
-  'Однажды ты поймаешь себя на том, что весь день не думала о боли. Этот день придёт.',
-  'Через год ты будешь знать о себе то, чего не знаешь сегодня. И многое из этого тебе понравится.',
-  'Чувство, что тебя никто не любит, — это боль, а не правда о тебе.',
-  'Ты можешь быть для себя тем человеком, который говорит: «Я рядом».',
-  'Вы с малышом уже команда. И эта команда сильнее, чем кажется.',
-  'Твоему ребёнку нужна не идеальная мама, а живая и любящая. Такая, как ты.',
-  'Не читай комментарии сегодня. Они подождут, а твоё спокойствие важнее.',
-  'Выпей воды и выйди на пять минут на свежий воздух.'
+// ---------- Ответы о себе (первый вход) ----------
+
+const PROFILE_KEY = 'profile';
+
+function loadProfile() {
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function storeProfile(data) {
+  try {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
+  } catch (error) {
+    // Если память недоступна, просто ничего не сохраняем.
+  }
+}
+
+// { people: true/false, baby: true/false } или null, если человек ещё не отвечал.
+let profile = loadProfile();
+
+// ---------- Фразы ----------
+
+// Все фразы приложения. У некоторых есть пометка only — кому их показывать:
+//   'people' — тем, у кого есть с кем поговорить;
+//   'alone'  — тем, кому сейчас не с кем;
+//   'baby'   — тем, кто ждёт ребёнка.
+// Фразы без пометки видят все. Новую фразу добавляйте по тому же образцу.
+const ALL_PHRASES = [
+  { text: 'Сегодня достаточно просто прожить этот день.' },
+  { text: 'Тебе сейчас тяжело, и это нормально. Ты не обязана держаться.' },
+  { text: 'Плакать можно. Это не слабость, это сердце делает свою работу.' },
+  { text: 'Боль сейчас огромная, но она не навсегда. Она меняется, даже когда ты этого не замечаешь.' },
+  { text: 'Ты не должна понимать, что будет дальше. Достаточно сделать следующий маленький шаг.' },
+  { text: 'Конец брака не делает тебя неудачницей. Он делает тебя человеком, который прошёл через трудное.' },
+  { text: 'То, что пишут незнакомые люди, говорит о них, а не о тебе.' },
+  { text: 'Твоя ценность не уменьшилась ни на грамм.' },
+  { text: 'Первые недели самые тяжёлые. Потом становится понемногу легче, правда.' },
+  { text: 'Однажды ты поймаешь себя на том, что весь день не думала о боли. Этот день придёт.' },
+  { text: 'Через год ты будешь знать о себе то, чего не знаешь сегодня. И многое из этого тебе понравится.' },
+  { text: 'Чувство, что тебя никто не любит, — это боль, а не правда о тебе.' },
+  { text: 'Ты можешь быть для себя тем человеком, который говорит: «Я рядом».' },
+  { text: 'Не читай комментарии сегодня. Они подождут, а твоё спокойствие важнее.' },
+  { text: 'Выпей воды и выйди на пять минут на свежий воздух.' },
+
+  { text: 'Напиши кому-то, кто тебя любит. Даже короткое «мне сейчас тяжело» — это уже много.', only: 'people' },
+  { text: 'Разрешай близким помогать. Им важно быть рядом с тобой.', only: 'people' },
+
+  { text: 'Если сейчас кажется, что рядом никого нет, это чувство настоящее. Но оно не приговор.', only: 'alone' },
+  { text: 'Тебе не обязательно иметь кого-то, чтобы заслуживать заботы. Ты заслуживаешь её и так.', only: 'alone' },
+  { text: 'Пустота сейчас не значит пустота навсегда. Новые люди приходят, даже когда кажется, что уже не придут.', only: 'alone' },
+
+  { text: 'Вы с малышом уже команда. И эта команда сильнее, чем кажется.', only: 'baby' },
+  { text: 'Твоему ребёнку нужна не идеальная мама, а живая и любящая. Такая, как ты.', only: 'baby' },
+  { text: 'Каждый раз, когда ты отдыхаешь и заботишься о себе, ты заботишься и о малыше.', only: 'baby' }
 ];
+
+// Отбираем фразы, которые подходят этому человеку.
+function availablePhrases() {
+  const p = profile || {};
+  return ALL_PHRASES.filter(function (item) {
+    if (!item.only) return true;
+    if (item.only === 'people') return p.people === true;
+    if (item.only === 'alone') return p.people === false;
+    if (item.only === 'baby') return p.baby === true;
+    return false;
+  }).map(function (item) {
+    return item.text;
+  });
+}
+
+let phrases = availablePhrases();
 
 // Находим элементы на странице по их id.
 const phraseEl = document.getElementById('phrase');
@@ -238,9 +293,8 @@ function renderMood() {
     moodTodayTextEl.textContent = 'Сегодня у тебя ' + MOODS[today].name + ' ' + MOODS[today].icon;
     renderWeek();
   }
-  // ВРЕМЕННО ДЛЯ ПРОВЕРКИ: карточка появляется уже после одной грозы.
-  // В настоящей версии здесь стоит 4.
-  careCardEl.hidden = countStorms() < 1;
+  // Если гроз 4 и больше за неделю, бережно предлагаем поддержку.
+  careCardEl.hidden = countStorms() < 4;
 }
 
 document.querySelectorAll('.mood-btn').forEach(function (button) {
@@ -463,6 +517,57 @@ breathBtn.addEventListener('click', function () {
   }
 });
 
+// ---------- Первый вход ----------
+
+const startDoneBtn = document.getElementById('start-done');
+const startBabyInput = document.getElementById('start-baby');
+const peopleInputs = document.querySelectorAll('input[name="people"]');
+const helpBabyEl = document.getElementById('help-baby');
+const editProfileBtn = document.getElementById('edit-profile');
+const tabbarEl = document.querySelector('.tabbar');
+
+// Кнопка «Дальше» становится активной, когда выбран ответ на вопрос.
+peopleInputs.forEach(function (input) {
+  input.addEventListener('change', function () {
+    startDoneBtn.disabled = false;
+  });
+});
+
+// Показываем или прячем то, что зависит от ответов.
+function applyProfile() {
+  helpBabyEl.hidden = !(profile && profile.baby);
+}
+
+startDoneBtn.addEventListener('click', function () {
+  const chosen = document.querySelector('input[name="people"]:checked');
+  if (!chosen) return;
+
+  profile = { people: chosen.value === 'yes', baby: startBabyInput.checked };
+  storeProfile(profile);
+
+  // Пересобираем список фраз под новые ответы и начинаем с первой.
+  phrases = availablePhrases();
+  current = 0;
+  currentText = phrases[0];
+  phraseEl.textContent = currentText;
+  updateHeart();
+
+  applyProfile();
+  show('phrases');
+});
+
+// Открываем вопросы заново, с уже отмеченными ответами.
+editProfileBtn.addEventListener('click', function () {
+  if (profile) {
+    peopleInputs.forEach(function (input) {
+      input.checked = (input.value === 'yes') === profile.people;
+    });
+    startBabyInput.checked = profile.baby;
+    startDoneBtn.disabled = false;
+  }
+  show('start');
+});
+
 // ---------- Переключение разделов ----------
 
 const views = document.querySelectorAll('.view');
@@ -470,6 +575,9 @@ const tabs = document.querySelectorAll('.tab');
 
 // Показываем раздел с нужным именем, остальные прячем.
 function show(name) {
+  // На экране первого входа нижнее меню не нужно.
+  tabbarEl.hidden = name === 'start';
+
   // Если ушли с экрана дыхания, останавливаем упражнение.
   if (name !== 'breath' && breathing) stopBreath();
 
@@ -503,6 +611,7 @@ document.querySelectorAll('[data-go]').forEach(function (button) {
   });
 });
 
-// При открытии страницы.
+// При открытии страницы: если человек ещё не отвечал на вопросы, начинаем с них.
 updateHeart();
-show('phrases');
+applyProfile();
+show(profile ? 'phrases' : 'start');
