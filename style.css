@@ -94,6 +94,76 @@ h1 {
   color: #D9C3A3;
 }
 
+/* ---------- Первый вход ---------- */
+
+.start-hello {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.choice {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.choice-option {
+  min-height: 56px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #F6E7CF;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Выбранный вариант подсвечивается янтарным */
+.choice-option:has(input:checked) {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.16);
+}
+
+.choice-option input,
+.check input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: #E8B66B;
+}
+
+.check {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #EBDCC4;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 /* ---------- Фраза дня ---------- */
 
 /* Фраза занимает всё свободное место, поэтому её длина не двигает кнопки */
