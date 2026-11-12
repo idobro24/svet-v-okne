@@ -30,6 +30,13 @@ main {
   font-size: 30px;
   line-height: 1.4;
   color: #F6E7CF;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Класс, который скрипт добавляет на время смены фразы */
+#phrase.hidden {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 #next {
@@ -45,3 +52,9 @@ main {
 }
 
 #next:active { transform: scale(0.98); }
+
+/* Для тех, у кого в телефоне отключены анимации */
+@media (prefers-reduced-motion: reduce) {
+  #phrase { transition: none; }
+  #phrase.hidden { transform: none; }
+}
