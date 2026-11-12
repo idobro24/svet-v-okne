@@ -1,314 +1,1359 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Свет в окне</title>
+* { box-sizing: border-box; }
 
-  <!-- Чтобы на домашнем экране сайт выглядел и запускался как приложение -->
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#2B1E16">
-  <!-- Иконка встроена прямо в страницу: так iOS 26 точно её «видит». Если не получится, iPhone сам найдёт файл apple-touch-icon.png рядом -->
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,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">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Свет в окне">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
-  <link rel="preload" as="image" href="note2.webp">
-  <link rel="preload" as="image" href="paper.webp">
-</head>
-<body>
-  <div class="app">
+/* Скрытые разделы не показываются вообще */
+[hidden] { display: none !important; }
 
-    <!-- Первый вход: пара вопросов о человеке -->
-    <section class="view start" id="view-start" hidden>
-      <span class="brand">Свет в окне</span>
-      <div class="start-hello">
-        <h1>Привет. Здесь можно просто побыть.</h1>
-        <blockquote class="start-letter">
-          <p>Женщина женщине — дом. Я зажгла свет в своём окне для тебя. Он горит здесь каждую секунду, днём и ночью. Приходи, когда будет непросто.</p>
-          <footer>Ирина</footer>
-        </blockquote>
-        <p class="lead">Пара вопросов, чтобы подбирать слова, которые подойдут именно тебе.</p>
-      </div>
+/* Убираем серую/синюю подсветку, которую Android рисует вокруг нажатой кнопки */
+button, a, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
 
-      <fieldset class="choice">
-        <legend>Сейчас тебе есть с кем поговорить?</legend>
-        <label class="choice-option"><input type="radio" name="people" value="yes"> Да, есть близкие люди</label>
-        <label class="choice-option"><input type="radio" name="people" value="no"> Сейчас мне не с кем</label>
-      </fieldset>
+/* Рамку фокуса не показываем при нажатии пальцем... */
+button:focus, a:focus {
+  outline: none;
+}
 
-      <label class="check"><input type="checkbox" id="start-baby"> Я жду ребёнка</label>
+/* ...но оставляем аккуратную янтарную рамку для тех, кто ходит по странице с клавиатуры */
+button:focus-visible, a:focus-visible {
+  outline: 2px solid #E8B66B;
+  outline-offset: 3px;
+}
 
-      <button class="btn-primary" type="button" id="start-done" disabled>Дальше</button>
-      <p class="hint">Ответы остаются только на этом телефоне. Поменять их можно в разделе «Помощь».</p>
-    </section>
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: #EBDCC4;
+  background-color: #2B1E16;
+  background-image:
+    linear-gradient(180deg, rgba(31,22,16,0.45), rgba(31,22,16,0.94)),
+    url('preview.webp');
+  background-size: cover;
+  background-position: 20% 15%;
+  background-attachment: fixed;
+}
 
-    <!-- Раздел 1: фраза дня -->
-    <section class="view" id="view-phrases">
-      <header class="topbar">
-        <span class="brand">Свет в окне</span>
-        <div class="topbar-right">
-          <button class="link" type="button" data-go="saved">Сохранённые</button>
-          <button class="icon-btn fire-toggle" type="button" aria-pressed="false" aria-label="Треск камина">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-2 1-3.4 2.2-4.4.2 1.5.9 2.4 1.8 2.9C11 8 11.2 5.4 12 3z"/></svg>
-          </button>
-          <button class="icon-btn" type="button" data-go="about" aria-label="Как устроено приложение">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.1"/></svg>
-          </button>
-        </div>
-      </header>
+/* ---------- Общая раскладка ---------- */
 
-      <!-- Погода внутри: отметка состояния за день -->
-      <div class="mood">
-        <div id="mood-ask">
-          <p class="mood-question">Какая у тебя сегодня погода внутри?</p>
-          <div class="mood-options">
-            <button class="mood-btn" type="button" data-mood="storm"><span aria-hidden="true">⛈️</span>Гроза</button>
-            <button class="mood-btn" type="button" data-mood="fog"><span aria-hidden="true">🌫️</span>Туман</button>
-            <button class="mood-btn" type="button" data-mood="cloud"><span aria-hidden="true">☁️</span>Облачно</button>
-            <button class="mood-btn" type="button" data-mood="sun"><span aria-hidden="true">🌤️</span>Солнце</button>
-          </div>
-        </div>
-        <div id="mood-today" hidden>
-          <p class="mood-line">
-            <span id="mood-today-text"></span>
-            <button class="link small" type="button" id="mood-change">Изменить</button>
-          </p>
-          <ol class="mood-week" id="mood-week" aria-label="Погода за последние 7 дней"></ol>
-        </div>
-      </div>
+/* Высота нижнего меню: используем её и для самого меню, и для отступа под ним */
+:root {
+  --tabbar-h: calc(51px + max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px)));
+}
 
-      <!-- Бережная подсказка, если гроз было много -->
-      <div class="care-card" id="care-card" hidden>
-        <p>Последние дни было много гроз. Это тяжело выдерживать в одиночку, и ты не обязана.</p>
-        <button class="link" type="button" data-go="help">Где найти поддержку →</button>
-      </div>
+.app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  /* Место под меню, которое теперь закреплено у нижнего края экрана */
+  padding-bottom: var(--tabbar-h);
+}
 
-      <!-- Появляется, когда пришёл срок открыть письмо -->
-      <button class="letter-ready" id="letter-ready" type="button" data-go="letter" hidden>✉️ Тебе пришло письмо от себя из прошлого</button>
+.view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* env(safe-area-inset-top) — высота «чёлки» и строки состояния iPhone,
+     чтобы при запуске с домашнего экрана текст не уезжал под часы */
+  padding: calc(32px + env(safe-area-inset-top, 0px)) 28px 24px;
+}
 
-      <p id="phrase">Сегодня достаточно просто прожить этот день.</p>
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+}
 
-      <div class="actions">
-        <button id="next" type="button">Ещё одну</button>
-        <button id="save" type="button" aria-label="Сохранить фразу" aria-pressed="false">
-          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>
-          </svg>
-        </button>
-      </div>
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-      <!-- Самопомощь под выбранную погоду -->
-      <div class="selfcare" id="selfcare" hidden>
-        <h2>Что может помочь прямо сейчас</h2>
-        <ul class="selfcare-list" id="selfcare-list"></ul>
-        <button class="link" type="button" id="selfcare-more">Другие идеи</button>
-      </div>
-    </section>
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #E8B66B;
+  cursor: pointer;
+}
 
-    <!-- Раздел 2: сохранённые фразы -->
-    <section class="view" id="view-saved" hidden>
-      <header class="topbar">
-        <button class="link" type="button" data-go="phrases">← К фразам</button>
-      </header>
-      <h1>Сохранённые фразы</h1>
-      <p class="lead" id="saved-empty">Пока здесь пусто. Нажми на сердечко у фразы, которая откликнулась, и она появится здесь.</p>
-      <ul class="saved-list" id="saved-list"></ul>
-    </section>
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
 
-    <!-- Раздел 3: банка хороших моментов -->
-    <section class="view" id="view-jar" hidden>
-      <h1>Банка хороших моментов</h1>
-      <div class="jar-photo-wrap" id="jar-photo-wrap">
-        <img class="jar-photo" src="preview.webp" alt="Стеклянная банка с записками в тёплом свете гирлянды">
-        <span class="jar-badge" id="jar-badge" hidden></span>
-      </div>
-      <p class="lead" id="jar-count" hidden></p>
+.brand {
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #E8B66B;
+}
 
-      <!-- Записка, которую достали из банки -->
-      <article class="note" id="jar-note" hidden>
-        <p class="note-date" id="note-date"></p>
-        <p class="note-text" id="note-text"></p>
-        <button class="note-delete" type="button" id="note-delete">Убрать из банки</button>
-      </article>
+.link {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #E8B66B;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
 
-      <!-- Форма новой записки -->
-      <form class="jar-form" id="jar-form" autocomplete="off" hidden>
-        <label for="jar-input">Что хорошего было?</label>
-        <textarea id="jar-input" autocomplete="off" autocorrect="on" name="note-text" rows="4" maxlength="400" placeholder="Например: подруга привезла мандарины в два часа ночи"></textarea>
-        <div class="stack">
-          <button class="btn-primary" type="submit">Положить в банку</button>
-          <button class="btn-ghost" type="button" id="jar-cancel">Отмена</button>
-        </div>
-      </form>
+h1 {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.3;
+  color: #F6E7CF;
+}
 
-      <div class="stack" id="jar-actions">
-        <button class="btn-primary" type="button" id="jar-draw">Достать записку</button>
-        <button class="btn-ghost" type="button" id="jar-add">Записать момент</button>
-      </div>
-      <p class="hint">Записки хранятся только на этом телефоне.</p>
+.lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #D9C3A3;
+}
 
-      <button class="letter-entry" type="button" data-go="letter">
-        <span class="letter-entry-icon" aria-hidden="true">✉️</span>
-        <span><strong>Письмо себе в будущее</strong><br>Напиши себе сейчас и прочитай, когда придёт время</span>
-      </button>
-    </section>
+/* ---------- Первый вход ---------- */
 
-    <!-- Письмо себе в будущее -->
-    <section class="view" id="view-letter" hidden>
-      <header class="topbar">
-        <button class="link" type="button" data-go="jar">← К банке</button>
-      </header>
-      <h1>Письмо себе в будущее</h1>
-      <p class="lead">Напиши себе — той, кем ты будешь через время. Письмо сохранится и откроется, когда придёт срок.</p>
+.start-hello {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-      <div class="letter-write">
-        <label class="field-label" for="letter-input">Твоё письмо</label>
-        <p class="starters-hint" id="starters-hint">Не знаешь, с чего начать? Нажми на начало фразы — оно появится в письме. Листай подсказки вбок →</p>
-        <div class="starters" id="starters" aria-describedby="starters-hint"></div>
-        <textarea id="letter-input" autocomplete="off" autocorrect="on" name="letter-text" rows="7" maxlength="3000" placeholder="Привет, это я из прошлого…"></textarea>
+/* Письмо от автора: тёплый текст с огоньком слева */
+.start-letter {
+  position: relative;
+  margin: 4px 0;
+  padding: 2px 0 2px 22px;
+}
 
-        <fieldset class="when">
-          <legend class="field-label">Когда открыть?</legend>
-          <div class="when-options">
-            <label><input type="radio" name="when" value="7"> Через неделю</label>
-            <label><input type="radio" name="when" value="30" checked> Через месяц</label>
-            <label><input type="radio" name="when" value="90"> Через 3 месяца</label>
-            <label><input type="radio" name="when" value="182"> Через полгода</label>
-            <label><input type="radio" name="when" value="365"> Через год</label>
-          </div>
-        </fieldset>
+.start-letter::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #F6CF86, rgba(232, 182, 107, 0.15));
+  box-shadow: 0 0 10px rgba(255, 200, 120, 0.6);
+}
 
-        <button class="btn-primary" type="button" id="letter-save">Запечатать письмо</button>
-      </div>
+.start-letter p {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.55;
+  color: #F2D9AE;
+}
 
-      <div id="letters-block" hidden>
-        <h2 class="section-title">Мои письма</h2>
-        <ul class="letters" id="letters"></ul>
-      </div>
-    </section>
+.start-letter footer {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #BFA88A;
+}
 
-    <!-- Раздел: дыхание -->
-    <section class="view" id="view-breath" hidden>
-      <h1>Подыши со мной</h1>
-      <p class="lead">Одна спокойная минута. Следи за огоньком: он разгорается на вдохе и затихает на выдохе.</p>
+.start-letter footer::before {
+  content: '— ';
+}
 
-      <div class="breath-area">
-        <div class="orb" id="orb" aria-hidden="true"></div>
-        <p class="breath-text" id="breath-text" aria-live="polite">Нажми, когда будешь готова</p>
-        <p class="breath-count" id="breath-count"></p>
-      </div>
+.choice {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-      <button class="btn-primary" type="button" id="breath-btn">Начать</button>
-      <button class="btn-ghost fire-toggle fire-wide" type="button" aria-pressed="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-2 1-3.4 2.2-4.4.2 1.5.9 2.4 1.8 2.9C11 8 11.2 5.4 12 3z"/></svg>
-        <span class="fire-label">Треск камина</span>
-      </button>
-    </section>
+.choice legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
 
-    <!-- Раздел 4: помощь -->
-    <section class="view" id="view-help" hidden>
-      <h1>Тебе не нужно справляться одной</h1>
-      <p class="lead">Позвонить можно в любое время. Тебя выслушают без осуждения.</p>
+.choice-option {
+  min-height: 56px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #F6E7CF;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-      <a class="help-card primary" href="tel:+74959895050">
-        <span class="help-title">Психологическая помощь МЧС России</span>
-        <span class="help-number">+7 495 989-50-50</span>
-        <span class="help-note">Круглосуточно, анонимно и бесплатно</span>
-      </a>
+/* Выбранный вариант подсвечивается янтарным */
+.choice-option:has(input:checked) {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.16);
+}
 
-      <a class="help-card" href="tel:112">
-        <span class="help-title">Экстренная помощь</span>
-        <span class="help-number">112</span>
-        <span class="help-note">Если есть опасность для жизни</span>
-      </a>
+.choice-option input,
+.check input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: #E8B66B;
+}
 
-      <div class="help-card soft" id="help-baby">
-        <span class="help-title">Психолог для будущих мам</span>
-        <span class="help-note">Спроси в своей женской консультации: там часто есть психолог, и приходить можно не только с вопросами о здоровье.</span>
-      </div>
+.check {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #EBDCC4;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-      <button class="link" type="button" id="edit-profile">Изменить ответы о себе</button>
-    </section>
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
 
-    <!-- О приложении -->
-    <section class="view" id="view-about" hidden>
-      <header class="topbar">
-        <button class="link" type="button" data-go="phrases">← К фразам</button>
-      </header>
-      <h1>Как устроен «Свет в окне»</h1>
-      <p class="lead">Это тихое место для тех, кому сейчас тяжело. Здесь нет ленты, лайков и чужих мнений — только поддержка.</p>
+/* ---------- Фраза дня ---------- */
 
-      <ul class="about-list">
-        <li><strong>Фразы.</strong> Нажимай «Ещё одну», чтобы получить новые слова поддержки. Те, что откликнулись, сохраняй сердечком — они соберутся в «Сохранённых».</li>
-        <li><strong>Погода внутри.</strong> Раз в день отметь, как ты: гроза, туман, облачно или солнце. Приложение ответит фразой под настроение и подскажет, что может помочь прямо сейчас. А полоска под отметкой покажет, какой была погода последние 7 дней.</li>
-        <li><strong>Банка хороших моментов.</strong> Записывай то, что согрело, даже совсем маленькое. В грустный день доставай записку наугад.</li>
-        <li><strong>Дыхание.</strong> Одна минута с огоньком: он разгорается на вдохе и затихает на выдохе. Помогает, когда накрывает тревога.</li>
-        <li><strong>Треск камина.</strong> Значок огня вверху главного экрана или на экране дыхания включает тихий треск камина. Он звучит, пока его не выключишь. Если звука нет, проверь, не включён ли беззвучный режим.</li>
-        <li><strong>Помощь.</strong> Телефоны, по которым можно позвонить в любое время. Там же можно изменить ответы о себе.</li>
-        <li><strong>Приватность.</strong> Без регистрации. Всё, что ты пишешь и отмечаешь, хранится только на этом телефоне и никуда не отправляется. Приложение лишь анонимно считает, сколько людей его открывают, — без имён, cookie и личных данных.</li>
-      </ul>
+/* Фраза занимает всё свободное место, поэтому её длина не двигает кнопки.
+   min-height держит место под самую длинную фразу (7 строк), чтобы кнопки
+   не прыгали и тогда, когда ниже появляется блок «Что может помочь». */
+#phrase {
+  flex: 1;
+  min-height: calc(1.4em * 7);
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: clamp(24px, 7.2vw, 28px);
+  line-height: 1.4;
+  color: #F6E7CF;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
 
-      <div class="about-note">Приложение не заменяет психолога. Если тяжело уже долго или появляются тёмные мысли, пожалуйста, загляни в раздел «Помощь».</div>
+#phrase.hidden {
+  opacity: 0;
+  transform: translateY(6px);
+}
 
-      <div class="about-author">
-        <p>Если есть идеи, как сделать приложение лучше, или хочется просто сказать спасибо — напиши мне.</p>
-        <a class="btn-ghost about-tg" href="https://t.me/irish_dobr" target="_blank" rel="noopener">Telegram @irish_dobr</a>
-      </div>
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 12px;
+}
 
-      <p class="about-version">Версия <span data-version>1.0</span></p>
+#next {
+  flex: 1;
+  height: 52px;
+  border: none;
+  border-radius: 26px;
+  background: #E8B66B;
+  color: #2B1E16;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
 
-      <p class="about-credits">
-        Звук камина: «Inside Fireplace Ambiance With Outside Party Noise», автор donnydb, freesound.org,
-        <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.
-        Запись склеена в петлю и выровнена по громкости.
-      </p>
+#next:active { transform: scale(0.98); }
 
-    </section>
+#save {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(246, 231, 207, 0.35);
+  background: rgba(43, 30, 22, 0.4);
+  color: #EBDCC4;
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
 
-    <!-- Окно «Что нового» -->
-    <div class="whatsnew" id="whatsnew" hidden>
-      <div class="whatsnew-card" role="dialog" aria-modal="true" aria-labelledby="whatsnew-title">
-        <p class="whatsnew-version">Версия <span data-version>1.1</span></p>
-        <h2 id="whatsnew-title">Что нового в «Свете в окне»</h2>
-        <ul class="whatsnew-list" id="whatsnew-list"></ul>
-        <button class="btn-primary" type="button" id="whatsnew-close">Хорошо</button>
-      </div>
-    </div>
+#save svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  transition: fill 0.3s ease;
+}
 
-    <!-- Временная плашка «ты не одна» -->
-    <div class="toast" id="people-toast" role="status" hidden></div>
+#save.saved {
+  color: #E8B66B;
+  border-color: #E8B66B;
+}
 
-    <!-- Подпись автора — видна внизу каждого экрана -->
-    <p class="credit">Created by Irina Dobroslavskaya · v<span data-version>1.0</span></p>
+#save.saved svg { fill: currentColor; }
 
-    <!-- Нижнее меню -->
-    <nav class="tabbar" aria-label="Разделы">
-      <button class="tab" type="button" data-go="phrases" aria-current="page">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
-        Фразы
-      </button>
-      <button class="tab" type="button" data-go="jar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8"/><path d="M7 6h10v13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 12h4"/></svg>
-        Банка
-      </button>
-      <button class="tab" type="button" data-go="breath">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 15h14a3 3 0 1 1-3 3"/><path d="M3 12h8"/></svg>
-        Дыхание
-      </button>
-      <button class="tab" type="button" data-go="help">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="M6 6l3.5 3.5M18 6l-3.5 3.5M6 18l3.5-3.5M18 18l-3.5-3.5"/></svg>
-        Помощь
-      </button>
-    </nav>
+#save:active { transform: scale(0.94); }
 
-  </div>
-  <script src="script.js"></script>
-</body>
-</html>
+/* ---------- Погода внутри ---------- */
+
+.mood-question {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: #D9C3A3;
+}
+
+.mood-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.mood-btn {
+  min-height: 64px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 16px;
+  border: 1px solid rgba(246, 231, 207, 0.2);
+  background: rgba(43, 30, 22, 0.55);
+  color: #EBDCC4;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mood-btn span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mood-btn:active { transform: scale(0.96); }
+
+.mood-line {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 15px;
+  color: #D9C3A3;
+}
+
+.link.small {
+  min-height: 36px;
+  font-size: 14px;
+}
+
+/* Полоска из 7 последних дней */
+.mood-week {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mood-week li {
+  min-width: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.mood-week-icon {
+  font-size: 18px;
+  line-height: 1.3;
+  color: #BFA88A;
+}
+
+.mood-week-day {
+  font-size: 11px;
+  color: #BFA88A;
+}
+
+.care-card {
+  padding: 14px 18px 6px;
+  border-radius: 18px;
+  background: rgba(240, 185, 160, 0.16);
+}
+
+.care-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+/* ---------- Самопомощь ---------- */
+
+.selfcare {
+  padding: 18px 20px 6px;
+  border-radius: 20px;
+  border: 1px solid rgba(246, 231, 207, 0.12);
+  background: rgba(30, 21, 15, 0.72);
+}
+
+.selfcare h2 {
+  margin: 0 0 14px;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 20px;
+  color: #F6E7CF;
+}
+
+.selfcare-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.selfcare-list li {
+  position: relative;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+/* Маркер списка — маленький светящийся огонёк */
+.selfcare-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #F6CF86;
+  box-shadow: 0 0 8px rgba(255, 200, 120, 0.8);
+}
+
+.selfcare-action {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(232, 182, 107, 0.6);
+  background: none;
+  color: #E8B66B;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selfcare-action:active { transform: scale(0.97); }
+
+/* ---------- Сохранённые фразы ---------- */
+
+.saved-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saved-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.15);
+  background: rgba(43, 30, 22, 0.65);
+}
+
+.saved-item p {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.45;
+  color: #F6E7CF;
+}
+
+.saved-item button {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #BFA88A;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---------- Помощь ---------- */
+
+.help-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.65);
+  color: #F6E7CF;
+  text-decoration: none;
+}
+
+.help-card.primary {
+  background: #E8B66B;
+  border-color: #E8B66B;
+  color: #2B1E16;
+}
+
+.help-card.soft {
+  border-color: transparent;
+  background: rgba(240, 185, 160, 0.14);
+}
+
+.help-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.help-card.soft .help-title { color: #F0B9A0; }
+
+.help-number {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.help-note {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---------- Банка хороших моментов ---------- */
+
+.jar-photo-wrap {
+  position: relative;
+}
+
+.jar-photo {
+  display: block;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  object-position: 50% 40%;
+  border-radius: 22px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* Счётчик записок — табличкой прямо на фото банки */
+.jar-badge {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgba(30, 21, 15, 0.78);
+  backdrop-filter: blur(6px);
+  color: #F6E7CF;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Записка на листе бумаги с зажимом.
+   Картинка растягивается под текст, а отступы в процентах
+   держат текст под зажимом и внутри рваных краёв листа. */
+.note {
+  position: relative;
+  z-index: 1;
+  /* Подтягиваем лист вверх, чтобы зажим «цеплялся» за край фото банки */
+  margin-top: calc(-24px - 18%);
+  /* Тень уже нарисована в самой картинке: так Safari не мигает при анимации */
+  aspect-ratio: 760 / 732;
+  padding: 37% 14% 15%;
+  background: url('note2.webp') center / 100% 100% no-repeat;
+  color: #3A2A1C;
+  transform: rotate(-1.5deg);
+  /* Держим записку на отдельном слое видеокарты, чтобы она не мерцала */
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Записка выходит из банки: поднимается откуда-то сверху и ложится на место */
+.note.appear {
+  animation: note-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Прежняя записка возвращается в банку: уходит вверх и тает */
+.note.leaving {
+  animation: note-out 0.3s ease-in both;
+}
+
+@keyframes note-in {
+  from { opacity: 0; transform: translateY(-56px) rotate(4deg) scale(0.85); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: rotate(-1.5deg); }
+}
+
+@keyframes note-out {
+  from { opacity: 1; transform: rotate(-1.5deg); }
+  to   { opacity: 0; transform: translateY(-56px) rotate(5deg) scale(0.85); }
+}
+
+/* Банка чуть покачивается, когда из неё достают записку */
+.jar-photo-wrap.shake {
+  animation: jar-shake 0.5s ease;
+}
+
+@keyframes jar-shake {
+  0%, 100% { transform: rotate(0); }
+  25%      { transform: rotate(-1.2deg); }
+  50%      { transform: rotate(1deg); }
+  75%      { transform: rotate(-0.5deg); }
+}
+
+.note-date {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #5C4632;
+}
+
+.note-text {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.note-delete {
+  min-height: 40px;
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #5C4632;
+  font-family: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Кнопки друг под другом */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-primary {
+  height: 52px;
+  border: none;
+  border-radius: 26px;
+  background: #E8B66B;
+  color: #2B1E16;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-ghost {
+  height: 52px;
+  border-radius: 26px;
+  border: 1.5px solid rgba(246, 231, 207, 0.35);
+  background: rgba(43, 30, 22, 0.4);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary:active, .btn-ghost:active { transform: scale(0.98); }
+
+.jar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jar-form label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.jar-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.jar-form textarea::placeholder { color: #BFA88A; }
+
+.jar-form textarea:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+/* ---------- Дыхание ---------- */
+
+.breath-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  min-height: 320px;
+}
+
+/* Огонёк: тёплое свечение, которое растёт и уменьшается.
+   Длительность перехода задаёт скрипт под каждую фазу дыхания. */
+.orb {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%,
+    #FFF1CF 0%,
+    #F6CF86 30%,
+    rgba(232, 182, 107, 0.35) 58%,
+    rgba(232, 182, 107, 0) 72%);
+  box-shadow: 0 0 40px rgba(255, 200, 120, 0.25);
+  transform: scale(0.55);
+  transition-property: transform, box-shadow;
+  transition-timing-function: ease-in-out;
+  transition-duration: 1000ms;
+}
+
+.orb.big {
+  transform: scale(1);
+  box-shadow: 0 0 90px rgba(255, 200, 120, 0.5);
+}
+
+.breath-text {
+  margin: 0;
+  min-height: 1.4em;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 24px;
+  text-align: center;
+  color: #F6E7CF;
+}
+
+.breath-count {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 14px;
+  color: #BFA88A;
+}
+
+/* ---------- Письмо себе в будущее ---------- */
+
+.letter-entry {
+  width: 100%;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.18);
+  background: rgba(30, 21, 15, 0.72);
+  color: #D9C3A3;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.letter-entry strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.letter-entry-icon { font-size: 26px; }
+
+.letter-ready {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1.5px solid #E8B66B;
+  background: rgba(232, 182, 107, 0.14);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.letter-write {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+/* Начала предложений — одна полоска подсказок прямо над полем письма.
+   Листается вбок, поэтому не нужно прокручивать страницу вверх-вниз. */
+.starters-hint {
+  margin: -4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #BFA88A;
+}
+
+.starters {
+  margin: 0 -28px;              /* полоска во всю ширину экрана */
+  padding: 2px 28px 6px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 28px;
+  scrollbar-width: none;        /* прячем полосу прокрутки */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+}
+
+.starters::-webkit-scrollbar { display: none; }
+
+.starter {
+  flex: 0 0 auto;
+  width: 210px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 182, 107, 0.45);
+  background: rgba(43, 30, 22, 0.7);
+  color: #EBDCC4;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.starter:active { transform: scale(0.98); }
+
+/* Уже использованное начало — приглушено и с галочкой, но нажать можно снова */
+.starter.used {
+  opacity: 0.5;
+}
+
+.starter.used::before {
+  content: '✓ ';
+  color: #E8B66B;
+}
+
+#letter-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+#letter-input::placeholder { color: #BFA88A; }
+
+#letter-input:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+/* Выбор срока — «таблетки», сами кружки радиокнопок спрятаны */
+.when {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.when legend {
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.when-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.when-options label {
+  position: relative;
+  min-height: 44px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  border-radius: 22px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #EBDCC4;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.when-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.when-options label:has(input:checked) {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.18);
+  color: #F6E7CF;
+}
+
+.when-options label:has(input:focus-visible) {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.section-title {
+  margin: 8px 0 12px;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 22px;
+  color: #F6E7CF;
+}
+
+.letters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.letter-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.14);
+  background: rgba(30, 21, 15, 0.75);
+}
+
+.letter-status {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.letter-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+/* Само письмо — на листе рваной бумаги.
+   border-image режет картинку на 9 частей: углы и рваные края остаются
+   как есть, а середина растягивается под любой длины письмо. */
+.letter-paper {
+  align-self: stretch;
+  margin: 10px -6px 6px;
+  padding: 6px 8px 10px;
+  border: 26px solid transparent;
+  border-image: url('paper.webp') 52 fill / 26px stretch;
+  color: #3A2A1C;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  transform: rotate(-0.6deg);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+}
+
+.letter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.letter-card .link {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.letter-card .btn-primary {
+  height: 46px;
+  padding: 0 22px;
+}
+
+/* ---------- О приложении ---------- */
+
+.about-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-list li {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(30, 21, 15, 0.72);
+  font-size: 15px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+.about-list strong {
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.about-note {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(240, 185, 160, 0.16);
+  font-size: 14px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+.about-author p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #D9C3A3;
+}
+
+.about-tg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.about-version {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+.about-credits {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #BFA88A;
+}
+
+.about-credits a {
+  color: #E8B66B;
+}
+
+.credit {
+  margin: 0;
+  padding: 0 28px 14px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #BFA88A;
+}
+
+/* ---------- Треск камина ---------- */
+
+.fire-toggle svg {
+  transition: fill 0.4s ease, filter 0.4s ease;
+}
+
+/* Камин включён — огонёк заливается тёплым светом */
+.fire-toggle[aria-pressed="true"] {
+  color: #F6CF86;
+}
+
+.fire-toggle[aria-pressed="true"] svg {
+  fill: rgba(246, 207, 134, 0.45);
+  filter: drop-shadow(0 0 6px rgba(255, 190, 110, 0.8));
+}
+
+.fire-wide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fire-wide svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.fire-wide[aria-pressed="true"] {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.16);
+}
+
+/* ---------- Окно «Что нового» ---------- */
+
+.whatsnew {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 14, 10, 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.whatsnew.visible { opacity: 1; }
+
+.whatsnew-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 26px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(232, 182, 107, 0.35);
+  background: linear-gradient(180deg, #3A281C 0%, #2B1E16 100%);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 40px rgba(255, 200, 120, 0.12);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.4s ease;
+}
+
+.whatsnew.visible .whatsnew-card { transform: none; }
+
+.whatsnew-version {
+  margin: 0;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(232, 182, 107, 0.16);
+  color: #E8B66B;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.whatsnew-card h2 {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.3;
+  color: #F6E7CF;
+}
+
+.whatsnew-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.whatsnew-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.whatsnew-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(232, 182, 107, 0.14);
+  font-size: 18px;
+}
+
+.whatsnew-list strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.whatsnew-list span.whatsnew-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #D9C3A3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsnew, .whatsnew-card { transition: none; }
+}
+
+/* ---------- Плашка «ты не одна» ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  z-index: 20;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  /* Тёплый «ламповый» свет: светлая медовая плашка с тёмным текстом */
+  border: 1px solid rgba(255, 236, 200, 0.7);
+  background: linear-gradient(180deg, rgba(248, 226, 186, 0.96) 0%, rgba(236, 196, 132, 0.96) 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 36px rgba(255, 200, 120, 0.45);
+  color: #2B1E16;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: center;
+  cursor: pointer;
+  transform: translate(-50%, -12px);
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
+}
+
+/* ---------- Нижнее меню ---------- */
+
+/* Меню закреплено у нижнего края экрана (fixed), а не «прилипает» к концу страницы (sticky).
+   Так iPhone при первом запуске с домашнего экрана не поднимает его выше, чем нужно. */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  /* Снизу оставляем место только под полоску «домой» iPhone, без лишнего запаса */
+  padding: 4px 12px max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px));
+  border-top: 1px solid rgba(246, 231, 207, 0.12);
+  background: rgba(30, 21, 15, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+/* Пока набирается текст, меню не показываем */
+body.typing .tabbar {
+  display: none;
+}
+
+.tab {
+  min-width: 64px;
+  min-height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: #BFA88A;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.tab svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tab[aria-current="page"] {
+  color: #E8B66B;
+  font-weight: 600;
+}
+
+/* ---------- Для тех, у кого отключены анимации ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #phrase, #save, #save svg { transition: none; }
+  .note.appear, .note.leaving, .jar-photo-wrap.shake { animation: none; }
+  .orb { transition: none; }
+  #phrase.hidden { transform: none; }
+}
