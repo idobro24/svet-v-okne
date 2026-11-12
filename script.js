@@ -587,4 +587,150 @@ function runPhase() {
   breathCountEl.textContent = 'Круг ' + round + ' из ' + TOTAL_ROUNDS;
 
   // Огонёк меняет размер ровно за время этой фазы.
-  orbEl.style.transitionDuration = ph
+  orbEl.style.transitionDuration = phase.time + 'ms';
+  orbEl.classList.toggle('big', phase.big);
+
+  breathTimer = setTimeout(function () {
+    phaseIndex++;
+    if (phaseIndex === PHASES.length) {
+      phaseIndex = 0;
+      round++;
+      if (round > TOTAL_ROUNDS) {
+        finishBreath();
+        return;
+      }
+    }
+    runPhase();
+  }, phase.time);
+}
+
+function startBreath() {
+  breathing = true;
+  phaseIndex = 0;
+  round = 1;
+  breathBtn.textContent = 'Остановить';
+  runPhase();
+}
+
+function stopBreath(message) {
+  clearTimeout(breathTimer);
+  breathing = false;
+  orbEl.style.transitionDuration = '1500ms';
+  orbEl.classList.remove('big');
+  breathTextEl.textContent = message || 'Нажми, когда будешь готова';
+  breathCountEl.textContent = '';
+  breathBtn.textContent = 'Начать';
+}
+
+function finishBreath() {
+  stopBreath('Ты молодец, что нашла эту минуту для себя.');
+  breathBtn.textContent = 'Ещё минуту';
+}
+
+breathBtn.addEventListener('click', function () {
+  if (breathing) {
+    stopBreath();
+  } else {
+    startBreath();
+  }
+});
+
+// ---------- Первый вход ----------
+
+const startDoneBtn = document.getElementById('start-done');
+const startBabyInput = document.getElementById('start-baby');
+const peopleInputs = document.querySelectorAll('input[name="people"]');
+const helpBabyEl = document.getElementById('help-baby');
+const editProfileBtn = document.getElementById('edit-profile');
+const tabbarEl = document.querySelector('.tabbar');
+
+// Кнопка «Дальше» становится активной, когда выбран ответ на вопрос.
+peopleInputs.forEach(function (input) {
+  input.addEventListener('change', function () {
+    startDoneBtn.disabled = false;
+  });
+});
+
+// Показываем или прячем то, что зависит от ответов.
+function applyProfile() {
+  helpBabyEl.hidden = !(profile && profile.baby);
+}
+
+startDoneBtn.addEventListener('click', function () {
+  const chosen = document.querySelector('input[name="people"]:checked');
+  if (!chosen) return;
+
+  profile = { people: chosen.value === 'yes', baby: startBabyInput.checked };
+  storeProfile(profile);
+
+  // Пересобираем список фраз под новые ответы и начинаем с первой.
+  phrases = availablePhrases();
+  current = 0;
+  currentText = phrases[0];
+  phraseEl.textContent = currentText;
+  updateHeart();
+
+  applyProfile();
+  ideasMood = null; // идеи пересоберутся под новые ответы
+  show('phrases');
+});
+
+// Открываем вопросы заново, с уже отмеченными ответами.
+editProfileBtn.addEventListener('click', function () {
+  if (profile) {
+    peopleInputs.forEach(function (input) {
+      input.checked = (input.value === 'yes') === profile.people;
+    });
+    startBabyInput.checked = profile.baby;
+    startDoneBtn.disabled = false;
+  }
+  show('start');
+});
+
+// ---------- Переключение разделов ----------
+
+const views = document.querySelectorAll('.view');
+const tabs = document.querySelectorAll('.tab');
+
+// Показываем раздел с нужным именем, остальные прячем.
+function show(name) {
+  // На экране первого входа нижнее меню не нужно.
+  tabbarEl.hidden = name === 'start';
+
+  // Если ушли с экрана дыхания, останавливаем упражнение.
+  if (name !== 'breath' && breathing) stopBreath();
+
+  views.forEach(function (view) {
+    view.hidden = view.id !== 'view-' + name;
+  });
+
+  // «Сохранённые» живут внутри раздела «Фразы», поэтому подсвечиваем его вкладку.
+  const activeTab = name === 'saved' ? 'phrases' : name;
+  tabs.forEach(function (tab) {
+    if (tab.dataset.go === activeTab) {
+      tab.setAttribute('aria-current', 'page');
+    } else {
+      tab.removeAttribute('aria-current');
+    }
+  });
+
+  if (name === 'phrases') renderMood();
+  if (name === 'saved') renderSaved();
+  if (name === 'jar') {
+    resetJarView();
+    updateJarCount();
+  }
+  window.scrollTo(0, 0);
+}
+
+// Любая кнопка с атрибутом data-go переключает на свой раздел.
+document.querySelectorAll('[data-go]').forEach(function (button) {
+  button.addEventListener('click', function () {
+    show(button.dataset.go);
+  });
+});
+
+// При открытии страницы: если человек ещё не отвечал на вопросы, начинаем с них.
+updateHeart();
+applyProfile();
+show(profile ? 'phrases' : 'start');
