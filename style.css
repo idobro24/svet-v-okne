@@ -725,6 +725,225 @@ h1 {
   color: #BFA88A;
 }
 
+/* ---------- Письмо себе в будущее ---------- */
+
+.letter-entry {
+  width: 100%;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.18);
+  background: rgba(30, 21, 15, 0.72);
+  color: #D9C3A3;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.letter-entry strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.letter-entry-icon { font-size: 26px; }
+
+.letter-ready {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1.5px solid #E8B66B;
+  background: rgba(232, 182, 107, 0.14);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.letter-write {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+/* Начала предложений — кнопки-подсказки */
+.starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.starter {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 182, 107, 0.45);
+  background: rgba(43, 30, 22, 0.6);
+  color: #EBDCC4;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+}
+
+.starter:active { transform: scale(0.98); }
+
+#letter-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+#letter-input::placeholder { color: #BFA88A; }
+
+#letter-input:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+/* Выбор срока — «таблетки», сами кружки радиокнопок спрятаны */
+.when {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.when legend {
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.when-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.when-options label {
+  position: relative;
+  min-height: 44px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  border-radius: 22px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #EBDCC4;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.when-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.when-options label:has(input:checked) {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.18);
+  color: #F6E7CF;
+}
+
+.when-options label:has(input:focus-visible) {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.section-title {
+  margin: 8px 0 12px;
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 400;
+  font-size: 22px;
+  color: #F6E7CF;
+}
+
+.letters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.letter-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1px solid rgba(246, 231, 207, 0.14);
+  background: rgba(30, 21, 15, 0.75);
+}
+
+.letter-status {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.letter-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+/* Само письмо — на тёплой бумаге */
+.letter-paper {
+  align-self: stretch;
+  margin: 8px 0 4px;
+  padding: 18px 20px;
+  border-radius: 6px;
+  background: #E9D6B4;
+  color: #3A2A1C;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  transform: rotate(-0.6deg);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.letter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.letter-card .link {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.letter-card .btn-primary {
+  height: 46px;
+  padding: 0 22px;
+}
+
 /* ---------- О приложении ---------- */
 
 .about-list {
