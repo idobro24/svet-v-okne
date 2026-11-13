@@ -2044,6 +2044,69 @@ function checkPeopleToday() {
 
 startCounting();
 
+// ---------- Строка «за месяц уже N раз» ----------
+
+// Строку показываем при каждом открытии, если за 30 дней набралось хотя бы столько открытий.
+const MIN_MONTH_VISITS = 20;
+const MONTH_KEY = 'monthVisits'; // последнее известное число — чтобы строка была видна сразу и без интернета
+const togetherEl = document.getElementById('together');
+
+// «1 раз», «3 раза», «115 раз».
+function timesWord(n) {
+  const last = n % 10;
+  const lastTwo = n % 100;
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return 'раза';
+  return 'раз';
+}
+
+function showMonthVisits(count) {
+  if (count < MIN_MONTH_VISITS) {
+    togetherEl.hidden = true;
+    return;
+  }
+  togetherEl.textContent = 'Каждый день «Свет в окне» открывают женщины, которым тоже бывает непросто: за месяц уже '
+    + count + ' ' + timesWord(count) + '. Ты не одна.';
+  togetherEl.hidden = false;
+}
+
+function checkMonthVisits() {
+  // Сначала показываем то, что узнали в прошлый раз.
+  try {
+    const cached = Number(localStorage.getItem(MONTH_KEY));
+    if (cached) showMonthVisits(cached);
+  } catch (error) {}
+
+  // Потом спрашиваем свежее число у GoatCounter: последние 30 дней, считая сегодня.
+  // На dev-сайте и при проверке на компьютере берём числа основного сайта на GitHub Pages,
+  // потому что сам dev не считается.
+  const path = isDevSite ? '/svet-v-okne/' : (location.pathname.replace(/index\.html$/, '') || '/');
+  const url = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/counter/'
+    + encodeURIComponent(path) + '.json?start=' + dayKey(daysAgo(29)) + '&end=' + dayKey(daysAgo(-1));
+
+  fetch(url)
+    .then(function (response) {
+      if (response.status === 404) return { count: '0' };
+      if (!response.ok) throw new Error('GoatCounter ответил кодом ' + response.status);
+      return response.json();
+    })
+    .then(function (data) {
+      // count — все открытия, как в «Тише»; число приходит строкой вроде «1 234».
+      const count = parseInt(String(data.count || '0').replace(/\D/g, ''), 10) || 0;
+      try { localStorage.setItem(MONTH_KEY, String(count)); } catch (error) {}
+      showMonthVisits(count);
+    })
+    .catch(function () {
+      // Нет интернета — остаётся число из прошлого раза.
+    });
+}
+
+checkMonthVisits();
+
+// Когда приложение снова открывают из свёрнутого состояния, обновляем число.
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) checkMonthVisits();
+});
+
 // ---------- Что нового ----------
 
 // Список изменений для каждой версии. Для новой версии добавьте сюда новый блок
