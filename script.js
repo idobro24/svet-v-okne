@@ -1924,11 +1924,13 @@ const RELAX_TENSE = 5000;
 const RELAX_RELEASE = 15000;
 const RELAX_FINAL = 20000;
 
-// Собираем все шаги по порядку.
-const RELAX_QUEUE = [];
+// Собираем все шаги по порядку. Сначала короткая подготовка: огонёк разгорается,
+// чтобы на первом «Напряги» ему было куда сжиматься.
+const RELAX_PREP = 3000;
+const RELAX_QUEUE = [{ part: '', n: 0, text: 'Устройся удобно. Сейчас начнём.', big: true, time: RELAX_PREP }];
 RELAX_PARTS.forEach(function (item, i) {
-  RELAX_QUEUE.push({ part: item.part, n: i + 1, text: item.tense, big: false, time: RELAX_TENSE });
-  RELAX_QUEUE.push({ part: item.part, n: i + 1, text: item.relax, big: true, time: RELAX_RELEASE });
+  RELAX_QUEUE.push({ part: item.part + ': напряги', n: i + 1, text: item.tense, big: false, time: RELAX_TENSE });
+  RELAX_QUEUE.push({ part: item.part + ': отпусти', n: i + 1, text: item.relax, big: true, time: RELAX_RELEASE });
 });
 RELAX_QUEUE.push({ part: 'Всё тело', n: RELAX_PARTS.length + 1, text: 'Просто подыши. Пройди вниманием от макушки до пяток: всё мягкое и спокойное.', big: true, time: RELAX_FINAL });
 
@@ -1939,17 +1941,35 @@ const relaxCountEl = document.getElementById('relax-count');
 const relaxBtn = document.getElementById('relax-btn');
 
 let relaxTimer = null;
+let relaxTick = null;
+let relaxStepEnd = 0;
 let relaxIndex = 0;
 let relaxing = false;
+
+// Под инструкцией — сколько секунд осталось в этой части, чтобы огонёк и текст шли в одном ритме.
+function updateRelaxCount() {
+  const step = RELAX_QUEUE[relaxIndex];
+  const left = Math.max(1, Math.ceil((relaxStepEnd - Date.now()) / 1000));
+  if (step.n === 0) {
+    relaxCountEl.textContent = 'Начинаем через ' + left + ' с';
+  } else {
+    relaxCountEl.textContent = 'Часть ' + step.n + ' из ' + (RELAX_PARTS.length + 1) + ', ещё ' + left + ' с';
+  }
+}
 
 function runRelaxStep() {
   const step = RELAX_QUEUE[relaxIndex];
   relaxPartEl.textContent = step.part;
   relaxTextEl.textContent = step.text;
-  relaxCountEl.textContent = 'Часть ' + step.n + ' из ' + (RELAX_PARTS.length + 1);
-  // Напряжение — огонёк быстро сжимается, расслабление — медленно разгорается.
-  relaxOrbEl.style.transitionDuration = step.big ? '4000ms' : '1500ms';
+
+  // Огонёк меняется всё время, пока длится часть:
+  // «напряги» — медленно сжимается все 5 секунд, «отпусти» — мягко разгорается.
+  relaxOrbEl.style.transitionDuration = step.time + 'ms';
+  relaxOrbEl.style.transitionTimingFunction = step.big ? 'ease-out' : 'ease-in-out';
   relaxOrbEl.classList.toggle('big', step.big);
+
+  relaxStepEnd = Date.now() + step.time;
+  updateRelaxCount();
 
   relaxTimer = setTimeout(function () {
     relaxIndex++;
@@ -1964,9 +1984,12 @@ function runRelaxStep() {
 
 function stopRelax(message) {
   clearTimeout(relaxTimer);
+  clearInterval(relaxTick);
   relaxTimer = null;
+  relaxTick = null;
   relaxing = false;
   relaxOrbEl.style.transitionDuration = '1500ms';
+  relaxOrbEl.style.transitionTimingFunction = '';
   relaxOrbEl.classList.remove('big');
   relaxPartEl.textContent = '';
   relaxTextEl.textContent = message || 'Нажми, когда будешь готова';
@@ -1983,6 +2006,7 @@ relaxBtn.addEventListener('click', function () {
   relaxIndex = 0;
   relaxBtn.textContent = 'Остановить';
   runRelaxStep();
+  relaxTick = setInterval(updateRelaxCount, 250);
 });
 
 // «1 дело», «3 дела», «5 дел» и так далее.
@@ -2338,22 +2362,13 @@ document.querySelectorAll('[data-go]').forEach(function (button) {
   });
 });
 
-// ---------- Сколько людей за месяц с нами (GoatCounter) ----------
+// ---------- Счётчик GoatCounter и плашка ----------
 
 const GOATCOUNTER_CODE = 'svet-v-okne';
-
-// Плашку показываем, только если за месяц набралось хотя бы столько людей,
-// чтобы маленькое число не прозвучало одиноко. Поставьте 0, чтобы показывать всегда.
-const MIN_PEOPLE = 10;
 
 // Сколько секунд плашка висит на экране.
 const TOAST_SECONDS = 8;
 
-// Если приложение было свёрнуто дольше стольких минут, возвращение считаем новым входом.
-const NEW_VISIT_MINUTES = 30;
-
-// Последнее известное число людей — пригодится, если нет интернета.
-const PEOPLE_MONTH_KEY = 'peopleMonth';
 const peopleToastEl = document.getElementById('people-toast');
 
 // dev-сайт и проверки на компьютере не считаем, чтобы не накручивать счётчик.
@@ -2369,18 +2384,6 @@ function startCounting() {
   script.src = 'https://gc.zgo.at/count.js';
   script.setAttribute('data-goatcounter', 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/count');
   document.head.append(script);
-}
-
-// «1 человек», «3 человека», «47 человек».
-function peopleWord(n) {
-  const last = n % 10;
-  const lastTwo = n % 100;
-  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return 'человека';
-  return 'человек';
-}
-
-function showPeopleToast(count) {
-  showToastText('За месяц свет в окне зажгли уже ' + count + ' ' + peopleWord(count) + '. Ты не одна.');
 }
 
 let toastTimer = null;
@@ -2408,70 +2411,23 @@ function hidePeopleToast() {
 // По нажатию плашку можно закрыть раньше.
 peopleToastEl.addEventListener('click', hidePeopleToast);
 
-// Узнаём у GoatCounter, сколько разных людей открывали приложение за последние 30 дней,
-// и показываем плашку при каждом входе.
-// Для проверки на dev-сайте добавьте к адресу #toast-test: плашка покажется
-// с настоящим числом, даже если оно меньше порога.
-function checkPeopleMonth() {
-  const testMode = location.hash === '#toast-test';
-
-  function showIfEnough(count) {
-    if (!testMode && count < MIN_PEOPLE) return;
-    showPeopleToast(count);
-  }
-
-  // 30 дней, считая сегодня: со дня 29 дней назад до начала завтрашнего дня.
-  // На dev-сайте и при проверке на компьютере берём числа основного сайта на GitHub Pages:
-  // сам dev не считается. На основном сайте — числа его собственного адреса.
-  const path = isDevSite ? '/svet-v-okne/' : (location.pathname.replace(/index\.html$/, '') || '/');
-  const url = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/counter/'
-    + encodeURIComponent(path) + '.json?start=' + dayKey(daysAgo(29)) + '&end=' + dayKey(daysAgo(-1));
-
-  fetch(url)
-    .then(function (response) {
-      // Если никого не посчитали, GoatCounter отвечает «не найдено» (404) — это ноль.
-      if (response.status === 404) return { count_unique: '0' };
-      if (!response.ok) throw new Error('GoatCounter ответил кодом ' + response.status);
-      return response.json();
-    })
-    .then(function (data) {
-      // count_unique — разные люди. Число приходит строкой вроде «1 234»: оставляем только цифры.
-      const raw = data.count_unique || '0';
-      const count = parseInt(String(raw).replace(/\D/g, ''), 10) || 0;
-      try { localStorage.setItem(PEOPLE_MONTH_KEY, String(count)); } catch (error) {}
-      showIfEnough(count);
-    })
-    .catch(function (error) {
-      // Нет интернета — показываем число из прошлого раза, если оно есть.
-      let cached = 0;
-      try { cached = Number(localStorage.getItem(PEOPLE_MONTH_KEY)) || 0; } catch (e) {}
-      if (cached) {
-        showIfEnough(cached);
-      } else if (testMode) {
-        showToastText('Тест: не удалось получить число. ' + (error && error.message ? error.message : ''));
-      }
-    });
-}
-
-// Вернулись в приложение после долгого перерыва — это новый вход, показываем плашку снова.
-let hiddenAt = 0;
-document.addEventListener('visibilitychange', function () {
-  if (document.hidden) {
-    hiddenAt = Date.now();
-  } else if (profile && hiddenAt && Date.now() - hiddenAt >= NEW_VISIT_MINUTES * 60 * 1000
-    && whatsNewEl.hidden && currentView !== 'calm' && currentView !== 'start') {
-    setTimeout(checkPeopleMonth, 1200);
-  }
-});
-
 startCounting();
 
 // ---------- Строка «за месяц уже N раз» ----------
 
-// Строку показываем при каждом открытии, если за 30 дней набралось хотя бы столько открытий.
+// Строку показываем при каждом входе, если за 30 дней набралось хотя бы столько открытий.
+// Поставьте 0, чтобы показывать всегда.
 const MIN_MONTH_VISITS = 20;
-const MONTH_KEY = 'monthVisits'; // последнее известное число — чтобы строка была видна сразу и без интернета
+
+// Сколько секунд строка видна, прежде чем мягко исчезнуть.
+const TOGETHER_SECONDS = 8;
+
+// Если приложение было свёрнуто дольше стольких минут, возвращение считаем новым входом.
+const NEW_VISIT_MINUTES = 30;
+
+const MONTH_KEY = 'monthVisits'; // последнее известное число — чтобы строка была и без интернета
 const togetherEl = document.getElementById('together');
+let togetherTimer = null;
 
 // «1 раз», «3 раза», «115 раз».
 function timesWord(n) {
@@ -2481,24 +2437,38 @@ function timesWord(n) {
   return 'раз';
 }
 
-function showMonthVisits(count) {
-  if (count < MIN_MONTH_VISITS) {
-    togetherEl.hidden = true;
-    return;
-  }
+// Мягко показываем строку и через 8 секунд так же мягко убираем.
+function showTogether(count) {
+  clearTimeout(togetherTimer);
   togetherEl.textContent = 'Каждый день «Свет в окне» открывают женщины, которым тоже бывает непросто: за месяц уже '
     + count + ' ' + timesWord(count) + '. Ты не одна.';
   togetherEl.hidden = false;
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      togetherEl.classList.add('visible');
+    });
+  });
+  togetherTimer = setTimeout(hideTogether, TOGETHER_SECONDS * 1000);
 }
 
-function checkMonthVisits() {
-  // Сначала показываем то, что узнали в прошлый раз.
-  try {
-    const cached = Number(localStorage.getItem(MONTH_KEY));
-    if (cached) showMonthVisits(cached);
-  } catch (error) {}
+function hideTogether() {
+  clearTimeout(togetherTimer);
+  togetherEl.classList.remove('visible');
+  // Ждём, пока строка растает и место под ней плавно схлопнется (как transition в CSS).
+  togetherTimer = setTimeout(function () { togetherEl.hidden = true; }, 1500);
+}
 
-  // Потом спрашиваем свежее число у GoatCounter: последние 30 дней, считая сегодня.
+// Узнаём у GoatCounter, сколько раз открывали приложение за последние 30 дней.
+// Для проверки на dev-сайте добавьте к адресу #together-test: строка покажется
+// с настоящим числом, даже если оно меньше порога.
+function checkMonthVisits() {
+  const testMode = location.hash === '#together-test';
+
+  function showIfEnough(count) {
+    if (!testMode && count < MIN_MONTH_VISITS) return;
+    showTogether(count);
+  }
+
   // На dev-сайте и при проверке на компьютере берём числа основного сайта на GitHub Pages,
   // потому что сам dev не считается.
   const path = isDevSite ? '/svet-v-okne/' : (location.pathname.replace(/index\.html$/, '') || '/');
@@ -2512,21 +2482,27 @@ function checkMonthVisits() {
       return response.json();
     })
     .then(function (data) {
-      // count — все открытия, как в «Тише»; число приходит строкой вроде «1 234».
+      // count — все открытия; число приходит строкой вроде «1 234».
       const count = parseInt(String(data.count || '0').replace(/\D/g, ''), 10) || 0;
       try { localStorage.setItem(MONTH_KEY, String(count)); } catch (error) {}
-      showMonthVisits(count);
+      showIfEnough(count);
     })
     .catch(function () {
-      // Нет интернета — остаётся число из прошлого раза.
+      // Нет интернета — показываем число из прошлого раза, если оно есть.
+      let cached = 0;
+      try { cached = Number(localStorage.getItem(MONTH_KEY)) || 0; } catch (error) {}
+      if (cached) showIfEnough(cached);
     });
 }
 
-checkMonthVisits();
-
-// Когда приложение снова открывают из свёрнутого состояния, обновляем число.
+// Вернулись в приложение после долгого перерыва — это новый вход, показываем строку снова.
+let hiddenAt = 0;
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden) checkMonthVisits();
+  if (document.hidden) {
+    hiddenAt = Date.now();
+  } else if (profile && hiddenAt && Date.now() - hiddenAt >= NEW_VISIT_MINUTES * 60 * 1000) {
+    setTimeout(checkMonthVisits, 1200);
+  }
 });
 
 // ---------- Что нового ----------
@@ -2630,16 +2606,16 @@ show(profile ? 'phrases' : 'start');
 
 // Тестовые адреса срабатывают и тогда, когда их дописали к уже открытой странице.
 window.addEventListener('hashchange', function () {
-  if (location.hash === '#toast-test') checkPeopleMonth();
+  if (location.hash === '#together-test') checkMonthVisits();
   if (location.hash === '#whatsnew-test') showWhatsNew();
 });
 
-// Сначала «Что нового» (если есть что показать), а плашку «ты не одна» — уже после него.
+// Сначала «Что нового» (если есть что показать), а строку «ты не одна» — уже после него.
 // На самом первом экране с вопросами ни то ни другое не показываем.
 if (shouldShowWhatsNew()) {
   setTimeout(function () {
-    showWhatsNew(function () { setTimeout(checkPeopleMonth, 1500); });
+    showWhatsNew(function () { setTimeout(checkMonthVisits, 800); });
   }, 800);
 } else if (profile) {
-  setTimeout(checkPeopleMonth, 2000);
+  setTimeout(checkMonthVisits, 1000);
 }
