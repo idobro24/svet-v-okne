@@ -2367,7 +2367,7 @@ document.querySelectorAll('[data-go]').forEach(function (button) {
 const GOATCOUNTER_CODE = 'svet-v-okne';
 
 // Сколько секунд плашка висит на экране.
-const TOAST_SECONDS = 8;
+const TOAST_SECONDS = 3;
 
 const peopleToastEl = document.getElementById('people-toast');
 
@@ -2413,95 +2413,87 @@ peopleToastEl.addEventListener('click', hidePeopleToast);
 
 startCounting();
 
-// ---------- Строка «за месяц уже N раз» ----------
+// ---------- Плашка «за месяц свет в окне зажгли уже N человек» ----------
 
-// Строку показываем при каждом входе, если за 30 дней набралось хотя бы столько открытий.
-// Поставьте 0, чтобы показывать всегда.
-const MIN_MONTH_VISITS = 20;
-
-// Сколько секунд строка видна, прежде чем мягко исчезнуть.
-const TOGETHER_SECONDS = 8;
+// Плашку показываем, только если за месяц набралось хотя бы столько людей,
+// чтобы маленькое число не прозвучало одиноко. Поставьте 0, чтобы показывать всегда.
+const MIN_PEOPLE = 10;
 
 // Если приложение было свёрнуто дольше стольких минут, возвращение считаем новым входом.
 const NEW_VISIT_MINUTES = 30;
 
-const MONTH_KEY = 'monthVisits'; // последнее известное число — чтобы строка была и без интернета
-const togetherEl = document.getElementById('together');
-let togetherTimer = null;
+// Последнее известное число людей — пригодится, если нет интернета.
+const PEOPLE_MONTH_KEY = 'peopleMonth';
 
-// «1 раз», «3 раза», «115 раз».
-function timesWord(n) {
+// Строку внизу экрана убрали: она появлялась и исчезала и сдвигала экран.
+// Стираем её старое сохранённое число.
+try { localStorage.removeItem('monthVisits'); } catch (error) {}
+
+// «1 человек», «3 человека», «47 человек».
+function peopleWord(n) {
   const last = n % 10;
   const lastTwo = n % 100;
-  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return 'раза';
-  return 'раз';
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return 'человека';
+  return 'человек';
 }
 
-// Мягко показываем строку и через 8 секунд так же мягко убираем.
-function showTogether(count) {
-  clearTimeout(togetherTimer);
-  togetherEl.textContent = 'Каждый день «Свет в окне» открывают женщины, которым тоже бывает непросто: за месяц уже '
-    + count + ' ' + timesWord(count) + '. Ты не одна.';
-  togetherEl.hidden = false;
-  requestAnimationFrame(function () {
-    requestAnimationFrame(function () {
-      togetherEl.classList.add('visible');
-    });
-  });
-  togetherTimer = setTimeout(hideTogether, TOGETHER_SECONDS * 1000);
+function showPeopleToast(count) {
+  showToastText('За месяц свет в окне зажгли уже ' + count + ' ' + peopleWord(count) + '. Ты не одна.');
 }
 
-function hideTogether() {
-  clearTimeout(togetherTimer);
-  togetherEl.classList.remove('visible');
-  // Ждём, пока строка растает и место под ней плавно схлопнется (как transition в CSS).
-  togetherTimer = setTimeout(function () { togetherEl.hidden = true; }, 1500);
-}
-
-// Узнаём у GoatCounter, сколько раз открывали приложение за последние 30 дней.
-// Для проверки на dev-сайте добавьте к адресу #together-test: строка покажется
+// Узнаём у GoatCounter, сколько разных людей открывали приложение за последние 30 дней,
+// и показываем плашку сверху при каждом входе. Плашка висит поверх страницы
+// и ничего на экране не сдвигает.
+// Для проверки на dev-сайте добавьте к адресу #toast-test: плашка покажется
 // с настоящим числом, даже если оно меньше порога.
-function checkMonthVisits() {
-  const testMode = location.hash === '#together-test';
+function checkPeopleMonth() {
+  const testMode = location.hash === '#toast-test';
 
   function showIfEnough(count) {
-    if (!testMode && count < MIN_MONTH_VISITS) return;
-    showTogether(count);
+    if (!testMode && count < MIN_PEOPLE) return;
+    showPeopleToast(count);
   }
 
-  // На dev-сайте и при проверке на компьютере берём числа основного сайта на GitHub Pages,
-  // потому что сам dev не считается.
+  // На dev-сайте и при проверке на компьютере берём числа основного сайта на GitHub Pages:
+  // сам dev не считается.
   const path = isDevSite ? '/svet-v-okne/' : (location.pathname.replace(/index\.html$/, '') || '/');
   const url = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/counter/'
     + encodeURIComponent(path) + '.json?start=' + dayKey(daysAgo(29)) + '&end=' + dayKey(daysAgo(-1));
 
   fetch(url)
     .then(function (response) {
-      if (response.status === 404) return { count: '0' };
+      // Если никого не посчитали, GoatCounter отвечает «не найдено» (404) — это ноль.
+      if (response.status === 404) return { count_unique: '0' };
       if (!response.ok) throw new Error('GoatCounter ответил кодом ' + response.status);
       return response.json();
     })
     .then(function (data) {
-      // count — все открытия; число приходит строкой вроде «1 234».
-      const count = parseInt(String(data.count || '0').replace(/\D/g, ''), 10) || 0;
-      try { localStorage.setItem(MONTH_KEY, String(count)); } catch (error) {}
+      // count_unique — разные люди. Число приходит строкой вроде «1 234»: оставляем только цифры.
+      const count = parseInt(String(data.count_unique || '0').replace(/\D/g, ''), 10) || 0;
+      try { localStorage.setItem(PEOPLE_MONTH_KEY, String(count)); } catch (error) {}
       showIfEnough(count);
     })
-    .catch(function () {
+    .catch(function (error) {
       // Нет интернета — показываем число из прошлого раза, если оно есть.
       let cached = 0;
-      try { cached = Number(localStorage.getItem(MONTH_KEY)) || 0; } catch (error) {}
-      if (cached) showIfEnough(cached);
+      try { cached = Number(localStorage.getItem(PEOPLE_MONTH_KEY)) || 0; } catch (e) {}
+      if (cached) {
+        showIfEnough(cached);
+      } else if (testMode) {
+        showToastText('Тест: не удалось получить число. ' + (error && error.message ? error.message : ''));
+      }
     });
 }
 
-// Вернулись в приложение после долгого перерыва — это новый вход, показываем строку снова.
+// Вернулись в приложение после долгого перерыва — это новый вход, показываем плашку снова.
+// В тревожном сценарии и на первом экране с вопросами плашку не показываем.
 let hiddenAt = 0;
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) {
     hiddenAt = Date.now();
-  } else if (profile && hiddenAt && Date.now() - hiddenAt >= NEW_VISIT_MINUTES * 60 * 1000) {
-    setTimeout(checkMonthVisits, 1200);
+  } else if (profile && hiddenAt && Date.now() - hiddenAt >= NEW_VISIT_MINUTES * 60 * 1000
+    && currentView !== 'calm' && currentView !== 'start') {
+    setTimeout(checkPeopleMonth, 1200);
   }
 });
 
@@ -2606,16 +2598,16 @@ show(profile ? 'phrases' : 'start');
 
 // Тестовые адреса срабатывают и тогда, когда их дописали к уже открытой странице.
 window.addEventListener('hashchange', function () {
-  if (location.hash === '#together-test') checkMonthVisits();
+  if (location.hash === '#toast-test') checkPeopleMonth();
   if (location.hash === '#whatsnew-test') showWhatsNew();
 });
 
-// Сначала «Что нового» (если есть что показать), а строку «ты не одна» — уже после него.
+// Сначала «Что нового» (если есть что показать), а плашку «ты не одна» — уже после него.
 // На самом первом экране с вопросами ни то ни другое не показываем.
 if (shouldShowWhatsNew()) {
   setTimeout(function () {
-    showWhatsNew(function () { setTimeout(checkMonthVisits, 800); });
+    showWhatsNew(function () { setTimeout(checkPeopleMonth, 1500); });
   }, 800);
 } else if (profile) {
-  setTimeout(checkMonthVisits, 1000);
+  setTimeout(checkPeopleMonth, 2000);
 }
