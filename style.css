@@ -22,7 +22,8 @@ body {
   -webkit-touch-callout: none;
 }
 
-textarea, input, .note-text, .letter-paper, .saved-item p {
+textarea, input, .note-text, .letter-paper, .saved-item p,
+.thought-item-old, .thought-item-new, .help-quote {
   -webkit-user-select: text;
   user-select: text;
   -webkit-touch-callout: default;
@@ -1447,11 +1448,440 @@ body.typing .tabbar {
   font-weight: 600;
 }
 
+/* ---------- Мне сейчас очень тревожно ---------- */
+
+/* Кнопка на главном экране: заметная, но не кричащая — мягкий розовато-тёплый свет */
+.calm-entry {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(240, 185, 160, 0.5);
+  background: rgba(240, 185, 160, 0.14);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.calm-entry:active { transform: scale(0.98); }
+
+/* Огонёк неподвижный: свечение через box-shadow, без фильтров */
+.calm-entry-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #F0B9A0;
+  box-shadow: 0 0 10px rgba(240, 185, 160, 0.8);
+}
+
+.calm-link {
+  align-self: center;
+  font-size: 14px;
+}
+
+.calm-progress {
+  margin: 0;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+.calm-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.calm-breath-area {
+  min-height: 280px;
+}
+
+/* Кнопки шага прижаты к низу, чтобы до них было легко дотянуться */
+.calm-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.calm-actions .link {
+  align-self: center;
+}
+
+/* Большая цифра шага заземления: 5, 4, 3, 2, 1 */
+.ground-num {
+  margin: 8px 0 -8px;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 72px;
+  line-height: 1;
+  color: #F6CF86;
+}
+
+.ground-dots {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.ground-dots li {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(246, 207, 134, 0.55);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Найденная опора загорается. Анимируем только размер, свечение — обычной тенью */
+.ground-dots li.lit {
+  background: #F6CF86;
+  border-color: #F6CF86;
+  box-shadow: 0 0 12px rgba(255, 200, 120, 0.7);
+  animation: dot-pop 0.35s ease;
+}
+
+@keyframes dot-pop {
+  from { transform: scale(0.6); }
+  to   { transform: scale(1); }
+}
+
+.ground-status {
+  margin: 0;
+  min-height: 1.4em;
+  text-align: center;
+  font-size: 14px;
+  color: #BFA88A;
+}
+
+.calm-pass-big {
+  margin: 24px 0 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 34px;
+  line-height: 1.3;
+  color: #F6E7CF;
+}
+
+/* ---------- Поговорить с мыслью ---------- */
+
+.thought-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(246, 231, 207, 0.14);
+  background: rgba(30, 21, 15, 0.8);
+}
+
+.thought-progress {
+  margin: 0;
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+.thought-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.thought-step .field-label {
+  line-height: 1.4;
+}
+
+.thought-help {
+  margin: -4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #D9C3A3;
+}
+
+.thought-card textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.thought-card textarea:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+/* Шкала «насколько веришь»: от 0 до 10 */
+.belief {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.belief input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  accent-color: #E8B66B;
+}
+
+.belief output {
+  min-width: 64px;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6CF86;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 22px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.55);
+  color: #EBDCC4;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.traps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trap {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.25);
+  background: rgba(43, 30, 22, 0.55);
+  color: #BFA88A;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trap strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.chip[aria-pressed="true"],
+.trap[aria-pressed="true"] {
+  border-color: #E8B66B;
+  background: rgba(232, 182, 107, 0.18);
+  color: #F6E7CF;
+}
+
+.chip:active, .trap:active { transform: scale(0.98); }
+
+/* Подсказки новой мысли — та же полоска, что в письме, но внутри карточки */
+.thought-starters {
+  margin: 0 -20px;
+  padding: 2px 20px 6px;
+  scroll-padding: 0 20px;
+}
+
+.thought-starters .starter {
+  width: 200px;
+}
+
+.thought-care {
+  padding: 14px 18px 4px;
+}
+
+.care-call {
+  font-weight: 600;
+}
+
+.thought-nav {
+  display: flex;
+  gap: 10px;
+}
+
+.thought-nav .btn-ghost {
+  flex: 0 0 auto;
+  padding: 0 22px;
+}
+
+.thought-nav .btn-primary {
+  flex: 1;
+}
+
+.thought-result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.thought-old {
+  margin: 0 0 8px;
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #BFA88A;
+}
+
+.thought-paper {
+  margin: 0 -6px 8px;
+}
+
+.thought-item-old {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #BFA88A;
+}
+
+.thought-item-new {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+.thought-details {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #D9C3A3;
+}
+
+.thought-details strong {
+  display: block;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+/* ---------- Карточка о грусти до и после родов ---------- */
+
+.help-more summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.help-more summary::-webkit-details-marker { display: none; }
+
+/* Стрелка, которая поворачивается, когда карточка раскрыта */
+.help-more summary .help-title::after {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 10px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-3px) rotate(45deg);
+  transition: transform 0.3s ease;
+}
+
+.help-more[open] summary .help-title::after {
+  transform: translateY(0) rotate(-135deg);
+}
+
+.help-more-body {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+.help-more-body p { margin: 0; }
+
+.help-more-body ul {
+  margin: -4px 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.help-more-title {
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+.help-urgent {
+  align-self: stretch;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(240, 185, 160, 0.55);
+  background: rgba(30, 21, 15, 0.45);
+}
+
+.help-urgent strong { color: #F0B9A0; }
+
+.help-urgent-call {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.help-quote {
+  align-self: stretch;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid #E8B66B;
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #F2D9AE;
+}
+
 /* ---------- Для тех, у кого отключены анимации ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   #phrase, #save, #save svg { transition: none; }
   .note.appear, .note.leaving, .jar-photo-wrap.shake { animation: none; }
   .orb { transition: none; }
+  .ground-dots li.lit { animation: none; }
+  .help-more summary .help-title::after { transition: none; }
   #phrase.hidden { transform: none; }
 }
