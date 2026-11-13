@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <!-- ?v=… — номер обновления: меняйте его вместе с файлами, чтобы iPhone не брал старую копию -->
-  <link rel="stylesheet" href="style.css?v=1.2.1">
+  <link rel="stylesheet" href="style.css?v=1.2.2">
   <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
   <link rel="preload" as="image" href="note2.webp">
   <link rel="preload" as="image" href="paper.webp">
@@ -85,6 +85,9 @@
         Мне сейчас очень тревожно
       </button>
 
+      <!-- Поздно вечером и ночью — приглашение в тихий ночной режим -->
+      <button class="night-entry" type="button" id="night-entry" data-go="night" hidden>🌙 Не спится? Тихий ночной режим</button>
+
       <!-- Погода внутри: отметка состояния за день -->
       <div class="mood">
         <div id="mood-ask">
@@ -102,6 +105,7 @@
             <button class="link small" type="button" id="mood-change">Изменить</button>
           </p>
           <ol class="mood-week" id="mood-week" aria-label="Погода на этой неделе"></ol>
+          <button class="steps-link" type="button" id="steps-link" data-go="steps" hidden>🌱 Нет сил? Сделай один маленький шаг</button>
         </div>
       </div>
 
@@ -241,7 +245,11 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-2 1-3.4 2.2-4.4.2 1.5.9 2.4 1.8 2.9C11 8 11.2 5.4 12 3z"/></svg>
         <span class="fire-label">Треск камина</span>
       </button>
-      <button class="link calm-link" type="button" data-go="calm">Очень тревожно? Пройди короткие шаги</button>
+      <div class="breath-links">
+        <button class="link" type="button" data-go="calm">Очень тревожно? Пройди короткие шаги</button>
+        <button class="link" type="button" data-go="relax">Расслабить мышцы — 2 минуты</button>
+        <button class="link" type="button" data-go="night">Тихий ночной режим</button>
+      </div>
     </section>
 
     <!-- Мне сейчас очень тревожно: дыхание → заземление 5-4-3-2-1 → «это пройдёт» -->
@@ -277,12 +285,26 @@
         </div>
       </div>
 
-      <!-- Шаг 3: это пройдёт -->
+      <!-- Шаг 3: переждать волну и узнать, что происходит с телом -->
       <div class="calm-step" id="calm-pass" hidden>
         <p class="calm-pass-big">Это пройдёт.<br>Оно уже проходит.</p>
-        <p class="lead">Тревога похожа на волну: она поднимается, доходит до самой высокой точки и спадает. Ты уже прошла часть этой волны. Ты здесь, и ты справляешься.</p>
+        <div class="wave" aria-hidden="true">
+          <svg viewBox="0 0 600 120" preserveAspectRatio="none">
+            <g class="wave-rise">
+              <path class="wave-back" d="M0 60 Q75 25 150 60 T300 60 T450 60 T600 60 T750 60 T900 60 T1050 60 T1200 60 V160 H0 Z"/>
+              <path class="wave-front" d="M0 70 Q75 40 150 70 T300 70 T450 70 T600 70 T750 70 T900 70 T1050 70 T1200 70 V160 H0 Z"/>
+            </g>
+          </svg>
+        </div>
+        <p class="wave-time" id="wave-time"></p>
+        <p class="lead">Не нужно бороться с ощущениями. Просто наблюдай за ними, как за волной: она поднимается, доходит до самого верха и опускается.</p>
+        <div class="body-card">
+          <p class="body-card-title">Что сейчас происходит с телом</p>
+          <p>Сердце колотится и не хватает воздуха из-за выброса адреналина: так тело готовится защищаться, хотя опасности нет. Самое сильное обычно бывает в первые минуты, а потом приступ сам идёт на спад. Паническая атака очень неприятна, но сама по себе не опасна. От неё не сходят с ума, даже если сейчас так кажется.</p>
+        </div>
         <div class="stack calm-actions">
           <button class="btn-primary" type="button" id="calm-better">Мне немного легче</button>
+          <button class="btn-ghost" type="button" data-go="relax">Расслабить мышцы — 2 минуты</button>
           <button class="btn-ghost" type="button" id="calm-again">Подышать ещё минуту</button>
           <button class="btn-ghost" type="button" data-go="help">Хочу поговорить с человеком</button>
         </div>
@@ -372,6 +394,7 @@
         <p class="lead" id="result-belief"></p>
         <div class="stack">
           <button class="btn-primary" type="button" id="thought-another">Поговорить с другой мыслью</button>
+          <button class="btn-ghost" type="button" data-go="kind">Минутка доброты к себе</button>
           <button class="btn-ghost" type="button" data-go="phrases">На главную</button>
         </div>
       </div>
@@ -381,6 +404,115 @@
         <ul class="letters" id="thoughts-list"></ul>
       </div>
       <p class="hint">Всё, что ты пишешь, остаётся только на этом телефоне.</p>
+    </section>
+
+    <!-- Расслабление мышц: напрячь и отпустить по очереди -->
+    <section class="view" id="view-relax" hidden>
+      <header class="topbar">
+        <button class="link back-btn" type="button" data-back="relax">← Назад</button>
+      </header>
+      <h1>Расслабить мышцы</h1>
+      <p class="lead">Две минуты. По очереди напрягаем и отпускаем мышцы, и тело само вспоминает, как быть спокойным.</p>
+      <div class="breath-area relax-area">
+        <div class="orb" id="relax-orb" aria-hidden="true"></div>
+        <p class="relax-part" id="relax-part"></p>
+        <p class="relax-text" id="relax-text" aria-live="polite">Нажми, когда будешь готова</p>
+        <p class="breath-count" id="relax-count"></p>
+      </div>
+      <button class="btn-primary" type="button" id="relax-btn">Начать</button>
+      <p class="hint">Напрягай мягко, без боли. Если где-то болит или есть травма, эту часть просто пропусти.</p>
+    </section>
+
+    <!-- Маленький шаг: поведенческая активация -->
+    <section class="view" id="view-steps" hidden>
+      <header class="topbar">
+        <button class="link back-btn" type="button" data-back="steps">← Назад</button>
+      </header>
+      <h1>Маленький шаг</h1>
+      <p class="lead">Когда нет сил, не нужно ждать настроения. Выбери одно совсем крошечное дело. Часто после него становится чуть легче — проверь на себе.</p>
+
+      <div class="steps-choose" id="steps-choose">
+        <div class="tasks" id="tasks"></div>
+        <button class="link" type="button" id="tasks-more">Другие дела</button>
+        <label class="field-label" for="own-task">Или своё дело</label>
+        <div class="own-task-row">
+          <input type="text" id="own-task" maxlength="80" autocomplete="off" placeholder="Например: разобрать сумку">
+          <button class="btn-primary" type="button" id="own-task-go">Выбрать</button>
+        </div>
+      </div>
+
+      <div class="task-card" id="steps-doing" hidden>
+        <p class="task-now" id="task-now"></p>
+        <p class="lead">Сделай его, когда будешь готова. Можно не идеально и не до конца.</p>
+        <div class="stack">
+          <button class="btn-primary" type="button" id="task-done">Сделала</button>
+          <button class="btn-ghost" type="button" id="task-change">Выбрать другое</button>
+        </div>
+      </div>
+
+      <div class="task-card" id="steps-after" hidden>
+        <p class="task-now">Как ты теперь?</p>
+        <div class="after-options">
+          <button class="mood-btn" type="button" data-after="better"><span aria-hidden="true">🌤️</span>Чуть легче</button>
+          <button class="mood-btn" type="button" data-after="same"><span aria-hidden="true">☁️</span>Так же</button>
+          <button class="mood-btn" type="button" data-after="worse"><span aria-hidden="true">🌧️</span>Тяжелее</button>
+        </div>
+      </div>
+
+      <div class="task-card" id="steps-reply" hidden>
+        <p class="task-reply" id="task-reply"></p>
+        <div class="stack">
+          <button class="btn-primary" type="button" id="task-again">Ещё один шаг</button>
+          <button class="btn-ghost" type="button" data-go="phrases">На главную</button>
+        </div>
+      </div>
+
+      <div id="steps-log" hidden>
+        <h2 class="section-title">Твои маленькие шаги</h2>
+        <p class="lead" id="steps-summary"></p>
+        <ul class="steps-list" id="steps-list"></ul>
+      </div>
+    </section>
+
+    <!-- Минутка доброты к себе (самосострадание) -->
+    <section class="view" id="view-kind" hidden>
+      <header class="topbar">
+        <button class="link back-btn" type="button" data-back="kind">← Назад</button>
+        <p class="calm-progress" id="kind-progress"></p>
+      </header>
+      <div class="calm-step">
+        <div class="kind-glow" aria-hidden="true"></div>
+        <h1 id="kind-title"></h1>
+        <p class="lead" id="kind-text"></p>
+        <div class="calm-actions">
+          <button class="btn-primary" type="button" id="kind-next">Дальше</button>
+          <button class="btn-ghost" type="button" id="kind-save" hidden>Сохранить три фразы</button>
+        </div>
+        <p class="hint">Упражнение «Минутка самосострадания» психолога Кристин Нефф.</p>
+      </div>
+    </section>
+
+    <!-- Тихая ночь: приглушённый экран, камин и советы для сна -->
+    <section class="view" id="view-night" hidden>
+      <header class="topbar">
+        <button class="link back-btn" type="button" data-back="night">← Назад</button>
+      </header>
+      <h1>Тихая ночь</h1>
+      <p class="lead">Я приглушила свет. Можно включить камин, прочитать один совет и отложить телефон.</p>
+      <button class="btn-ghost fire-toggle fire-wide" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-2 1-3.4 2.2-4.4.2 1.5.9 2.4 1.8 2.9C11 8 11.2 5.4 12 3z"/></svg>
+        <span class="fire-label">Треск камина</span>
+      </button>
+      <div class="night-tip">
+        <p id="night-tip" aria-live="polite"></p>
+        <button class="link" type="button" id="night-next">Ещё совет</button>
+      </div>
+      <div class="breath-links">
+        <button class="link" type="button" data-go="breath">Подышать медленно</button>
+        <button class="link" type="button" data-go="relax">Расслабить мышцы</button>
+        <button class="link" type="button" data-go="calm">Мне тревожно</button>
+      </div>
+      <p class="night-bye">Когда будешь готова, положи телефон экраном вниз. Спокойной ночи.</p>
     </section>
 
     <!-- Раздел 4: помощь -->
@@ -450,7 +582,11 @@
         <li><strong>Погода внутри.</strong> Раз в день отметь, как ты: гроза, туман, облачно или солнце. Приложение ответит фразой под настроение и подскажет, что может помочь прямо сейчас. А полоска под отметкой покажет, какой была погода последние 7 дней.</li>
         <li><strong>Банка хороших моментов.</strong> Записывай то, что согрело, даже совсем маленькое. В грустный день доставай записку наугад.</li>
         <li><strong>Дыхание.</strong> Одна минута с огоньком: он разгорается на вдохе и затихает на выдохе. Помогает, когда накрывает тревога.</li>
-        <li><strong>Мне сейчас очень тревожно.</strong> Кнопка на главном экране для минут, когда накрывает паника: минута дыхания, пять опор вокруг (что видишь, трогаешь, слышишь, чувствуешь носом и на вкус) и напоминание, что это пройдёт.</li>
+        <li><strong>Мне сейчас очень тревожно.</strong> Кнопка на главном экране для минут, когда накрывает паника: минута дыхания, пять опор вокруг (что видишь, трогаешь, слышишь, чувствуешь носом и на вкус), волна, которую можно переждать, и объяснение, что происходит с телом.</li>
+        <li><strong>Расслабить мышцы.</strong> Две минуты с подсказками: по очереди напрягаешь и отпускаешь кисти, руки, плечи, лицо и стопы. Есть на экране «Дыхание».</li>
+        <li><strong>Маленький шаг.</strong> Когда нет сил, выбери крошечное дело, отметь «сделала» и заметь, как ты после него. Приложение покажет, сколько шагов ты сделала за неделю. Ссылка появляется под погодой дня.</li>
+        <li><strong>Минутка доброты к себе.</strong> Три коротких шага самосострадания: «мне сейчас больно», «так бывает у многих», «пусть я буду добра к себе». Ищи в идеях «Чем себе помочь сейчас».</li>
+        <li><strong>Тихая ночь.</strong> Приглушённый экран, камин и бережные советы для засыпания. Поздно вечером приглашение появляется на главном экране, а ещё ночной режим есть на экране «Дыхание».</li>
         <li><strong>Поговорить с мыслью.</strong> Во вкладке «Банка». Если одна тяжёлая мысль крутится по кругу, можно разобрать её по шагам: что чувствуешь, что за и против, что сказала бы подруге — и найти слова бережнее. Разговоры сохраняются, их можно перечитать.</li>
         <li><strong>Треск камина.</strong> Значок огня вверху главного экрана или на экране дыхания включает тихий треск камина. Он звучит, пока его не выключишь. Если звука нет, проверь, не включён ли беззвучный режим.</li>
         <li><strong>Помощь.</strong> Телефоны, по которым можно позвонить в любое время, и подсказка, когда грусть во время беременности и после родов — повод сказать врачу. Там же можно изменить ответы о себе.</li>
@@ -484,6 +620,8 @@
       </div>
     </div>
 
+    <div class="night-dim" id="night-dim" aria-hidden="true" hidden></div>
+
     <!-- Временная плашка «ты не одна» -->
     <div class="toast" id="people-toast" role="status" hidden></div>
 
@@ -514,6 +652,6 @@
     </nav>
 
   </div>
-  <script src="script.js?v=1.2.1"></script>
+  <script src="script.js?v=1.2.2"></script>
 </body>
 </html>
