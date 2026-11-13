@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <!-- ?v=… — номер обновления: меняйте его вместе с файлами, чтобы iPhone не брал старую копию -->
-  <link rel="stylesheet" href="style.css?v=1.1.19">
+  <link rel="stylesheet" href="style.css?v=1.2.0">
   <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
   <link rel="preload" as="image" href="note2.webp">
   <link rel="preload" as="image" href="paper.webp">
@@ -78,6 +78,12 @@
           </button>
         </div>
       </header>
+
+      <!-- Быстрый вход в короткий сценарий при сильной тревоге -->
+      <button class="calm-entry" type="button" data-go="calm">
+        <span class="calm-entry-dot" aria-hidden="true"></span>
+        Мне сейчас очень тревожно
+      </button>
 
       <!-- Погода внутри: отметка состояния за день -->
       <div class="mood">
@@ -178,6 +184,11 @@
         <span class="letter-entry-icon" aria-hidden="true">✉️</span>
         <span><strong>Письмо себе в будущее</strong><br>Напиши себе сейчас и прочитай, когда придёт время</span>
       </button>
+
+      <button class="letter-entry" type="button" data-go="thought">
+        <span class="letter-entry-icon" aria-hidden="true">💬</span>
+        <span><strong>Поговорить с мыслью</strong><br>Когда одна мысль крутится по кругу и не отпускает</span>
+      </button>
     </section>
 
     <!-- Письмо себе в будущее -->
@@ -230,6 +241,146 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-2 1-3.4 2.2-4.4.2 1.5.9 2.4 1.8 2.9C11 8 11.2 5.4 12 3z"/></svg>
         <span class="fire-label">Треск камина</span>
       </button>
+      <button class="link calm-link" type="button" data-go="calm">Очень тревожно? Пройди короткие шаги</button>
+    </section>
+
+    <!-- Мне сейчас очень тревожно: дыхание → заземление 5-4-3-2-1 → «это пройдёт» -->
+    <section class="view" id="view-calm" hidden>
+      <header class="topbar">
+        <p class="calm-progress" id="calm-progress">Шаг 1 из 3</p>
+        <button class="link" type="button" id="calm-close">Закрыть</button>
+      </header>
+
+      <!-- Шаг 1: дыхание с длинным выдохом -->
+      <div class="calm-step" id="calm-breath">
+        <h1>Это тревога. Она пройдёт.</h1>
+        <p class="lead">Ничего не нужно решать. Просто дыши вместе с огоньком: вдох, пока он разгорается, и длинный выдох, пока затихает.</p>
+        <div class="breath-area calm-breath-area">
+          <div class="orb" id="calm-orb" aria-hidden="true"></div>
+          <p class="breath-text" id="calm-breath-text" aria-live="polite"></p>
+          <p class="breath-count" id="calm-breath-count"></p>
+        </div>
+        <button class="btn-primary" type="button" id="calm-breath-next">Дальше</button>
+        <p class="hint">Если такое с тобой впервые, сильно болит в груди или трудно дышать, позвони 112. Пусть врачи проверят, что это тревога.</p>
+      </div>
+
+      <!-- Шаг 2: заземление 5-4-3-2-1, по одному чувству за раз -->
+      <div class="calm-step" id="calm-ground" hidden>
+        <p class="ground-num" id="ground-num" aria-hidden="true">5</p>
+        <h1 id="ground-title"></h1>
+        <p class="lead" id="ground-text"></p>
+        <ol class="ground-dots" id="ground-dots" aria-hidden="true"></ol>
+        <p class="ground-status" id="ground-status" aria-live="polite"></p>
+        <div class="calm-actions">
+          <button class="btn-primary" type="button" id="ground-found">Нашла</button>
+          <button class="link" type="button" id="ground-skip">Пропустить этот шаг</button>
+        </div>
+      </div>
+
+      <!-- Шаг 3: это пройдёт -->
+      <div class="calm-step" id="calm-pass" hidden>
+        <p class="calm-pass-big">Это пройдёт.<br>Оно уже проходит.</p>
+        <p class="lead">Тревога похожа на волну: она поднимается, доходит до самой высокой точки и спадает. Ты уже прошла часть этой волны. Ты здесь, и ты справляешься.</p>
+        <div class="stack calm-actions">
+          <button class="btn-primary" type="button" id="calm-better">Мне немного легче</button>
+          <button class="btn-ghost" type="button" id="calm-again">Подышать ещё минуту</button>
+          <button class="btn-ghost" type="button" data-go="help">Хочу поговорить с человеком</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Поговорить с мыслью: упрощённый дневник мыслей -->
+    <section class="view" id="view-thought" hidden>
+      <header class="topbar">
+        <button class="link" type="button" data-go="jar">← К банке</button>
+        <button class="link small" type="button" id="thought-restart" hidden>Начать заново</button>
+      </header>
+      <h1>Поговорить с мыслью</h1>
+      <p class="lead">Бывает, одна мысль крутится по кругу и не отпускает. Давай спокойно посмотрим на неё вместе. Любой вопрос, кроме первого, можно пропустить.</p>
+
+      <div class="thought-card" id="thought-card">
+        <p class="thought-progress" id="thought-progress">Шаг 1 из 6</p>
+
+        <div class="thought-step" data-step="0">
+          <label class="field-label" for="th-thought">Какая мысль сейчас не даёт покоя?</label>
+          <p class="thought-help">Запиши её так, как она звучит в голове. Например: «Я ни с чем не справляюсь».</p>
+          <textarea id="th-thought" data-field="thought" rows="3" maxlength="400" autocomplete="off" autocorrect="on"></textarea>
+          <label class="field-label" for="th-before">Насколько ты веришь этой мысли сейчас?</label>
+          <div class="belief">
+            <input type="range" id="th-before" data-field="before" min="0" max="10" step="1">
+            <output id="th-before-out" for="th-before"></output>
+          </div>
+        </div>
+
+        <div class="thought-step" data-step="1" hidden>
+          <p class="field-label">Что ты чувствуешь, когда думаешь её?</p>
+          <p class="thought-help">Отметь всё, что откликается. Чувства не бывают «неправильными».</p>
+          <div class="chips" id="th-feelings"></div>
+        </div>
+
+        <div class="thought-step" data-step="2" hidden>
+          <p class="field-label">Узнаёшь в мысли какую-нибудь ловушку?</p>
+          <p class="thought-help">Так мозг часто говорит с нами, когда больно или страшно. Если ничего не подходит, просто нажми «Дальше».</p>
+          <div class="traps" id="th-traps"></div>
+        </div>
+
+        <div class="thought-step" data-step="3" hidden>
+          <label class="field-label" for="th-pro">Что говорит в пользу этой мысли?</label>
+          <p class="thought-help">Тебе правда тяжело, и это важно признать.</p>
+          <textarea id="th-pro" data-field="pro" rows="3" maxlength="600" autocomplete="off" autocorrect="on"></textarea>
+          <label class="field-label" for="th-con">А что говорит против неё?</label>
+          <p class="thought-help">Вспомни хотя бы один случай, когда было иначе. Даже совсем маленький.</p>
+          <textarea id="th-con" data-field="con" rows="3" maxlength="600" autocomplete="off" autocorrect="on"></textarea>
+        </div>
+
+        <div class="thought-step" data-step="4" hidden>
+          <label class="field-label" for="th-friend">Что бы ты сказала подруге, если бы она думала так о себе?</label>
+          <p class="thought-help">С близкими мы обычно гораздо добрее, чем с собой. Попробуй сказать это и себе.</p>
+          <textarea id="th-friend" data-field="friend" rows="4" maxlength="600" autocomplete="off" autocorrect="on"></textarea>
+        </div>
+
+        <div class="thought-step" data-step="5" hidden>
+          <label class="field-label" for="th-reframe">Как сказать это бережнее и честнее?</label>
+          <p class="thought-help">Новой мысли не нужно быть радостной. Достаточно, чтобы она была правдивой и доброй к тебе. Можно начать с подсказки — листай их вбок.</p>
+          <div class="starters thought-starters" id="th-starters"></div>
+          <textarea id="th-reframe" data-field="reframe" rows="4" maxlength="600" autocomplete="off" autocorrect="on"></textarea>
+          <label class="field-label" for="th-after">А насколько теперь веришь первой мысли?</label>
+          <div class="belief">
+            <input type="range" id="th-after" data-field="after" min="0" max="10" step="1">
+            <output id="th-after-out" for="th-after"></output>
+          </div>
+        </div>
+
+        <!-- Если в словах слышны мысли о смерти или вреде себе — мягко показываем, куда позвонить -->
+        <div class="care-card thought-care" id="thought-care" hidden>
+          <p>Если появляются мысли о смерти или о том, чтобы причинить себе вред, с этим не нужно оставаться одной. Там выслушают без осуждения, круглосуточно.</p>
+          <a class="link care-call" href="tel:+74959895050">Позвонить: +7 495 989-50-50</a>
+        </div>
+
+        <div class="thought-nav">
+          <button class="btn-ghost" type="button" id="thought-back">Назад</button>
+          <button class="btn-primary" type="button" id="thought-next">Дальше</button>
+        </div>
+      </div>
+
+      <!-- Итог разговора -->
+      <div class="thought-result" id="thought-result" hidden>
+        <p class="field-label">Мысль, с которой ты пришла</p>
+        <p class="thought-old" id="result-old"></p>
+        <p class="field-label">Новые слова</p>
+        <div class="letter-paper thought-paper" id="result-new"></div>
+        <p class="lead" id="result-belief"></p>
+        <div class="stack">
+          <button class="btn-primary" type="button" id="thought-another">Поговорить с другой мыслью</button>
+          <button class="btn-ghost" type="button" data-go="phrases">На главную</button>
+        </div>
+      </div>
+
+      <div id="thoughts-block" hidden>
+        <h2 class="section-title">Мои разговоры с мыслями</h2>
+        <ul class="letters" id="thoughts-list"></ul>
+      </div>
+      <p class="hint">Всё, что ты пишешь, остаётся только на этом телефоне.</p>
     </section>
 
     <!-- Раздел 4: помощь -->
@@ -254,6 +405,35 @@
         <span class="help-note">Спроси в своей женской консультации: там часто есть психолог, и приходить можно не только с вопросами о здоровье.</span>
       </div>
 
+      <details class="help-card soft help-more" id="help-perinatal">
+        <summary>
+          <span class="help-title">Грусть во время беременности и после родов</span>
+          <span class="help-note">Когда это больше, чем усталость, и пора сказать врачу</span>
+        </summary>
+        <div class="help-more-body">
+          <p>Депрессия во время беременности или после родов бывает примерно у каждой седьмой женщины. Это не слабость и не значит, что ты плохая мама. Это состояние, которое лечится.</p>
+          <p>В первые дни после родов многие плачут без причины, быстро устают, настроение скачет. Обычно это проходит само за одну-две недели.</p>
+          <p class="help-more-title">Скажи врачу, если две недели и дольше:</p>
+          <ul>
+            <li>грустно, пусто или тревожно почти каждый день;</li>
+            <li>ничего не радует, даже то, что радовало раньше;</li>
+            <li>не получается уснуть, даже когда есть возможность отдохнуть;</li>
+            <li>давят вина и стыд, кажется, что ты плохая мама;</li>
+            <li>трудно заботиться о себе или о малыше, ни на что нет сил;</li>
+            <li>приходят пугающие мысли, что с малышом что-то случится, и от них трудно отвлечься.</li>
+          </ul>
+          <p>Депрессия может начаться и во время беременности, и в любой момент в первый год после родов. Не нужно ждать планового приёма: можно сказать гинекологу в женской консультации, терапевту или педиатру на осмотре малыша.</p>
+          <div class="help-urgent">
+            <p><strong>Звони 112 сразу,</strong> если появились мысли навредить себе или малышу, или кажется, что происходит что-то странное: ты видишь или слышишь то, чего нет, мысли путаются.</p>
+            <a class="btn-ghost help-urgent-call" href="tel:112">Позвонить 112</a>
+          </div>
+          <p class="help-more-title">Если трудно подобрать слова, можно сказать так:</p>
+          <p class="help-quote" id="perinatal-quote">Меня беспокоит моё настроение. Уже больше двух недель мне почти всё время грустно и тревожно, и мне трудно справляться. Пожалуйста, проверьте, всё ли со мной в порядке.</p>
+          <button class="selfcare-action" type="button" id="perinatal-copy">Скопировать эти слова</button>
+          <p>Помощь есть: разговор с психологом, а если нужно, лечение, которое подбирают с учётом беременности и кормления грудью.</p>
+        </div>
+      </details>
+
       <button class="link" type="button" id="edit-profile">Изменить ответы о себе</button>
     </section>
 
@@ -270,8 +450,10 @@
         <li><strong>Погода внутри.</strong> Раз в день отметь, как ты: гроза, туман, облачно или солнце. Приложение ответит фразой под настроение и подскажет, что может помочь прямо сейчас. А полоска под отметкой покажет, какой была погода последние 7 дней.</li>
         <li><strong>Банка хороших моментов.</strong> Записывай то, что согрело, даже совсем маленькое. В грустный день доставай записку наугад.</li>
         <li><strong>Дыхание.</strong> Одна минута с огоньком: он разгорается на вдохе и затихает на выдохе. Помогает, когда накрывает тревога.</li>
+        <li><strong>Мне сейчас очень тревожно.</strong> Кнопка на главном экране для минут, когда накрывает паника: минута дыхания, пять опор вокруг (что видишь, трогаешь, слышишь, чувствуешь носом и на вкус) и напоминание, что это пройдёт.</li>
+        <li><strong>Поговорить с мыслью.</strong> Во вкладке «Банка». Если одна тяжёлая мысль крутится по кругу, можно разобрать её по шагам: что чувствуешь, что за и против, что сказала бы подруге — и найти слова бережнее. Разговоры сохраняются, их можно перечитать.</li>
         <li><strong>Треск камина.</strong> Значок огня вверху главного экрана или на экране дыхания включает тихий треск камина. Он звучит, пока его не выключишь. Если звука нет, проверь, не включён ли беззвучный режим.</li>
-        <li><strong>Помощь.</strong> Телефоны, по которым можно позвонить в любое время. Там же можно изменить ответы о себе.</li>
+        <li><strong>Помощь.</strong> Телефоны, по которым можно позвонить в любое время, и подсказка, когда грусть во время беременности и после родов — повод сказать врачу. Там же можно изменить ответы о себе.</li>
         <li><strong>Приватность.</strong> Без регистрации. Всё, что ты пишешь и отмечаешь, хранится только на этом телефоне и никуда не отправляется. Приложение лишь анонимно считает, сколько людей его открывают, — без имён, cookie и личных данных.</li>
       </ul>
 
@@ -329,6 +511,6 @@
     </nav>
 
   </div>
-  <script src="script.js?v=1.1.19"></script>
+  <script src="script.js?v=1.2.0"></script>
 </body>
 </html>
