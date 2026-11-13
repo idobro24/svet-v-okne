@@ -1388,7 +1388,8 @@ h1 {
   cursor: pointer;
   transform: translate(-50%, -12px);
   opacity: 0;
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  /* Мягкое появление и исчезновение */
+  transition: opacity 0.9s ease, transform 0.9s ease;
 }
 
 .toast.visible {
