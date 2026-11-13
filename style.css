@@ -1201,6 +1201,16 @@ h1 {
   color: #E8B66B;
 }
 
+/* Тихая строка «ты не одна» над подписью автора */
+.together {
+  margin: 0;
+  padding: 0 28px 6px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #BFA88A;
+}
+
 .credit {
   margin: 0;
   padding: 0 28px 14px;
