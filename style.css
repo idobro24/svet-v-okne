@@ -1201,34 +1201,6 @@ h1 {
   color: #E8B66B;
 }
 
-/* Тихая строка «ты не одна» над подписью автора.
-   Появляется мягко, а уходя, тает и плавно схлопывает своё место,
-   чтобы подпись под ней не прыгала. */
-.together {
-  margin: 0;
-  padding: 0 28px;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  text-align: center;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #BFA88A;
-  transition: opacity 0.9s ease, max-height 0.6s ease 0.9s, padding-bottom 0.6s ease 0.9s;
-}
-
-.together.visible {
-  max-height: 8em;
-  padding-bottom: 6px;
-  opacity: 1;
-  /* Появление: сначала место, потом проявляется текст */
-  transition: max-height 0.6s ease, padding-bottom 0.6s ease, opacity 0.9s ease 0.4s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .together, .together.visible { transition: none; }
-}
-
 .credit {
   margin: 0;
   padding: 0 28px 14px;
