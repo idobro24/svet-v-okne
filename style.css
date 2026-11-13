@@ -1491,8 +1491,15 @@ body.typing .tabbar {
   box-shadow: 0 0 10px rgba(240, 185, 160, 0.8);
 }
 
-.calm-link {
-  align-self: center;
+/* Тихие ссылки под упражнением: тревога, мышцы, ночь */
+.breath-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.breath-links .link {
+  min-height: 40px;
   font-size: 14px;
 }
 
@@ -1885,6 +1892,305 @@ body.typing .tabbar {
   color: #F2D9AE;
 }
 
+/* ---------- Переждать волну ---------- */
+
+/* Волна из двух слоёв: сдвигаются вбок и вместе медленно поднимаются и опускаются.
+   Двигаем только transform, без фильтров — так плавно и на iPhone, и на Android. */
+.wave {
+  height: 96px;
+  margin: 0 -28px;
+  overflow: hidden;
+  /* Низ волны мягко растворяется в фоне */
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+}
+
+.wave svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.wave-rise {
+  animation: wave-rise 10s ease-in-out infinite;
+}
+
+.wave-back {
+  fill: rgba(232, 182, 107, 0.16);
+  animation: wave-drift 14s linear infinite;
+}
+
+.wave-front {
+  fill: rgba(246, 207, 134, 0.3);
+  animation: wave-drift 9s linear infinite reverse;
+}
+
+@keyframes wave-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-300px); }
+}
+
+@keyframes wave-rise {
+  0%, 100% { transform: translateY(18px); }
+  50%      { transform: translateY(-14px); }
+}
+
+.wave-time {
+  margin: -8px 0 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #BFA88A;
+}
+
+.body-card {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(30, 21, 15, 0.72);
+  font-size: 14px;
+  line-height: 1.55;
+  color: #EBDCC4;
+}
+
+.body-card p { margin: 0; }
+
+.body-card-title {
+  margin-bottom: 6px !important;
+  font-weight: 600;
+  color: #F6E7CF;
+}
+
+/* ---------- Расслабить мышцы ---------- */
+
+.relax-area {
+  gap: 18px;
+}
+
+.relax-part {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 14px;
+  font-weight: 600;
+  color: #E8B66B;
+}
+
+.relax-text {
+  margin: 0;
+  min-height: 3em;
+  max-width: 320px;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 20px;
+  line-height: 1.45;
+  text-align: center;
+  color: #F6E7CF;
+}
+
+/* ---------- Маленький шаг ---------- */
+
+.steps-link {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 182, 107, 0.35);
+  background: rgba(30, 21, 15, 0.6);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.steps-choose {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tasks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.task {
+  min-height: 64px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(246, 231, 207, 0.2);
+  background: rgba(43, 30, 22, 0.65);
+  color: #EBDCC4;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task:active { transform: scale(0.98); }
+
+.steps-choose > .link {
+  align-self: flex-start;
+}
+
+.steps-choose .field-label {
+  margin-top: 8px;
+}
+
+.own-task-row {
+  display: flex;
+  gap: 8px;
+}
+
+.own-task-row input {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(246, 231, 207, 0.3);
+  background: rgba(43, 30, 22, 0.75);
+  color: #F6E7CF;
+  font-family: inherit;
+  font-size: 16px; /* 16px — чтобы iPhone не увеличивал экран при нажатии на поле */
+}
+
+.own-task-row input::placeholder { color: #BFA88A; }
+
+.own-task-row input:focus {
+  outline: 2px solid #E8B66B;
+  outline-offset: 2px;
+}
+
+.own-task-row .btn-primary {
+  padding: 0 20px;
+}
+
+.task-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(232, 182, 107, 0.35);
+  background: rgba(30, 21, 15, 0.8);
+}
+
+.task-now {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 24px;
+  line-height: 1.35;
+  color: #F6E7CF;
+}
+
+.task-reply {
+  margin: 0;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+.after-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.steps-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.steps-list li {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 16px;
+  background: rgba(30, 21, 15, 0.72);
+  font-size: 15px;
+  line-height: 1.45;
+  color: #F6E7CF;
+}
+
+.steps-list small {
+  font-size: 13px;
+  color: #BFA88A;
+}
+
+/* ---------- Минутка доброты ---------- */
+
+/* Неподвижное тёплое свечение — как ладонь на сердце */
+.kind-glow {
+  width: 120px;
+  height: 120px;
+  margin: 12px auto 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%,
+    #FFF1CF 0%,
+    #F0B9A0 32%,
+    rgba(240, 185, 160, 0.25) 60%,
+    rgba(240, 185, 160, 0) 72%);
+}
+
+/* ---------- Тихая ночь ---------- */
+
+.night-entry {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(160, 170, 220, 0.35);
+  background: rgba(24, 22, 34, 0.75);
+  color: #E6E0F0;
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Затемнение всего экрана. pointer-events: none — нажатия проходят сквозь него */
+.night-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.night-tip {
+  padding: 18px 20px 6px;
+  border-radius: 20px;
+  background: rgba(30, 21, 15, 0.8);
+}
+
+.night-tip p {
+  margin: 0;
+  min-height: 4.5em;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #F6E7CF;
+}
+
+.night-bye {
+  margin: 0;
+  text-align: center;
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #D9C3A3;
+}
+
 /* ---------- Для тех, у кого отключены анимации ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1892,6 +2198,7 @@ body.typing .tabbar {
   .note.appear, .note.leaving, .jar-photo-wrap.shake { animation: none; }
   .orb { transition: none; }
   .ground-dots li.lit { animation: none; }
+  .wave-rise, .wave-back, .wave-front { animation: none; }
   .help-more summary .help-title::after { transition: none; }
   #phrase.hidden { transform: none; }
 }
