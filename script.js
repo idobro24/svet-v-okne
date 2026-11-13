@@ -377,6 +377,9 @@ function renderMood() {
     moodTodayTextEl.textContent = 'Сегодня у тебя ' + MOODS[today].name + ' ' + MOODS[today].icon;
     renderWeek();
   }
+  // Под пасмурной погодой — приглашение сделать один маленький шаг.
+  document.getElementById('steps-link').hidden = !today || today === 'sun';
+
   // Если гроз 4 и больше за неделю, бережно предлагаем поддержку.
   careCardEl.hidden = countStorms() < 4;
 
@@ -384,7 +387,8 @@ function renderMood() {
   renderSelfCare(today);
 }
 
-document.querySelectorAll('.mood-btn').forEach(function (button) {
+// Только кнопки погоды: такой же вид есть и у ответов «Как ты теперь?» в «Маленьком шаге».
+document.querySelectorAll('.mood-btn[data-mood]').forEach(function (button) {
   button.addEventListener('click', function () {
     const mood = button.dataset.mood;
     moods[dayKey(new Date())] = mood;
@@ -412,7 +416,9 @@ const SELF_CARE = {
     { text: 'Разреши себе поплакать. Не нужно держаться, слёзы тоже помогают.' },
     { text: 'Отложи телефон и не открывай комментарии хотя бы час.' },
     { text: 'Напиши тому, кто рядом: «Мне сейчас тяжело, можешь позвонить?» Просить о помощи — нормально.', only: 'people', action: { label: 'Написать', share: 'Мне сейчас тяжело, можешь позвонить?' } },
-    { text: 'Позвони на телефон доверия. Там выслушают без осуждения, даже если просто хочется поговорить.', only: 'alone', action: { label: 'Открыть помощь', go: 'help' } }
+    { text: 'Позвони на телефон доверия. Там выслушают без осуждения, даже если просто хочется поговорить.', only: 'alone', action: { label: 'Открыть помощь', go: 'help' } },
+    { text: 'Напряги и отпусти по очереди кисти, плечи, лицо. Две минуты, и телу становится спокойнее.', action: { label: 'Расслабить мышцы', go: 'relax' } },
+    { text: 'Положи ладонь на сердце и скажи себе три тёплые фразы. Это минутка доброты к себе.', action: { label: 'Минутка доброты', go: 'kind' } }
   ],
   fog: [
     { text: 'Выпей стакан воды. Это самое маленькое, что можно сделать для себя прямо сейчас.' },
@@ -422,6 +428,8 @@ const SELF_CARE = {
     { text: 'Назови чувство словом: «мне грустно», «мне пусто», «я злюсь». Так туман становится чуть прозрачнее.' },
     { text: 'Наведи порядок на одном маленьком месте: тумбочка, одна полка. Видимый результат за пять минут.' },
     { text: 'Подыши минуту вместе с огоньком.', action: { label: 'Подышать', go: 'breath' } },
+    { text: 'Нет сил — и это понятно. Выбери одно крошечное дело, не дожидаясь настроения.', action: { label: 'Маленький шаг', go: 'steps' } },
+    { text: 'Скажи себе: «Мне сейчас тяжело. Так бывает у многих. Пусть я буду к себе бережной».', action: { label: 'Минутка доброты', go: 'kind' } },
     { text: 'Если одна мысль крутится по кругу и не отпускает, можно спокойно поговорить с ней.', action: { label: 'Поговорить с мыслью', go: 'thought' } }
   ],
   cloud: [
@@ -430,6 +438,7 @@ const SELF_CARE = {
     { text: 'Выйди на 10 минут на дневной свет, даже просто дойти до магазина.' },
     { text: 'Включи любимую песню или уютный сериал.' },
     { text: 'Съешь что-то вкусное и не торопись.' },
+    { text: 'Сделай одно маленькое дело и заметь, как ты после него.', action: { label: 'Маленький шаг', go: 'steps' } },
     { text: 'Потянись пару минут, особенно спину и плечи.' },
     { text: 'Если какая-то мысль сегодня колет, посмотри на неё со стороны: что за, что против, что сказала бы подруга.', action: { label: 'Поговорить с мыслью', go: 'thought' } },
     { text: 'Запиши в банку один хороший момент сегодняшнего дня, даже совсем маленький.', action: { label: 'Записать момент', go: 'jar' } }
@@ -1273,16 +1282,16 @@ document.addEventListener('touchend', function (event) {
 // Пока человек пишет записку или письмо, прячем нижнее меню.
 // Иначе на iPhone оно подпрыгивает над клавиатурой и закрывает кнопки формы.
 document.addEventListener('focusin', function (event) {
-  if (event.target.matches('textarea')) {
+  if (event.target.matches('textarea, input[type="text"]')) {
     document.body.classList.add('typing');
   }
 });
 
 document.addEventListener('focusout', function (event) {
-  if (event.target.matches('textarea')) {
+  if (event.target.matches('textarea, input[type="text"]')) {
     // Небольшая пауза, чтобы меню не мигало, если фокус сразу переходит дальше.
     setTimeout(function () {
-      if (!document.activeElement || !document.activeElement.matches('textarea')) {
+      if (!document.activeElement || !document.activeElement.matches('textarea, input[type="text"]')) {
         document.body.classList.remove('typing');
       }
     }, 100);
@@ -1350,7 +1359,38 @@ function calmGo(step) {
     stopCalmBreath();
   }
   if (step === 'ground') showSense(0);
+  if (step === 'pass') {
+    startWave();
+  } else {
+    stopWave();
+  }
   window.scrollTo(0, 0);
+}
+
+// ---------- Переждать волну ----------
+
+// Сколько прошло с начала сценария: видно, что время идёт и волна проходит.
+const waveTimeEl = document.getElementById('wave-time');
+let calmStartedAt = Date.now();
+let waveTimer = null;
+
+function updateWaveTime() {
+  const sec = Math.max(0, Math.round((Date.now() - calmStartedAt) / 1000));
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  const passed = m ? m + ' мин ' + s + ' с' : s + ' с';
+  waveTimeEl.textContent = 'Прошло ' + passed + '. Время идёт, и волна идёт вместе с ним.';
+}
+
+function startWave() {
+  stopWave();
+  updateWaveTime();
+  waveTimer = setInterval(updateWaveTime, 1000);
+}
+
+function stopWave() {
+  clearInterval(waveTimer);
+  waveTimer = null;
 }
 
 function runCalmPhase() {
@@ -1869,6 +1909,343 @@ perinatalCopyBtn.addEventListener('click', function () {
   }
 });
 
+// ---------- Расслабить мышцы ----------
+
+const RELAX_PARTS = [
+  { part: 'Кисти', tense: 'Сожми кулаки — крепко, но без боли.', relax: 'Отпусти. Почувствуй, как в ладонях становится тепло.' },
+  { part: 'Руки', tense: 'Согни руки в локтях и напряги их, будто держишь тяжёлые сумки.', relax: 'Опусти руки. Пусть они станут тяжёлыми и мягкими.' },
+  { part: 'Плечи', tense: 'Подними плечи к ушам и задержи.', relax: 'Опусти плечи. Заметь, как стало свободнее.' },
+  { part: 'Лицо', tense: 'Зажмурься и сожми губы.', relax: 'Отпусти. Лоб гладкий, челюсть мягкая.' },
+  { part: 'Стопы', tense: 'Сожми пальцы ног.', relax: 'Отпусти. Ноги тяжёлые и тёплые.' }
+];
+
+// Напрягаем 5 секунд, отпускаем 15. Вместе с финалом — ровно 2 минуты.
+const RELAX_TENSE = 5000;
+const RELAX_RELEASE = 15000;
+const RELAX_FINAL = 20000;
+
+// Собираем все шаги по порядку.
+const RELAX_QUEUE = [];
+RELAX_PARTS.forEach(function (item, i) {
+  RELAX_QUEUE.push({ part: item.part, n: i + 1, text: item.tense, big: false, time: RELAX_TENSE });
+  RELAX_QUEUE.push({ part: item.part, n: i + 1, text: item.relax, big: true, time: RELAX_RELEASE });
+});
+RELAX_QUEUE.push({ part: 'Всё тело', n: RELAX_PARTS.length + 1, text: 'Просто подыши. Пройди вниманием от макушки до пяток: всё мягкое и спокойное.', big: true, time: RELAX_FINAL });
+
+const relaxOrbEl = document.getElementById('relax-orb');
+const relaxPartEl = document.getElementById('relax-part');
+const relaxTextEl = document.getElementById('relax-text');
+const relaxCountEl = document.getElementById('relax-count');
+const relaxBtn = document.getElementById('relax-btn');
+
+let relaxTimer = null;
+let relaxIndex = 0;
+let relaxing = false;
+
+function runRelaxStep() {
+  const step = RELAX_QUEUE[relaxIndex];
+  relaxPartEl.textContent = step.part;
+  relaxTextEl.textContent = step.text;
+  relaxCountEl.textContent = 'Часть ' + step.n + ' из ' + (RELAX_PARTS.length + 1);
+  // Напряжение — огонёк быстро сжимается, расслабление — медленно разгорается.
+  relaxOrbEl.style.transitionDuration = step.big ? '4000ms' : '1500ms';
+  relaxOrbEl.classList.toggle('big', step.big);
+
+  relaxTimer = setTimeout(function () {
+    relaxIndex++;
+    if (relaxIndex === RELAX_QUEUE.length) {
+      stopRelax('Ты молодец. Побудь так ещё немного.');
+      relaxBtn.textContent = 'Ещё раз';
+      return;
+    }
+    runRelaxStep();
+  }, step.time);
+}
+
+function stopRelax(message) {
+  clearTimeout(relaxTimer);
+  relaxTimer = null;
+  relaxing = false;
+  relaxOrbEl.style.transitionDuration = '1500ms';
+  relaxOrbEl.classList.remove('big');
+  relaxPartEl.textContent = '';
+  relaxTextEl.textContent = message || 'Нажми, когда будешь готова';
+  relaxCountEl.textContent = '';
+  relaxBtn.textContent = 'Начать';
+}
+
+relaxBtn.addEventListener('click', function () {
+  if (relaxing) {
+    stopRelax();
+    return;
+  }
+  relaxing = true;
+  relaxIndex = 0;
+  relaxBtn.textContent = 'Остановить';
+  runRelaxStep();
+});
+
+// «1 дело», «3 дела», «5 дел» и так далее.
+function plural(n, one, few, many) {
+  const last = n % 10;
+  const lastTwo = n % 100;
+  if (last === 1 && lastTwo !== 11) return one;
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return few;
+  return many;
+}
+
+// ---------- Маленький шаг ----------
+
+const SMALL_STEPS_KEY = 'smallSteps';
+const TASKS_AT_ONCE = 6;
+
+// Совсем крошечные дела. only — как у фраз: 'people', 'alone' или 'baby'.
+const TASKS = [
+  { text: 'Выпить стакан воды' },
+  { text: 'Открыть окно на минуту' },
+  { text: 'Умыться прохладной водой' },
+  { text: 'Застелить кровать' },
+  { text: 'Съесть что-нибудь, хоть яблоко' },
+  { text: 'Помыть одну чашку' },
+  { text: 'Переодеться в удобную чистую одежду' },
+  { text: 'Расчесаться' },
+  { text: 'Полить цветок' },
+  { text: 'Включить любимую песню' },
+  { text: 'Потянуться одну минуту' },
+  { text: 'Вынести один пакет мусора' },
+  { text: 'Протереть одну полку' },
+  { text: 'Минуту постоять у окна и посмотреть на небо' },
+  { text: 'Намазать руки кремом' },
+  { text: 'Выйти на балкон или во двор на пять минут' },
+  { text: 'Написать одно сообщение близкому человеку', only: 'people' },
+  { text: 'Написать в чат по интересам одно сообщение', only: 'alone' },
+  { text: 'Погладить живот и сказать малышу пару слов', only: 'baby' }
+];
+
+const AFTER_REPLIES = {
+  better: 'Вот оно: маленькое дело — и стало чуть легче. Запомни это чувство. В следующий раз оно поможет начать.',
+  same: 'Это тоже нормально. Иногда лёгкость приходит не сразу, а после нескольких маленьких дел. Ты всё равно сделала шаг.',
+  worse: 'Спасибо, что честно. Значит, сейчас телу и душе нужен отдых. Укутайся, выпей тёплого и будь с собой бережной.'
+};
+
+const AFTER_LABELS = { better: 'стало чуть легче', same: 'так же', worse: 'стало тяжелее' };
+
+const stepsChooseEl = document.getElementById('steps-choose');
+const stepsDoingEl = document.getElementById('steps-doing');
+const stepsAfterEl = document.getElementById('steps-after');
+const stepsReplyEl = document.getElementById('steps-reply');
+const tasksEl = document.getElementById('tasks');
+const ownTaskInput = document.getElementById('own-task');
+const stepsLogEl = document.getElementById('steps-log');
+
+let smallSteps = loadJSON(SMALL_STEPS_KEY, []);
+let taskDeck = [];
+let taskOffset = 0;
+let chosenTask = '';
+
+function stepsStage(stage) {
+  stepsChooseEl.hidden = stage !== 'choose';
+  stepsDoingEl.hidden = stage !== 'doing';
+  stepsAfterEl.hidden = stage !== 'after';
+  stepsReplyEl.hidden = stage !== 'reply';
+}
+
+function renderTasks() {
+  tasksEl.innerHTML = '';
+  for (let i = 0; i < Math.min(TASKS_AT_ONCE, taskDeck.length); i++) {
+    const text = taskDeck[(taskOffset + i) % taskDeck.length].text;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'task';
+    button.textContent = text;
+    button.addEventListener('click', function () { chooseTask(text); });
+    tasksEl.append(button);
+  }
+}
+
+function chooseTask(text) {
+  chosenTask = text;
+  document.getElementById('task-now').textContent = text;
+  stepsStage('doing');
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('tasks-more').addEventListener('click', function () {
+  taskOffset = (taskOffset + TASKS_AT_ONCE) % taskDeck.length;
+  renderTasks();
+});
+
+document.getElementById('own-task-go').addEventListener('click', function () {
+  const text = ownTaskInput.value.trim();
+  if (!text) {
+    ownTaskInput.focus();
+    return;
+  }
+  ownTaskInput.value = '';
+  ownTaskInput.blur();
+  chooseTask(text);
+});
+
+document.getElementById('task-done').addEventListener('click', function () { stepsStage('after'); });
+document.getElementById('task-change').addEventListener('click', function () { stepsStage('choose'); });
+document.getElementById('task-again').addEventListener('click', function () {
+  taskOffset = (taskOffset + TASKS_AT_ONCE) % taskDeck.length;
+  renderTasks();
+  stepsStage('choose');
+  window.scrollTo(0, 0);
+});
+
+document.querySelectorAll('[data-after]').forEach(function (button) {
+  button.addEventListener('click', function () {
+    const after = button.dataset.after;
+    smallSteps.unshift({
+      date: new Date().toISOString(),
+      task: chosenTask,
+      after: after,
+      mood: moods[dayKey(new Date())] || null // погода дня, когда сделан шаг
+    });
+    smallSteps = smallSteps.slice(0, 200); // храним последние 200 шагов
+    storeJSON(SMALL_STEPS_KEY, smallSteps);
+    document.getElementById('task-reply').textContent = AFTER_REPLIES[after];
+    stepsStage('reply');
+    renderStepsLog();
+  });
+});
+
+// Итоги за 7 дней: сколько дел и после скольких стало легче.
+function renderStepsLog() {
+  const weekAgo = Date.now() - 7 * DAY;
+  const week = smallSteps.filter(function (item) { return new Date(item.date).getTime() >= weekAgo; });
+  stepsLogEl.hidden = week.length === 0;
+  if (week.length === 0) return;
+
+  const better = week.filter(function (item) { return item.after === 'better'; }).length;
+  let summary = 'За последние 7 дней — ' + week.length + ' ' + plural(week.length, 'маленькое дело', 'маленьких дела', 'маленьких дел') + '.';
+  if (better > 0) summary += ' После ' + better + ' из них стало чуть легче.';
+  if (week.length >= 3 && better * 2 >= week.length) summary += ' Похоже, маленькие дела правда тебе помогают.';
+  document.getElementById('steps-summary').textContent = summary;
+
+  const list = document.getElementById('steps-list');
+  list.innerHTML = '';
+  week.slice(0, 7).forEach(function (item) {
+    const li = document.createElement('li');
+    const task = document.createElement('span');
+    task.textContent = item.task;
+    const meta = document.createElement('small');
+    meta.textContent = new Date(item.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+      + ', после — ' + AFTER_LABELS[item.after];
+    li.append(task, meta);
+    list.append(li);
+  });
+}
+
+function openSteps() {
+  taskDeck = shuffle(TASKS.filter(fitsProfile));
+  taskOffset = 0;
+  renderTasks();
+  stepsStage('choose');
+  renderStepsLog();
+}
+
+// ---------- Минутка доброты к себе ----------
+
+const KIND_STEPS = [
+  { title: 'Мне сейчас больно', text: 'Положи ладонь на сердце или туда, где тепло и спокойно. Тихо скажи себе: «Мне сейчас больно. Это трудный момент». Ничего не нужно менять — просто заметь.' },
+  { title: 'Так бывает у многих', text: 'Боль — часть жизни каждого человека, а не знак, что с тобой что-то не так. Прямо сейчас многие женщины чувствуют то же, что и ты. Ты не одна в этом.' },
+  { title: 'Пусть я буду добра к себе', text: 'Спроси себя: что мне сейчас нужно? Скажи себе то, что сказала бы любимой подруге: «Пусть я буду к себе бережной. Пусть у меня будут силы».' },
+  { title: 'Эти слова всегда с тобой', text: 'Когда трудно, можно повторить про себя: «Мне сейчас больно. Так бывает у многих. Пусть я буду добра к себе». Своими словами тоже можно.' }
+];
+
+const KIND_PHRASE = 'Мне сейчас больно. Так бывает у многих. Пусть я буду добра к себе.';
+
+const kindTitleEl = document.getElementById('kind-title');
+const kindTextEl = document.getElementById('kind-text');
+const kindProgressEl = document.getElementById('kind-progress');
+const kindNextBtn = document.getElementById('kind-next');
+const kindSaveBtn = document.getElementById('kind-save');
+let kindIndex = 0;
+
+function kindGo(index) {
+  kindIndex = index;
+  const step = KIND_STEPS[index];
+  const last = index === KIND_STEPS.length - 1;
+  kindTitleEl.textContent = step.title;
+  kindTextEl.textContent = step.text;
+  kindProgressEl.textContent = last ? '' : (index + 1) + ' из ' + (KIND_STEPS.length - 1);
+  kindNextBtn.textContent = last ? 'Готово' : 'Дальше';
+  kindSaveBtn.hidden = !last;
+  const isSaved = saved.includes(KIND_PHRASE);
+  kindSaveBtn.textContent = isSaved ? 'Фразы в «Сохранённых» ♥' : 'Сохранить три фразы';
+  kindSaveBtn.disabled = isSaved;
+  window.scrollTo(0, 0);
+}
+
+kindNextBtn.addEventListener('click', function () {
+  if (kindIndex < KIND_STEPS.length - 1) {
+    kindGo(kindIndex + 1);
+  } else {
+    show(returnTo.kind || 'phrases');
+  }
+});
+
+kindSaveBtn.addEventListener('click', function () {
+  if (!saved.includes(KIND_PHRASE)) {
+    saved.push(KIND_PHRASE);
+    storeSaved(saved);
+    updateHeart();
+  }
+  kindSaveBtn.textContent = 'Фразы в «Сохранённых» ♥';
+  kindSaveBtn.disabled = true;
+});
+
+// ---------- Тихая ночь ----------
+
+const NIGHT_TIPS = [
+  { text: 'Не смотри на часы. Подсчёт, сколько осталось спать, только будит.' },
+  { text: 'Если не спится минут двадцать, встань и займись чем-то спокойным при тусклом свете: бумажная книга, камин. Вернись в постель, когда потянет в сон.' },
+  { text: 'Запиши то, что крутится в голове, на листок и скажи себе: «Подумаю об этом завтра днём». Ночью мысли всегда кажутся тяжелее.' },
+  { text: 'Подыши медленно: выдох чуть длиннее вдоха. Пусть с каждым выдохом тело становится тяжелее.' },
+  { text: 'Сделай комнату чуть прохладнее и темнее. Телу так легче уснуть.' },
+  { text: 'Тёплые носки или тёплый душ перед сном помогают телу расслабиться.' },
+  { text: 'Даже если не получается уснуть, лежать в тишине с закрытыми глазами — уже отдых.' },
+  { text: 'Старайся вставать примерно в одно время, даже после плохой ночи. Так сон понемногу наладится.' },
+  { text: 'Ложись на бок и положи подушку между коленями: так спине и животу легче.', only: 'baby' },
+  { text: 'Если уже две недели не получается уснуть, даже когда есть возможность, скажи об этом врачу. Это важно.', only: 'baby' }
+];
+
+const nightTipEl = document.getElementById('night-tip');
+const nightDimEl = document.getElementById('night-dim');
+const nightEntryEl = document.getElementById('night-entry');
+let nightDeck = [];
+let nightIndex = 0;
+
+function openNight() {
+  nightDeck = shuffle(NIGHT_TIPS.filter(fitsProfile));
+  nightIndex = 0;
+  nightTipEl.textContent = nightDeck[0].text;
+}
+
+document.getElementById('night-next').addEventListener('click', function () {
+  nightIndex = (nightIndex + 1) % nightDeck.length;
+  nightTipEl.textContent = nightDeck[nightIndex].text;
+});
+
+// Приглашение в ночной режим на главном экране — с 23:00 до 5:00.
+function updateNightEntry() {
+  const hour = new Date().getHours();
+  nightEntryEl.hidden = !(hour >= 23 || hour < 5);
+}
+
+// Кнопки «← Назад» возвращают туда, откуда пришли.
+const RETURNABLE = ['relax', 'steps', 'kind', 'night'];
+const returnTo = {};
+
+document.querySelectorAll('.back-btn').forEach(function (button) {
+  button.addEventListener('click', function () {
+    show(returnTo[button.dataset.back] || 'phrases');
+  });
+});
+
 // ---------- Переключение разделов ----------
 
 const views = document.querySelectorAll('.view');
@@ -1890,10 +2267,28 @@ function show(name) {
   if (name !== 'breath' && breathing) stopBreath();
 
   // Запоминаем, откуда пришли в тревожный сценарий, чтобы туда же и вернуться.
-  if (name === 'calm' && currentView && currentView !== 'calm' && currentView !== 'start') {
-    calmReturn = currentView;
+  if (name === 'calm' && currentView !== 'calm') {
+    calmStartedAt = Date.now();
+    // В тревожном сценарии ничего не должно всплывать сверху.
+    if (!peopleToastEl.hidden) hidePeopleToast();
+    if (currentView && currentView !== 'start') calmReturn = currentView;
   }
-  if (name !== 'calm') stopCalmBreath();
+  if (name !== 'calm') {
+    stopCalmBreath();
+    stopWave();
+  }
+
+  // Для разделов с «← Назад» запоминаем, откуда пришли.
+  // Из тревожного сценария возвращаемся туда, откуда пришли в него.
+  if (RETURNABLE.includes(name) && currentView !== name) {
+    let from = currentView && currentView !== 'start' ? currentView : 'phrases';
+    if (from === 'calm') from = calmReturn;
+    returnTo[name] = from;
+  }
+
+  // Ушли с расслабления — останавливаем его. Ночной режим приглушает экран только у себя.
+  if (name !== 'relax' && relaxing) stopRelax();
+  nightDimEl.hidden = name !== 'night';
   currentView = name;
 
   views.forEach(function (view) {
@@ -1902,7 +2297,8 @@ function show(name) {
 
   // «Сохранённые» живут внутри раздела «Фразы», поэтому подсвечиваем его вкладку.
   let activeTab = name;
-  if (name === 'saved' || name === 'about') activeTab = 'phrases';
+  if (name === 'saved' || name === 'about' || name === 'steps' || name === 'kind') activeTab = 'phrases';
+  if (name === 'relax' || name === 'night') activeTab = 'breath';
   if (name === 'letter' || name === 'thought') activeTab = 'jar';
   tabs.forEach(function (tab) {
     if (tab.dataset.go === activeTab) {
@@ -1915,7 +2311,11 @@ function show(name) {
   if (name === 'phrases') {
     renderMood();
     updateLetterBanner();
+    updateNightEntry();
   }
+  if (name === 'steps') openSteps();
+  if (name === 'kind') kindGo(0);
+  if (name === 'night') openNight();
   if (name === 'letter') {
     renderStarters();
     renderLetters();
@@ -1938,18 +2338,22 @@ document.querySelectorAll('[data-go]').forEach(function (button) {
   });
 });
 
-// ---------- Сколько людей сегодня с нами (GoatCounter) ----------
+// ---------- Сколько людей за месяц с нами (GoatCounter) ----------
 
 const GOATCOUNTER_CODE = 'svet-v-okne';
 
-// Плашку показываем, только если за день набралось хотя бы столько людей,
-// чтобы маленькое число не прозвучало одиноко.
-const MIN_PEOPLE = 15;
+// Плашку показываем, только если за месяц набралось хотя бы столько людей,
+// чтобы маленькое число не прозвучало одиноко. Поставьте 0, чтобы показывать всегда.
+const MIN_PEOPLE = 10;
 
 // Сколько секунд плашка висит на экране.
 const TOAST_SECONDS = 8;
 
-const TOAST_DAY_KEY = 'peopleToastDay';
+// Если приложение было свёрнуто дольше стольких минут, возвращение считаем новым входом.
+const NEW_VISIT_MINUTES = 30;
+
+// Последнее известное число людей — пригодится, если нет интернета.
+const PEOPLE_MONTH_KEY = 'peopleMonth';
 const peopleToastEl = document.getElementById('people-toast');
 
 // dev-сайт и проверки на компьютере не считаем, чтобы не накручивать счётчик.
@@ -1976,71 +2380,89 @@ function peopleWord(n) {
 }
 
 function showPeopleToast(count) {
-  showToastText('Сегодня свет в окне зажгли уже ' + count + ' ' + peopleWord(count) + '. Ты не одна.');
+  showToastText('За месяц свет в окне зажгли уже ' + count + ' ' + peopleWord(count) + '. Ты не одна.');
 }
 
+let toastTimer = null;
+
 function showToastText(text) {
+  clearTimeout(toastTimer);
   peopleToastEl.textContent = text;
   peopleToastEl.hidden = false;
+  // Двойной кадр: сначала плашка встаёт на место невидимой, потом плавно проявляется.
   requestAnimationFrame(function () {
-    peopleToastEl.classList.add('visible');
+    requestAnimationFrame(function () {
+      peopleToastEl.classList.add('visible');
+    });
   });
-  setTimeout(hidePeopleToast, TOAST_SECONDS * 1000);
+  toastTimer = setTimeout(hidePeopleToast, TOAST_SECONDS * 1000);
 }
 
 function hidePeopleToast() {
+  clearTimeout(toastTimer);
   peopleToastEl.classList.remove('visible');
-  setTimeout(function () { peopleToastEl.hidden = true; }, 600);
+  // Ждём, пока плашка мягко растает (столько же, сколько transition в CSS).
+  toastTimer = setTimeout(function () { peopleToastEl.hidden = true; }, 900);
 }
 
 // По нажатию плашку можно закрыть раньше.
 peopleToastEl.addEventListener('click', hidePeopleToast);
 
-// Узнаём у GoatCounter, сколько разных людей открыли приложение сегодня.
-// Для проверки на dev-сайте добавьте к адресу #toast-test: тогда плашка покажется
-// с настоящим числом, даже если оно меньше порога и плашку сегодня уже видели.
-function checkPeopleToday() {
+// Узнаём у GoatCounter, сколько разных людей открывали приложение за последние 30 дней,
+// и показываем плашку при каждом входе.
+// Для проверки на dev-сайте добавьте к адресу #toast-test: плашка покажется
+// с настоящим числом, даже если оно меньше порога.
+function checkPeopleMonth() {
   const testMode = location.hash === '#toast-test';
-  const today = dayKey(new Date());
 
-  if (!testMode) {
-    try {
-      if (localStorage.getItem(TOAST_DAY_KEY) === today) return; // сегодня уже показывали
-    } catch (error) {}
+  function showIfEnough(count) {
+    if (!testMode && count < MIN_PEOPLE) return;
+    showPeopleToast(count);
   }
 
-  // Период «сегодня»: с начала сегодняшнего дня до начала завтрашнего,
-  // чтобы сегодняшние посещения точно попали в подсчёт целиком.
-  const tomorrow = dayKey(daysAgo(-1));
-  // Спрашиваем число посещений именно для того адреса, где живёт приложение:
-  // на Netlify это «/», на GitHub Pages — «/svet-v-okne/». GoatCounter считает их отдельно.
-  const path = location.pathname.replace(/index\.html$/, '') || '/';
+  // 30 дней, считая сегодня: со дня 29 дней назад до начала завтрашнего дня.
+  // На dev-сайте и при проверке на компьютере берём числа основного сайта на GitHub Pages:
+  // сам dev не считается. На основном сайте — числа его собственного адреса.
+  const path = isDevSite ? '/svet-v-okne/' : (location.pathname.replace(/index\.html$/, '') || '/');
   const url = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/counter/'
-    + encodeURIComponent(path) + '.json?start=' + today + '&end=' + tomorrow;
+    + encodeURIComponent(path) + '.json?start=' + dayKey(daysAgo(29)) + '&end=' + dayKey(daysAgo(-1));
 
   fetch(url)
     .then(function (response) {
-      // Если сегодня ещё никого не посчитали, GoatCounter отвечает «не найдено» (404) — это ноль.
+      // Если никого не посчитали, GoatCounter отвечает «не найдено» (404) — это ноль.
       if (response.status === 404) return { count_unique: '0' };
       if (!response.ok) throw new Error('GoatCounter ответил кодом ' + response.status);
       return response.json();
     })
     .then(function (data) {
-      // Число приходит строкой с разделителями тысяч, например «1 234»: оставляем только цифры.
-      const raw = data.count_unique || data.count || '0';
+      // count_unique — разные люди. Число приходит строкой вроде «1 234»: оставляем только цифры.
+      const raw = data.count_unique || '0';
       const count = parseInt(String(raw).replace(/\D/g, ''), 10) || 0;
-      if (!testMode && count < MIN_PEOPLE) return;
-      showPeopleToast(count);
-      if (!testMode) {
-        try { localStorage.setItem(TOAST_DAY_KEY, today); } catch (error) {}
-      }
+      try { localStorage.setItem(PEOPLE_MONTH_KEY, String(count)); } catch (error) {}
+      showIfEnough(count);
     })
     .catch(function (error) {
-      // Нет интернета или GoatCounter недоступен — обычно просто работаем дальше без плашки.
-      // В тестовом режиме показываем, что пошло не так, чтобы было проще разобраться.
-      if (testMode) showToastText('Тест: не удалось получить число. ' + (error && error.message ? error.message : ''));
+      // Нет интернета — показываем число из прошлого раза, если оно есть.
+      let cached = 0;
+      try { cached = Number(localStorage.getItem(PEOPLE_MONTH_KEY)) || 0; } catch (e) {}
+      if (cached) {
+        showIfEnough(cached);
+      } else if (testMode) {
+        showToastText('Тест: не удалось получить число. ' + (error && error.message ? error.message : ''));
+      }
     });
 }
+
+// Вернулись в приложение после долгого перерыва — это новый вход, показываем плашку снова.
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) {
+    hiddenAt = Date.now();
+  } else if (profile && hiddenAt && Date.now() - hiddenAt >= NEW_VISIT_MINUTES * 60 * 1000
+    && whatsNewEl.hidden && currentView !== 'calm' && currentView !== 'start') {
+    setTimeout(checkPeopleMonth, 1200);
+  }
+});
 
 startCounting();
 
@@ -2113,8 +2535,11 @@ document.addEventListener('visibilitychange', function () {
 // с тем же номером, что в APP_VERSION, — окно покажется всем один раз.
 const WHATS_NEW = {
   '1.2': [
-    { icon: '🌊', title: 'Мне сейчас очень тревожно', text: 'Кнопка на главном экране для минут, когда накрывает паника: минута дыхания, пять опор вокруг и напоминание, что это пройдёт.' },
+    { icon: '🌊', title: 'Мне сейчас очень тревожно', text: 'Кнопка на главном экране для минут, когда накрывает паника: дыхание, пять опор вокруг, волна, которую можно переждать, и объяснение, что происходит с телом.' },
+    { icon: '🌱', title: 'Маленький шаг', text: 'Когда нет сил, выбери одно крошечное дело, отметь «сделала» и заметь, как ты после него. Ссылка появляется под погодой дня.' },
     { icon: '💬', title: 'Поговорить с мыслью', text: 'Если тяжёлая мысль крутится по кругу, можно спокойно разобрать её по шагам и найти слова бережнее. Ищи во вкладке «Банка».' },
+    { icon: '🤍', title: 'Минутка доброты к себе', text: 'Три коротких шага, когда больно: заметить боль, вспомнить, что так бывает у многих, и сказать себе тёплые слова.' },
+    { icon: '🌙', title: 'Тихая ночь', text: 'Приглушённый экран, камин и бережные советы для сна. Поздно вечером приглашение появится на главном экране. А на экране «Дыхание» теперь есть и расслабление мышц.' },
     { icon: '🌷', title: 'Грусть до и после родов', text: 'В «Помощи» появилась карточка о том, когда грусть во время беременности и после родов — повод сказать врачу, и как подобрать для этого слова.' }
   ],
   '1.1': [
@@ -2205,7 +2630,7 @@ show(profile ? 'phrases' : 'start');
 
 // Тестовые адреса срабатывают и тогда, когда их дописали к уже открытой странице.
 window.addEventListener('hashchange', function () {
-  if (location.hash === '#toast-test') checkPeopleToday();
+  if (location.hash === '#toast-test') checkPeopleMonth();
   if (location.hash === '#whatsnew-test') showWhatsNew();
 });
 
@@ -2213,8 +2638,8 @@ window.addEventListener('hashchange', function () {
 // На самом первом экране с вопросами ни то ни другое не показываем.
 if (shouldShowWhatsNew()) {
   setTimeout(function () {
-    showWhatsNew(function () { setTimeout(checkPeopleToday, 1500); });
+    showWhatsNew(function () { setTimeout(checkPeopleMonth, 1500); });
   }, 800);
 } else if (profile) {
-  setTimeout(checkPeopleToday, 2000);
+  setTimeout(checkPeopleMonth, 2000);
 }
