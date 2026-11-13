@@ -1,6 +1,6 @@
 // Версия приложения. Меняйте её здесь при каждом заметном обновлении,
 // и она сама обновится внизу экранов и в разделе «О приложении».
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 
 document.querySelectorAll('[data-version]').forEach(function (el) {
   el.textContent = APP_VERSION;
@@ -407,7 +407,7 @@ const SELF_CARE = {
   storm: [
     { text: 'Подыши со мной одну минуту. Выдох длиннее вдоха — так тело быстрее успокаивается.', action: { label: 'Подышать', go: 'breath' } },
     { text: 'Где-то глубоко в тебе есть ты маленькая. Ей сейчас страшно. Положи руку на сердце и скажи ей: «Я с тобой. Мы справимся».' },
-    { text: 'Назови 5 вещей, которые видишь, 4 — которые можешь потрогать, 3 звука, 2 запаха и 1 вкус. Это возвращает в «здесь и сейчас».' },
+    { text: 'Назови 5 вещей, которые видишь, 4 — которые можешь потрогать, 3 звука, 2 запаха и 1 вкус. Это возвращает в «здесь и сейчас».', action: { label: 'Пройти по шагам', go: 'calm' } },
     { text: 'Укутайся в плед и сделай тёплый чай. Тепло помогает телу почувствовать себя в безопасности.' },
     { text: 'Разреши себе поплакать. Не нужно держаться, слёзы тоже помогают.' },
     { text: 'Отложи телефон и не открывай комментарии хотя бы час.' },
@@ -421,7 +421,8 @@ const SELF_CARE = {
     { text: 'Прими тёплый душ. Вода хорошо возвращает ощущение тела.' },
     { text: 'Назови чувство словом: «мне грустно», «мне пусто», «я злюсь». Так туман становится чуть прозрачнее.' },
     { text: 'Наведи порядок на одном маленьком месте: тумбочка, одна полка. Видимый результат за пять минут.' },
-    { text: 'Подыши минуту вместе с огоньком.', action: { label: 'Подышать', go: 'breath' } }
+    { text: 'Подыши минуту вместе с огоньком.', action: { label: 'Подышать', go: 'breath' } },
+    { text: 'Если одна мысль крутится по кругу и не отпускает, можно спокойно поговорить с ней.', action: { label: 'Поговорить с мыслью', go: 'thought' } }
   ],
   cloud: [
     { text: 'Достань записку из банки и вспомни что-то хорошее.', action: { label: 'Открыть банку', go: 'jar' } },
@@ -430,6 +431,7 @@ const SELF_CARE = {
     { text: 'Включи любимую песню или уютный сериал.' },
     { text: 'Съешь что-то вкусное и не торопись.' },
     { text: 'Потянись пару минут, особенно спину и плечи.' },
+    { text: 'Если какая-то мысль сегодня колет, посмотри на неё со стороны: что за, что против, что сказала бы подруга.', action: { label: 'Поговорить с мыслью', go: 'thought' } },
     { text: 'Запиши в банку один хороший момент сегодняшнего дня, даже совсем маленький.', action: { label: 'Записать момент', go: 'jar' } }
   ]
 };
@@ -1287,21 +1289,612 @@ document.addEventListener('focusout', function (event) {
   }
 });
 
+// ---------- Мне сейчас очень тревожно ----------
+
+// Дыхание без задержки и с длинным выдохом: при панике задержка дыхания
+// может пугать, а длинный выдох быстрее успокаивает тело.
+const CALM_PHASES = [
+  { label: 'Вдох', time: 4000, big: true },
+  { label: 'Медленный выдох', time: 6000, big: false }
+];
+
+// 6 кругов по 10 секунд — одна минута.
+const CALM_ROUNDS = 6;
+
+// Заземление 5-4-3-2-1: по одному чувству за раз, чтобы не держать всё в голове.
+const GROUNDING = [
+  { n: 5, title: 'Пять вещей, которые ты видишь', text: 'Оглянись и найди глазами пять предметов. Назови каждый про себя: «лампа», «чашка», «окно». Каждый раз нажимай «Нашла».' },
+  { n: 4, title: 'Четыре вещи, которые можно потрогать', text: 'Дотронься до них ладонью. Какие они: тёплые, гладкие, мягкие, шершавые?' },
+  { n: 3, title: 'Три звука', text: 'Прислушайся. Тиканье часов, шум за окном, твоё дыхание — подходят даже самые тихие.' },
+  { n: 2, title: 'Два запаха', text: 'Понюхай рукав, чай, крем для рук. Если рядом ничего не пахнет, вспомни два любимых запаха.' },
+  { n: 1, title: 'Один вкус', text: 'Сделай глоток воды или просто заметь, какой вкус сейчас во рту.' }
+];
+
+const CALM_ORDER = ['breath', 'ground', 'pass'];
+const calmStepEls = {
+  breath: document.getElementById('calm-breath'),
+  ground: document.getElementById('calm-ground'),
+  pass: document.getElementById('calm-pass')
+};
+const calmProgressEl = document.getElementById('calm-progress');
+const calmOrbEl = document.getElementById('calm-orb');
+const calmBreathTextEl = document.getElementById('calm-breath-text');
+const calmBreathCountEl = document.getElementById('calm-breath-count');
+const calmBreathNextBtn = document.getElementById('calm-breath-next');
+const groundNumEl = document.getElementById('ground-num');
+const groundTitleEl = document.getElementById('ground-title');
+const groundTextEl = document.getElementById('ground-text');
+const groundDotsEl = document.getElementById('ground-dots');
+const groundStatusEl = document.getElementById('ground-status');
+const groundFoundBtn = document.getElementById('ground-found');
+const groundSkipBtn = document.getElementById('ground-skip');
+
+let calmReturn = 'phrases'; // куда вернуться, когда станет легче
+let calmTimer = null;
+let calmPhase = 0;
+let calmRound = 1;
+let groundIndex = 0;
+let groundFound = 0;
+let groundTimer = null;
+
+// Показываем нужный шаг сценария.
+function calmGo(step) {
+  Object.keys(calmStepEls).forEach(function (key) {
+    calmStepEls[key].hidden = key !== step;
+  });
+  calmProgressEl.textContent = 'Шаг ' + (CALM_ORDER.indexOf(step) + 1) + ' из ' + CALM_ORDER.length;
+
+  if (step === 'breath') {
+    startCalmBreath();
+  } else {
+    stopCalmBreath();
+  }
+  if (step === 'ground') showSense(0);
+  window.scrollTo(0, 0);
+}
+
+function runCalmPhase() {
+  const phase = CALM_PHASES[calmPhase];
+  calmBreathTextEl.textContent = phase.label;
+  calmBreathCountEl.textContent = 'Круг ' + calmRound + ' из ' + CALM_ROUNDS;
+  calmOrbEl.style.transitionDuration = phase.time + 'ms';
+  calmOrbEl.classList.toggle('big', phase.big);
+
+  calmTimer = setTimeout(function () {
+    calmPhase++;
+    if (calmPhase === CALM_PHASES.length) {
+      calmPhase = 0;
+      calmRound++;
+      if (calmRound > CALM_ROUNDS) {
+        stopCalmBreath();
+        calmBreathTextEl.textContent = 'Ты справилась с этой минутой.';
+        calmBreathCountEl.textContent = 'Нажми «Дальше», когда будешь готова';
+        return;
+      }
+    }
+    runCalmPhase();
+  }, phase.time);
+}
+
+function startCalmBreath() {
+  stopCalmBreath();
+  calmPhase = 0;
+  calmRound = 1;
+  runCalmPhase();
+}
+
+function stopCalmBreath() {
+  clearTimeout(calmTimer);
+  calmTimer = null;
+  clearTimeout(groundTimer);
+  groundTimer = null;
+  calmOrbEl.style.transitionDuration = '1500ms';
+  calmOrbEl.classList.remove('big');
+}
+
+// Один шаг заземления: цифра, подсказка и кружки, которые загораются по одному.
+function showSense(index) {
+  groundIndex = index;
+  groundFound = 0;
+  const sense = GROUNDING[index];
+  groundNumEl.textContent = sense.n;
+  groundTitleEl.textContent = sense.title;
+  groundTextEl.textContent = sense.text;
+  groundDotsEl.innerHTML = '';
+  for (let i = 0; i < sense.n; i++) {
+    groundDotsEl.append(document.createElement('li'));
+  }
+  groundStatusEl.textContent = 'Нашла 0 из ' + sense.n;
+  groundFoundBtn.disabled = false;
+}
+
+function nextSense() {
+  clearTimeout(groundTimer);
+  groundTimer = null;
+  if (groundIndex + 1 < GROUNDING.length) {
+    showSense(groundIndex + 1);
+  } else {
+    calmGo('pass');
+  }
+}
+
+groundFoundBtn.addEventListener('click', function () {
+  const dots = groundDotsEl.children;
+  if (groundFound >= dots.length) return;
+  dots[groundFound].classList.add('lit');
+  groundFound++;
+  groundStatusEl.textContent = 'Нашла ' + groundFound + ' из ' + dots.length;
+  if (groundFound === dots.length) {
+    // Даём секунду увидеть, что все огоньки зажглись, и идём дальше.
+    groundFoundBtn.disabled = true;
+    groundTimer = setTimeout(nextSense, 800);
+  }
+});
+
+groundSkipBtn.addEventListener('click', nextSense);
+calmBreathNextBtn.addEventListener('click', function () { calmGo('ground'); });
+document.getElementById('calm-again').addEventListener('click', function () { calmGo('breath'); });
+document.getElementById('calm-close').addEventListener('click', function () { show(calmReturn); });
+
+document.getElementById('calm-better').addEventListener('click', function () {
+  show(calmReturn);
+  setTimeout(function () {
+    showToastText('Ты справилась. Не торопись, побудь ещё немного в тишине.');
+  }, 400);
+});
+
+// ---------- Поговорить с мыслью ----------
+
+const THOUGHT_DRAFT_KEY = 'thoughtDraft';
+const THOUGHT_DIARY_KEY = 'thoughtDiary';
+const THOUGHT_STEPS = 6;
+
+const FEELINGS = ['Тревога', 'Грусть', 'Страх', 'Одиночество', 'Стыд', 'Вина', 'Злость', 'Обида', 'Пустота', 'Бессилие'];
+
+// Ловушки мышления — простыми словами. starter — подсказка для новой мысли.
+const TRAPS = [
+  { id: 'all', name: 'Всё или ничего', example: '«Если не идеально, значит, провал»', starter: 'Между «идеально» и «провал» много всего. На самом деле…' },
+  { id: 'catastrophe', name: 'Катастрофа', example: 'Ждать самого плохого: «Всё рухнет, я не выдержу»', starter: 'Плохое возможно, но вероятнее, что…' },
+  { id: 'mind', name: 'Чтение мыслей', example: 'Быть уверенной, что знаешь, что о тебе думают', starter: 'Я не знаю точно, что думают другие. Может быть…' },
+  { id: 'label', name: 'Ярлык', example: '«Я неудачница» вместо «мне сейчас трудно»', starter: 'Я не ярлык. Мне сейчас трудно, и при этом я…' },
+  { id: 'always', name: 'Всегда и никогда', example: '«Так будет всегда», «меня никогда не полюбят»', starter: 'Сейчас кажется, что так будет всегда, но…' },
+  { id: 'should', name: 'Я должна', example: 'Жёсткие правила к себе: «я должна справляться сама»', starter: 'Я не обязана со всем справляться одна. Мне можно…' },
+  { id: 'blame', name: 'Всё из-за меня', example: 'Брать на себя вину за то, что зависит не только от тебя', starter: 'Это зависело не только от меня. Я сделала, что могла, и…' }
+];
+
+// Подсказки, которые подходят к любой мысли.
+const BASE_REFRAMES = [
+  'Это мысль, а не факт.',
+  'Мне сейчас больно, поэтому кажется, что…',
+  'Даже если это правда, я всё равно…',
+  'Я уже справлялась с трудным, и…'
+];
+
+// Слова, при которых бережно показываем, куда позвонить.
+const CARE_WORDS = /не\s*хочу\s*(больше\s*)?жить|покончить|убить\s*себя|умереть|суицид|самоубий|не\s*проснуться|лучше\s*бы\s*меня\s*не\s*было|навредить\s*себе|причинить\s*себе/i;
+
+const thoughtCardEl = document.getElementById('thought-card');
+const thoughtProgressEl = document.getElementById('thought-progress');
+const thoughtStepEls = document.querySelectorAll('.thought-step');
+const thoughtFields = document.querySelectorAll('#thought-card [data-field]');
+const thoughtBackBtn = document.getElementById('thought-back');
+const thoughtNextBtn = document.getElementById('thought-next');
+const thoughtRestartBtn = document.getElementById('thought-restart');
+const thoughtCareEl = document.getElementById('thought-care');
+const thoughtFeelingsEl = document.getElementById('th-feelings');
+const thoughtTrapsEl = document.getElementById('th-traps');
+const thoughtStartersEl = document.getElementById('th-starters');
+const thoughtResultEl = document.getElementById('thought-result');
+const thoughtsBlockEl = document.getElementById('thoughts-block');
+const thoughtsListEl = document.getElementById('thoughts-list');
+
+function loadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function storeJSON(key, value) {
+  try {
+    if (value === null) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  } catch (error) {
+    // Если память недоступна, просто ничего не сохраняем.
+  }
+}
+
+function emptyDraft() {
+  return { step: 0, thought: '', before: 7, feelings: [], traps: [], pro: '', con: '', friend: '', reframe: '', after: null };
+}
+
+// Черновик хранится, пока разговор не закончен: можно уйти и вернуться.
+let draft = loadJSON(THOUGHT_DRAFT_KEY, null) || emptyDraft();
+let diary = loadJSON(THOUGHT_DIARY_KEY, []);
+let expandedThought = null;
+
+function saveDraft() {
+  storeJSON(THOUGHT_DRAFT_KEY, draft);
+  thoughtRestartBtn.hidden = !draftHasContent();
+}
+
+function draftHasContent() {
+  return Boolean(draft.thought || draft.pro || draft.con || draft.friend || draft.reframe
+    || draft.feelings.length || draft.traps.length);
+}
+
+function beliefText(value) {
+  return value + ' из 10';
+}
+
+function trapById(id) {
+  return TRAPS.find(function (trap) { return trap.id === id; });
+}
+
+// Кнопка-переключатель для чувства или ловушки.
+function makeToggle(className, pressed, onToggle) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = className;
+  button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+  button.addEventListener('click', function () {
+    const now = button.getAttribute('aria-pressed') !== 'true';
+    button.setAttribute('aria-pressed', now ? 'true' : 'false');
+    onToggle(now);
+  });
+  return button;
+}
+
+function toggleInList(list, value, on) {
+  const rest = list.filter(function (item) { return item !== value; });
+  if (on) rest.push(value);
+  return rest;
+}
+
+function renderFeelings() {
+  thoughtFeelingsEl.innerHTML = '';
+  FEELINGS.forEach(function (feeling) {
+    const button = makeToggle('chip', draft.feelings.includes(feeling), function (on) {
+      draft.feelings = toggleInList(draft.feelings, feeling, on);
+      saveDraft();
+    });
+    button.textContent = feeling;
+    thoughtFeelingsEl.append(button);
+  });
+}
+
+function renderTraps() {
+  thoughtTrapsEl.innerHTML = '';
+  TRAPS.forEach(function (trap) {
+    const button = makeToggle('trap', draft.traps.includes(trap.id), function (on) {
+      draft.traps = toggleInList(draft.traps, trap.id, on);
+      saveDraft();
+    });
+    const name = document.createElement('strong');
+    name.textContent = trap.name;
+    const example = document.createElement('span');
+    example.textContent = trap.example;
+    button.append(name, example);
+    thoughtTrapsEl.append(button);
+  });
+}
+
+// Вставляем подсказку в конец поля новой мысли.
+function insertReframe(text) {
+  const field = document.getElementById('th-reframe');
+  const current = field.value;
+  const separator = current && !/\s$/.test(current) ? ' ' : '';
+  // Многоточие на подсказке только показывает, что фразу нужно продолжить, в текст его не ставим.
+  field.value = current + separator + text.replace(/…$/, '') + ' ';
+  draft.reframe = field.value;
+  saveDraft();
+  field.focus({ preventScroll: true });
+  const end = field.value.length;
+  field.setSelectionRange(end, end);
+  field.scrollTop = field.scrollHeight;
+}
+
+// Подсказки для новой мысли: сначала под выбранные ловушки, потом общие.
+// Если человек написал слова для подруги, первой идёт подсказка взять их себе.
+function renderReframeStarters() {
+  thoughtStartersEl.innerHTML = '';
+  const items = [];
+  if (draft.friend.trim()) {
+    items.push({ label: 'Сказать себе то же, что подруге', insert: draft.friend.trim() });
+  }
+  draft.traps.forEach(function (id) {
+    const trap = trapById(id);
+    if (trap) items.push({ label: trap.starter, insert: trap.starter });
+  });
+  BASE_REFRAMES.forEach(function (text) {
+    items.push({ label: text, insert: text });
+  });
+
+  items.forEach(function (item) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'starter';
+    button.textContent = item.label;
+    button.addEventListener('click', function () {
+      insertReframe(item.insert);
+      button.classList.add('used');
+    });
+    thoughtStartersEl.append(button);
+  });
+  thoughtStartersEl.scrollLeft = 0;
+}
+
+// Переносим черновик в поля формы.
+function fillThoughtFields() {
+  thoughtFields.forEach(function (field) {
+    const key = field.dataset.field;
+    if (field.type === 'range') {
+      const value = draft[key] === null ? draft.before : draft[key];
+      field.value = value;
+      document.getElementById(field.id + '-out').textContent = beliefText(value);
+    } else {
+      field.value = draft[key] || '';
+    }
+  });
+  renderFeelings();
+  renderTraps();
+}
+
+function checkThoughtCare() {
+  const text = [draft.thought, draft.pro, draft.con, draft.friend, draft.reframe].join(' ');
+  thoughtCareEl.hidden = !CARE_WORDS.test(text);
+}
+
+function renderThoughtStep() {
+  const step = draft.step;
+  thoughtStepEls.forEach(function (el) {
+    el.hidden = Number(el.dataset.step) !== step;
+  });
+  thoughtProgressEl.textContent = 'Шаг ' + (step + 1) + ' из ' + THOUGHT_STEPS;
+  thoughtBackBtn.hidden = step === 0;
+  thoughtNextBtn.textContent = step === THOUGHT_STEPS - 1 ? 'Готово' : 'Дальше';
+
+  if (step === THOUGHT_STEPS - 1) {
+    if (draft.after === null) {
+      draft.after = draft.before;
+      saveDraft();
+    }
+    const afterField = document.getElementById('th-after');
+    afterField.value = draft.after;
+    document.getElementById('th-after-out').textContent = beliefText(draft.after);
+    renderReframeStarters();
+  }
+  thoughtRestartBtn.hidden = !draftHasContent();
+}
+
+thoughtFields.forEach(function (field) {
+  field.addEventListener('input', function () {
+    const key = field.dataset.field;
+    if (field.type === 'range') {
+      draft[key] = Number(field.value);
+      document.getElementById(field.id + '-out').textContent = beliefText(draft[key]);
+    } else {
+      draft[key] = field.value;
+      checkThoughtCare();
+    }
+    saveDraft();
+  });
+});
+
+function scrollToThoughtCard() {
+  const top = thoughtCardEl.getBoundingClientRect().top;
+  if (top < 0) thoughtCardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+thoughtNextBtn.addEventListener('click', function () {
+  if (draft.step === 0 && !draft.thought.trim()) {
+    document.getElementById('th-thought').focus();
+    return;
+  }
+  if (draft.step < THOUGHT_STEPS - 1) {
+    draft.step++;
+    saveDraft();
+    renderThoughtStep();
+    scrollToThoughtCard();
+  } else {
+    finishThought();
+  }
+});
+
+thoughtBackBtn.addEventListener('click', function () {
+  if (draft.step === 0) return;
+  draft.step--;
+  saveDraft();
+  renderThoughtStep();
+  scrollToThoughtCard();
+});
+
+thoughtRestartBtn.addEventListener('click', function () {
+  if (!confirm('Начать заново? Всё, что ты написала в этом разговоре, сотрётся.')) return;
+  draft = emptyDraft();
+  storeJSON(THOUGHT_DRAFT_KEY, null);
+  fillThoughtFields();
+  renderThoughtStep();
+  checkThoughtCare();
+});
+
+// Разговор окончен: сохраняем в дневник и показываем итог.
+function finishThought() {
+  const now = new Date();
+  const entry = {
+    id: String(now.getTime()),
+    date: now.toISOString(),
+    thought: draft.thought.trim(),
+    feelings: draft.feelings,
+    traps: draft.traps,
+    pro: draft.pro.trim(),
+    con: draft.con.trim(),
+    friend: draft.friend.trim(),
+    reframe: draft.reframe.trim(),
+    before: draft.before,
+    after: draft.after === null ? draft.before : draft.after
+  };
+  diary.unshift(entry);
+  storeJSON(THOUGHT_DIARY_KEY, diary);
+
+  draft = emptyDraft();
+  storeJSON(THOUGHT_DRAFT_KEY, null);
+  thoughtRestartBtn.hidden = true;
+
+  document.getElementById('result-old').textContent = '«' + entry.thought + '»';
+  document.getElementById('result-new').textContent = entry.reframe
+    || 'Новые слова пока не нашлись. Это нормально: к этой мысли можно вернуться позже.';
+
+  let beliefLine;
+  if (entry.after < entry.before) {
+    beliefLine = 'Сначала ты верила этой мысли на ' + entry.before + ' из 10, а теперь на ' + entry.after
+      + '. Она стала немного тише.';
+  } else {
+    beliefLine = 'Цифра почти не изменилась, и это нормально. Ты посмотрела на мысль со стороны, а это уже шаг. Иногда мысли затихают не сразу.';
+  }
+  document.getElementById('result-belief').textContent = beliefLine;
+
+  thoughtCardEl.hidden = true;
+  thoughtResultEl.hidden = false;
+  renderThoughts();
+  thoughtResultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('thought-another').addEventListener('click', function () {
+  openThought();
+  window.scrollTo(0, 0);
+});
+
+function addDetail(list, label, text) {
+  if (!text) return;
+  const item = document.createElement('li');
+  const title = document.createElement('strong');
+  title.textContent = label;
+  item.append(title, document.createTextNode(text));
+  list.append(item);
+}
+
+function renderThoughts() {
+  thoughtsListEl.innerHTML = '';
+  thoughtsBlockEl.hidden = diary.length === 0;
+
+  diary.forEach(function (entry) {
+    const item = document.createElement('li');
+    item.className = 'letter-card';
+
+    const meta = document.createElement('p');
+    meta.className = 'letter-meta';
+    meta.textContent = formatDate(entry.date);
+
+    const oldText = document.createElement('p');
+    oldText.className = 'thought-item-old';
+    oldText.textContent = '«' + entry.thought + '»';
+    item.append(meta, oldText);
+
+    if (entry.reframe) {
+      const newText = document.createElement('p');
+      newText.className = 'thought-item-new';
+      newText.textContent = entry.reframe;
+      item.append(newText);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'letter-actions';
+
+    if (expandedThought === entry.id) {
+      const details = document.createElement('ul');
+      details.className = 'thought-details';
+      addDetail(details, 'Чувства', entry.feelings.join(', ').toLowerCase());
+      addDetail(details, 'Ловушки', entry.traps.map(function (id) {
+        const trap = trapById(id);
+        return trap ? trap.name : '';
+      }).filter(Boolean).join(', '));
+      addDetail(details, 'В пользу мысли', entry.pro);
+      addDetail(details, 'Против мысли', entry.con);
+      addDetail(details, 'Слова для подруги', entry.friend);
+      addDetail(details, 'Вера в мысль', 'было ' + beliefText(entry.before) + ', стало ' + beliefText(entry.after));
+      item.append(details);
+      actions.append(makeLink('Свернуть', function () {
+        expandedThought = null;
+        renderThoughts();
+      }));
+    } else {
+      actions.append(makeLink('Подробнее', function () {
+        expandedThought = entry.id;
+        renderThoughts();
+      }));
+    }
+
+    actions.append(makeLink('Удалить', function () {
+      if (!confirm('Удалить этот разговор навсегда?')) return;
+      diary = diary.filter(function (d) { return d.id !== entry.id; });
+      storeJSON(THOUGHT_DIARY_KEY, diary);
+      renderThoughts();
+    }));
+
+    item.append(actions);
+    thoughtsListEl.append(item);
+  });
+}
+
+// Открываем раздел: продолжаем незаконченный разговор или начинаем новый.
+function openThought() {
+  thoughtResultEl.hidden = true;
+  thoughtCardEl.hidden = false;
+  fillThoughtFields();
+  renderThoughtStep();
+  checkThoughtCare();
+  renderThoughts();
+}
+
+// ---------- Карточка о грусти до и после родов ----------
+
+const perinatalCopyBtn = document.getElementById('perinatal-copy');
+
+perinatalCopyBtn.addEventListener('click', function () {
+  const text = document.getElementById('perinatal-quote').textContent;
+  function done() {
+    perinatalCopyBtn.textContent = 'Скопировано ✓';
+    setTimeout(function () { perinatalCopyBtn.textContent = 'Скопировать эти слова'; }, 2000);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(function () { shareText(text); });
+  } else {
+    shareText(text);
+  }
+});
+
 // ---------- Переключение разделов ----------
 
 const views = document.querySelectorAll('.view');
 const tabs = document.querySelectorAll('.tab');
+
+// Какой раздел сейчас на экране.
+let currentView = null;
 
 // Показываем раздел с нужным именем, остальные прячем.
 function show(name) {
   // Уходим с главного экрана — сворачиваем «Чем себе помочь».
   if (name !== 'phrases') setSelfcareOpen(false);
 
-  // На экране первого входа нижнее меню не нужно.
-  tabbarEl.hidden = name === 'start';
+  // На экране первого входа и в тревожном сценарии нижнее меню не нужно:
+  // там важно, чтобы ничего не отвлекало.
+  tabbarEl.hidden = name === 'start' || name === 'calm';
 
   // Если ушли с экрана дыхания, останавливаем упражнение.
   if (name !== 'breath' && breathing) stopBreath();
+
+  // Запоминаем, откуда пришли в тревожный сценарий, чтобы туда же и вернуться.
+  if (name === 'calm' && currentView && currentView !== 'calm' && currentView !== 'start') {
+    calmReturn = currentView;
+  }
+  if (name !== 'calm') stopCalmBreath();
+  currentView = name;
 
   views.forEach(function (view) {
     view.hidden = view.id !== 'view-' + name;
@@ -1310,7 +1903,7 @@ function show(name) {
   // «Сохранённые» живут внутри раздела «Фразы», поэтому подсвечиваем его вкладку.
   let activeTab = name;
   if (name === 'saved' || name === 'about') activeTab = 'phrases';
-  if (name === 'letter') activeTab = 'jar';
+  if (name === 'letter' || name === 'thought') activeTab = 'jar';
   tabs.forEach(function (tab) {
     if (tab.dataset.go === activeTab) {
       tab.setAttribute('aria-current', 'page');
@@ -1332,7 +1925,10 @@ function show(name) {
     resetJarView();
     updateJarCount();
   }
+  if (name === 'thought') openThought();
   window.scrollTo(0, 0);
+  // Тревожный сценарий запускаем после прокрутки: дыхание начинается сразу.
+  if (name === 'calm') calmGo('breath');
 }
 
 // Любая кнопка с атрибутом data-go переключает на свой раздел.
@@ -1453,6 +2049,11 @@ startCounting();
 // Список изменений для каждой версии. Для новой версии добавьте сюда новый блок
 // с тем же номером, что в APP_VERSION, — окно покажется всем один раз.
 const WHATS_NEW = {
+  '1.2': [
+    { icon: '🌊', title: 'Мне сейчас очень тревожно', text: 'Кнопка на главном экране для минут, когда накрывает паника: минута дыхания, пять опор вокруг и напоминание, что это пройдёт.' },
+    { icon: '💬', title: 'Поговорить с мыслью', text: 'Если тяжёлая мысль крутится по кругу, можно спокойно разобрать её по шагам и найти слова бережнее. Ищи во вкладке «Банка».' },
+    { icon: '🌷', title: 'Грусть до и после родов', text: 'В «Помощи» появилась карточка о том, когда грусть во время беременности и после родов — повод сказать врачу, и как подобрать для этого слова.' }
+  ],
   '1.1': [
     { icon: '🔥', title: 'Треск камина', text: 'Значок огонька на главном экране и на экране дыхания включает тихий треск камина.' },
     { icon: '✉️', title: 'Письмо себе в будущее', text: 'Напиши себе сейчас и прочитай через неделю, месяц или год. Есть подсказки, с чего начать. Ищи во вкладке «Банка».' },
