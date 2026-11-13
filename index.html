@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Literata:ital@0;1&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
   <!-- ?v=… — номер обновления: меняйте его вместе с файлами, чтобы iPhone не брал старую копию -->
-  <link rel="stylesheet" href="style.css?v=1.2.0">
+  <link rel="stylesheet" href="style.css?v=1.2.1">
   <!-- Заранее загружаем картинки бумаги, чтобы записка и письмо появлялись сразу, без мигания -->
   <link rel="preload" as="image" href="note2.webp">
   <link rel="preload" as="image" href="paper.webp">
@@ -487,6 +487,9 @@
     <!-- Временная плашка «ты не одна» -->
     <div class="toast" id="people-toast" role="status" hidden></div>
 
+    <!-- Сколько раз за месяц открывали приложение — видна внизу каждого экрана -->
+    <p class="together" id="together" hidden></p>
+
     <!-- Подпись автора — видна внизу каждого экрана -->
     <p class="credit">Created by Irina Dobroslavskaya · v<span data-version>1.0</span></p>
 
@@ -511,6 +514,6 @@
     </nav>
 
   </div>
-  <script src="script.js?v=1.2.0"></script>
+  <script src="script.js?v=1.2.1"></script>
 </body>
 </html>
