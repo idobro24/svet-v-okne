@@ -2167,11 +2167,17 @@ body.typing .tabbar {
 
 .night-tip p {
   margin: 0;
-  min-height: 4.5em;
+  min-height: 4.5em; /* точная высота по самому длинному совету ставится из script.js */
   font-family: 'Literata', Georgia, serif;
   font-size: 18px;
   line-height: 1.5;
   color: #F6E7CF;
+  /* Плавная смена совета: меняется только прозрачность */
+  transition: opacity 0.4s ease;
+}
+
+.night-tip p.fading {
+  opacity: 0;
 }
 
 .night-bye {

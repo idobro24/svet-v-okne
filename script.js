@@ -2243,16 +2243,50 @@ const nightEntryEl = document.getElementById('night-entry');
 let nightDeck = [];
 let nightIndex = 0;
 
+let nightFading = false;
+
+// Высота блока с советом — по самому длинному совету.
+// Тогда при смене короткого и длинного совета экран под ним не прыгает.
+function fitNightTipHeight() {
+  if (nightTipEl.offsetParent === null) return; // раздел не на экране — измерить нельзя
+  const current = nightTipEl.textContent;
+  let max = 0;
+  nightTipEl.style.minHeight = '0';
+  nightDeck.forEach(function (tip) {
+    nightTipEl.textContent = tip.text;
+    max = Math.max(max, nightTipEl.offsetHeight);
+  });
+  nightTipEl.textContent = current;
+  nightTipEl.style.minHeight = max + 'px';
+}
+
 function openNight() {
   nightDeck = shuffle(NIGHT_TIPS.filter(fitsProfile));
   nightIndex = 0;
+  nightFading = false;
+  nightTipEl.classList.remove('fading');
   nightTipEl.textContent = nightDeck[0].text;
+  fitNightTipHeight();
 }
 
+// Советы сменяются плавно: старый тает, новый проявляется.
 document.getElementById('night-next').addEventListener('click', function () {
-  nightIndex = (nightIndex + 1) % nightDeck.length;
-  nightTipEl.textContent = nightDeck[nightIndex].text;
+  if (nightFading) return;
+  nightFading = true;
+  nightTipEl.classList.add('fading');
+  setTimeout(function () {
+    nightIndex = (nightIndex + 1) % nightDeck.length;
+    nightTipEl.textContent = nightDeck[nightIndex].text;
+    nightTipEl.classList.remove('fading');
+    nightFading = false;
+  }, 400);
 });
+
+// Когда догрузится шрифт или повернут экран, строки ложатся иначе — пересчитываем высоту.
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(fitNightTipHeight);
+}
+window.addEventListener('resize', fitNightTipHeight);
 
 // Приглашение в ночной режим на главном экране — с 23:00 до 5:00.
 function updateNightEntry() {
