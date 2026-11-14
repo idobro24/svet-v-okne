@@ -2447,6 +2447,60 @@ peopleToastEl.addEventListener('click', hidePeopleToast);
 
 startCounting();
 
+// ---------- Самообновление для приложения на домашнем экране ----------
+
+// iPhone долго хранит старый index.html у приложения с домашнего экрана,
+// а переустанавливать нельзя: вместе с иконкой удаляются все записи.
+// Поэтому при открытии тихо спрашиваем у сайта свежий index.html (мимо кэша)
+// и сравниваем номер ?v= у script.js. Если на сайте новее — перезагружаемся
+// по адресу с этим номером: новый адрес телефон точно возьмёт с сервера.
+// Записи хранятся в localStorage сайта и от перезагрузки никуда не деваются.
+const UPDATE_TRIED_KEY = 'updateTried';
+
+function currentBuild() {
+  const tag = document.querySelector('script[src*="script.js"]');
+  const match = tag && tag.getAttribute('src').match(/v=([\d.]+)/);
+  return match ? match[1] : '';
+}
+
+function checkForUpdate() {
+  if (location.protocol === 'file:') return; // проверка на компьютере из папки
+  const mine = currentBuild();
+  if (!mine) return;
+
+  fetch(location.pathname + '?check=' + Date.now(), { cache: 'no-store' })
+    .then(function (response) {
+      if (!response.ok) throw new Error('index.html не получен');
+      return response.text();
+    })
+    .then(function (html) {
+      const match = html.match(/script\.js\?v=([\d.]+)/);
+      const fresh = match ? match[1] : '';
+      if (!fresh || fresh === mine) return;
+
+      // Защита от бесконечной перезагрузки: одну и ту же версию пробуем один раз.
+      let tried = '';
+      try { tried = sessionStorage.getItem(UPDATE_TRIED_KEY) || ''; } catch (error) {}
+      if (tried === fresh) return;
+      try { sessionStorage.setItem(UPDATE_TRIED_KEY, fresh); } catch (error) {}
+
+      // Не перебиваем тревожный сценарий: обновимся при следующем открытии.
+      if (currentView === 'calm') return;
+
+      location.replace(location.pathname + '?v=' + fresh + location.hash);
+    })
+    .catch(function () {
+      // Нет интернета — работаем с тем, что есть.
+    });
+}
+
+setTimeout(checkForUpdate, 1500);
+
+// Вернулись в свёрнутое приложение — тоже проверяем.
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) checkForUpdate();
+});
+
 // ---------- Плашка «за месяц свет в окне зажгли уже N человек» ----------
 
 // Плашку показываем, только если за месяц набралось хотя бы столько людей,
